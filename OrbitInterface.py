@@ -28,7 +28,7 @@ menuUpdate = ["Space Track","Arquivo de elementos"]
 choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate)
 if choiceUpdate == "Space Track":
 	SpaceTrackLoguin = st.sidebar.text_input('Space Track loguin',"francisval20@yahoo.com.br")
-	SpaceTracksenha = st.sidebar.text_input('Space Track senha',"4mQivHD4CU934ZV")
+	SpaceTracksenha = st.sidebar.text_input('Space Track senha',"senha")
 
 	#st.sidebar.markdown("Lista de NORAD_ID a propagar:")
 	data_norad = st.sidebar.file_uploader("Carregar lista de NORAD_ID candidatos",type=['txt'])
