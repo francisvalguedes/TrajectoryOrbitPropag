@@ -111,6 +111,13 @@ def rumm(localizacao,
 
     lc = LocalFrame(localizacao["latitude"], localizacao["longitude"], localizacao["altura"])
 
+    # Apaga arquivos de resultado
+    dellfiles('results/*.tle')
+    dellfiles('results/*.trn')
+    dellfiles('results/*.txt')
+    dellfiles('results/*.json')
+    dellfiles('results/*.csv')
+
     print('iniciando propagação')
 
     #Inicializa listas de armazenamento de informação relevantes dos objetos
@@ -198,13 +205,6 @@ def rumm(localizacao,
 
     for i in range(0, len(sel_satnum)):
         print([sel_satnum[i], sel_h0[i], sel_dist_h0[i], sel_dist_min[i], sel_dist_hf[i] ])
-
-    # Apaga arquivos de resultado
-    dellfiles('results/*.tle')
-    dellfiles('results/*.trn')
-    dellfiles('results/*.txt')
-    dellfiles('results/*.json')
-    dellfiles('results/*.csv')
 
     writetle("results/" + "3le.txt", sel_3le)
 
