@@ -24,14 +24,14 @@ st.subheader('**Saídas:**')
 
 # Seleção do modo de atualização dos elementos orbitais
 st.sidebar.title("Elementos orbitais:")
-menuUpdate = ["Space Track","Arquivo de elementos"]
+menuUpdate = ["Space-Track","Arquivo de elementos"]
 choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate)
-if choiceUpdate == "Space Track":
-	SpaceTrackLoguin = st.sidebar.text_input('Space Track loguin',"francisval20@yahoo.com.br")
-	SpaceTracksenha = st.sidebar.text_input('Space Track senha',"senha")
+if choiceUpdate == "Space-Track":
+	SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:',"francisval20@yahoo.com.br")
+	SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
 
 	#st.sidebar.markdown("Lista de NORAD_ID a propagar:")
-	data_norad = st.sidebar.file_uploader("Carregar lista de NORAD_ID candidatos",type=['txt'])
+	data_norad = st.sidebar.file_uploader("Carregar lista de NORAD_ID candidatos:",type=['txt'], help='Arquivo de texto com uma unica coluna com os numeros NORAD_ID')
 	if st.sidebar.button("Atualizar Elementos"):
 		if data_norad is not None:
 			st.markdown('Arquivo de NORAD_IDS carregado:')
@@ -42,7 +42,7 @@ if choiceUpdate == "Space Track":
 			df_norad_ids = data.decode("UTF-8").strip().splitlines()
 			st.dataframe(df_norad_ids)
 			elem_json = update_elements(df_norad_ids,SpaceTrackLoguin,SpaceTracksenha)
-			st.markdown('Elementos orbitais obtidos do Space Track:')
+			st.markdown('Elementos orbitais obtidos do Space-Track:')
 			st.dataframe(elem_json)		
 		else:
 			st.markdown("arquivo não carregado")
@@ -89,15 +89,15 @@ elif choiceUpdate == "Arquivo de elementos":
 st.sidebar.title("Configurações")
 
 # Seleção do tempo de amostragem
-sample_time = st.sidebar.number_input('Taxa de amostragem (s)', 0.1, 10.0, 1.0, step = 0.1)
+sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0, step = 0.1)
 st.write('Taxa de amostragem (s): ', sample_time)
 
 # Seleção do modo de obtenção das trajetórias
 menu = ["Automático","Manual"]
-choice = st.sidebar.selectbox("Modo:",menu)
+choice = st.sidebar.selectbox("Modo de busca da trajetória:",menu)
 
 if choice == "Automático":
-	conftragetoria = 0
+	conftrajetoria = 0
  
 	dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
 		min_value = 400,
@@ -130,7 +130,7 @@ if choice == "Automático":
 	st.write('Momento do final da busca: ', final_datetime)
 
 elif choice == "Manual":
-	conftragetoria = 1
+	conftrajetoria = 1
 	st.sidebar.subheader("Manual")
 	data_conf = st.sidebar.file_uploader("Upload configuração manual de H0",type=['csv'])
 	if st.sidebar.button("Carregar configuração manual"):
@@ -144,14 +144,6 @@ elif choice == "Manual":
 else:
 	print("erro")
 
-# Entrada de localização
-
-st.markdown("Localização Geodésica WGS84 do referencial local:")
-st.sidebar.title("Localização Geodésica WGS84:")
-latitude = st.sidebar.number_input('Latitude',-90.0, 90.0, 0.0, format="%.5f")
-longitude = st.sidebar.number_input('longitude', -180.0, 80.0, 0.0, format="%.5f")
-altura = st.sidebar.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
-nomeLoc = st.sidebar.text_input('Nome',"my location")
 
 # Salvar a localização
 
@@ -160,12 +152,8 @@ with open("confLocalWGS84.json", 'r') as fp:
 # with open("confLocalWGS84.json", "wt") as fp:
 #     json.dump(loc, fp)
 # lc = LocalFrame(-5.92256, -35.1615, 32.704)
-if st.sidebar.button("Gravar localização"):
-    localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
-    if nomeLoc not in list(map(str, [row["Nome"] for row in loc])):
-        loc.append(localiz)
-        with open("confLocalWGS84.json", "wt") as fp:
-            json.dump(loc, fp)
+st.markdown("Localização Geodésica WGS84 do referencial local:")
+st.sidebar.title("Localização Geodésica WGS84:")
 
 menuloc = list(map(str, [row["Nome"] for row in loc]))
 choiceLoc = st.sidebar.selectbox("local:",menuloc)
@@ -174,13 +162,38 @@ for sel in menuloc:
 		localizacao = loc[menuloc.index(choiceLoc)]
 		print(localizacao)
 
-if st.sidebar.button("Apagar localização"):
+#st.sidebar.markdown("Gravar nova localização:")
+my_expander = st.sidebar.expander("Gerenciar localização:", expanded=False)
+
+my_expander.markdown("Apagar localização selecionada:")
+if my_expander.button("Apagar selecionada"):
     if localizacao["Nome"] in list(map(str, [row["Nome"] for row in loc])):
-        del loc[menuloc.index(choiceLoc)]
+        del loc[menuloc.index(choiceLoc)]		
         print("apagar",loc)
         with open("confLocalWGS84.json", "wt") as fp:
             json.dump(loc, fp)
-        #st._update_logger()
+        # st._update_logger()
+
+# Entrada de localização
+my_expander.markdown("Gerar uma nova localização:")
+# col1, col2 = my_expander.columns(2)
+# col1, col2 = my_expander.columns(2)
+
+# latitude = col21.number_input('Latitude',-90.0, 90.0, 0.0, format="%.5f")
+# longitude = col22.number_input('longitude', -180.0, 80.0, 0.0, format="%.5f")
+# altura = col12.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
+# nomeLoc = col11.text_input('Nome',"my location")
+nomeLoc = my_expander.text_input('Nome',"my location")
+latitude = my_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.5f")
+longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.5f")
+altura = my_expander.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
+
+if my_expander.button("Gravar nova localização"):
+    localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
+    if nomeLoc not in list(map(str, [row["Nome"] for row in loc])):
+        loc.append(localiz)
+        with open("confLocalWGS84.json", "wt") as fp:
+            json.dump(loc, fp)
 
 st.write('Nome: ', localizacao["Nome"])
 st.write('latitude: ', localizacao["latitude"])
@@ -189,11 +202,11 @@ st.write('altura: ', localizacao["altura"])
 
 st.sidebar.title("Executar:")
 
-if st.sidebar.button("Rodar"):
-	if conftragetoria==0:
-		rumm(localizacao,initial_datetime,final_datetime,sample_time,conftragetoria,dmin*1000,dmax*1000)
+if st.sidebar.button("Calcular trajetórias"):
+	if conftrajetoria==0:
+		rumm(localizacao,sample_time,conftrajetoria,initial_datetime,final_datetime,dmin*1000,dmax*1000)
 	else:
-		rumm(localizacao,sample_time=sample_time ,conftragetoria=conftragetoria)
+		rumm(localizacao,sample_time ,conftrajetoria)
 	
 	df = pd.read_csv("results/" + 'planilhapy.csv')
 	st.dataframe(df)

@@ -1,6 +1,6 @@
 from re import split
 from spacetrack import SpaceTrackClient
-from astropy.time import Time # astropy==4.3.1
+from astropy.time import Time
 import time
 from io_functions import LocalFrame, noradfileread, writetrn,  writedots, writetle,\
     dellfiles, dellfile, ConfRead, writecsvdata, write2csvdata, writecsvconf, TrnH0FileRead, T32leFileRead, RcsRead
@@ -13,15 +13,9 @@ from sgp4 import omm
 from sgp4.api import Satrec
 
 
-# class Sistem:
-#     def __init__(self, satellite, lc, sample_time=1):
-#         self.satellite = satellite
-
-    # def Rumm(self, t_inic):
-    #     tvar = t_inic
-    #     return self
-
-
+# ----------------------------------------------------------------------
+# Atualiza a ultima versão dos elementos orbitais no site do Space-Track
+# ----------------------------------------------------------------------
 def update_elements(norad_ids, loguin, password):
     st = SpaceTrackClient(identity=loguin, password=password)
     tlevec_json = st.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='json')
@@ -34,41 +28,21 @@ def update_elements(norad_ids, loguin, password):
     # for line in tlevec_json:
     #     theele = theele + line["TLE_LINE0"] +'\n'+ line["TLE_LINE1"] +'\n'+ line["TLE_LINE2"] +'\n' 
     # writetle("conftle.txt", theele)
-    return  tlevec_json   
-
+    return  tlevec_json  
+ 
+# ----------------------------------------------------------------------
+# Atualiza a ultima versão dos elementos orbitais no site do Space-Track
+# ----------------------------------------------------------------------
 def rumm(localizacao,
-         t_inic=Time('2021-11-26T13:00:00.000', format='isot'),
-         t_final= Time('2021-11-26T15:10:00.000', format='isot'),
-         sample_time = 1,
-         conftragetoria = 0 ,
-         dist_min_in = 1000000,       # distância de início da tragetória em m
-         dist_min = 900000           # máxima distância ao ponto mais próximo da tragetória em m
+         sample_time = 1,           # tempo de amostragem em segundos
+         conftrajetoria = 0 ,       # 0 - Procura H0 e gera trajetórias
+                                    # 1 - gera trajetórias a partir das configurações confH0
+         t_inic=Time('2021-11-26T13:00:00.000', format='isot'),     # momento de inicio da busca
+         t_final= Time('2021-11-26T15:10:00.000', format='isot'),   # momento de parar a busca
+         dist_min_in = 1000000,     # distância de início da trajetória em m
+         dist_min = 900000          # máxima distância ao ponto mais próximo da trajetória em m
          ):
-    # ----------------------------------------------------------------------
-    # Configurações
-
-    # confElements =   'json' # 'tle' ou 'json'
-
-    # confupdate = 0    # 0 - não atualiza TLEs
-                        # 1 - atualiza TLEs
-
-    # conftragetoria = 0    # 0 - Procura H0 e gera tragetórias
-                            # 1 - gera tragetórias a partir das configurações confH0
-
-    #sample_time = 1     # Tempo de amostragem desejado para a tragetória
-
-    # tempo de busca por tragetórias viáveis conftragetoria = 0
-    # t_inic = Time.strptime('2021-11-26 13:00:00', '%Y-%m-%d %H:%M:%S')
-    # t_inic = Time('2021-11-26T13:00:00.000', format='isot')
-
-    # t_final = Time('2021-11-26T15:10:00.000', format='isot')
-
-    # dist_min_in = 1000000       # distância de início da tragetória em m
-    # dist_min = 900000           # máxima distância ao ponto mais próximo da tragetória em m
-
-    # ----------------------------------------------------------------------
-    # Fim das configurações
-
+ 
     # Ler as configurações
     ini = time.time()
 
@@ -84,16 +58,6 @@ def rumm(localizacao,
         except OSError as e:
             print(f"Error:{e.strerror}"+"ao ler o arquivo conftle.txt")
 
-
-    # if (confElements == 'json') :
-    #     with open('confElem.json', 'r') as fp:
-    #         tlevec_json = json.load(fp)
-    #     len_satt = len(tlevec_json)
-    #     theele = ''
-    #     for line in tlevec_json:
-    #         theele = theele + line["TLE_LINE0"] +'\n'+ line["TLE_LINE1"] +'\n'+ line["TLE_LINE2"] +'\n' 
-    #     writetle("conftle.txt", theele)
-
     if (confElements == 'json'):
         len_satt = len(tlevec_json)
         # theele = ''
@@ -104,7 +68,7 @@ def rumm(localizacao,
         tle = T32leFileRead('conftle.txt')
         len_satt = len(tle.l2)
 
-    if conftragetoria == 1:
+    if conftrajetoria == 1:
         confh0 = ConfRead('results/' + 'confH0.csv')
 
     rcs = RcsRead("RCS.csv")
@@ -136,7 +100,7 @@ def rumm(localizacao,
     sel_rcs = []
     sel_json = []
 
-    # verificar possivel bug quando conftragetoria = 1 e tiver mais de uma trajetória por objeto
+    # verificar possivel bug quando conftrajetoria = 1 e tiver mais de uma trajetória por objeto
     for idx in range(0, len_satt): # len(tle.satellite)
         if confElements == 'tle':
             satellite = Satrec.twoline2rv(tle.l1[idx], tle.l2[idx])
@@ -147,13 +111,13 @@ def rumm(localizacao,
             print("confElements deve ser 'tle' ou 'json'")    
             break
 
-        if conftragetoria == 0:
+        if conftrajetoria == 0:
             print(satellite.satnum)
             print(t_inic.value)
             print(t_final.value)
             propag = PropagInit(satellite, lc, sample_time)
             pos = propag.searchh0(t_inic, t_final, dist_min_in, dist_min, 10000)
-        elif (conftragetoria == 1) and (satellite.satnum in confh0.satnum):
+        elif (conftrajetoria == 1) and (satellite.satnum in confh0.satnum):
             propag = PropagInit(satellite, lc, sample_time)
             for i in range(0, len(confh0.satnum)):
                 if confh0.satnum[i] == satellite.satnum:
@@ -162,10 +126,9 @@ def rumm(localizacao,
             print(confh0.h0[i])
             pos = propag.orbitpropag(confh0.h0[i], confh0.hrf[i])
 
-        if (conftragetoria == 0) or (satellite.satnum in confh0.satnum):
+        if (conftrajetoria == 0) or (satellite.satnum in confh0.satnum):
             for i in range(0, len(pos.traj)):
                 # writetle("results/" + str(satellite.satnum) + ".tle", tle.l1[idx] + "\n" + tle.l2[idx])
-
                 if confElements == 'tle':
                     sel_3le = sel_3le +  tle.l0[idx] + "\n" + tle.l1[idx]  + "\n" + tle.l2[idx] + "\n"
                     sel_name.append(tle.l0[idx][2:])
@@ -222,7 +185,3 @@ def rumm(localizacao,
     fim = time.time()
     print("Tempo: ", fim - ini)
     return 0
-
-   
-
-
