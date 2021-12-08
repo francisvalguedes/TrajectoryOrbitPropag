@@ -12,12 +12,12 @@ from LocalSgp4PropagSistem import update_elements, rumm
 
 from io_functions import dellfile, writetle, read_json
 
-
+# def main():
 st.title("Propagador SGP4")
 
 st.subheader('**Propagação de orbita e geração de trajetória para radar de trajetografia**')
 st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra e traça um intervalo \
-     de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
+	de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
 st.markdown('Por: Francisval Guedes Soares, Email: francisval20@yahoo.com.br')
 
 st.subheader('**Saídas:**')
@@ -98,7 +98,7 @@ choice = st.sidebar.selectbox("Modo de busca da trajetória:",menu)
 
 if choice == "Automático":
 	conftrajetoria = 0
- 
+
 	dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
 		min_value = 400,
 		max_value = 10000,
@@ -148,7 +148,7 @@ else:
 # Salvar a localização
 
 with open("confLocalWGS84.json", 'r') as fp:
-    loc = json.load(fp)
+	loc = json.load(fp)
 # with open("confLocalWGS84.json", "wt") as fp:
 #     json.dump(loc, fp)
 # lc = LocalFrame(-5.92256, -35.1615, 32.704)
@@ -167,12 +167,12 @@ my_expander = st.sidebar.expander("Gerenciar localização:", expanded=False)
 
 my_expander.markdown("Apagar localização selecionada:")
 if my_expander.button("Apagar selecionada"):
-    if localizacao["Nome"] in list(map(str, [row["Nome"] for row in loc])):
-        del loc[menuloc.index(choiceLoc)]		
-        print("apagar",loc)
-        with open("confLocalWGS84.json", "wt") as fp:
-            json.dump(loc, fp)
-        # st._update_logger()
+	if localizacao["Nome"] in list(map(str, [row["Nome"] for row in loc])):
+		del loc[menuloc.index(choiceLoc)]		
+		print("apagar",loc)
+		with open("confLocalWGS84.json", "wt") as fp:
+			json.dump(loc, fp)
+		# st._update_logger()
 
 # Entrada de localização
 my_expander.markdown("Gerar uma nova localização:")
@@ -189,11 +189,11 @@ longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.5
 altura = my_expander.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
 
 if my_expander.button("Gravar nova localização"):
-    localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
-    if nomeLoc not in list(map(str, [row["Nome"] for row in loc])):
-        loc.append(localiz)
-        with open("confLocalWGS84.json", "wt") as fp:
-            json.dump(loc, fp)
+	localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
+	if nomeLoc not in list(map(str, [row["Nome"] for row in loc])):
+		loc.append(localiz)
+		with open("confLocalWGS84.json", "wt") as fp:
+			json.dump(loc, fp)
 
 st.write('Nome: ', localizacao["Nome"])
 st.write('latitude: ', localizacao["latitude"])
@@ -221,3 +221,5 @@ with open("results.zip", "rb") as fp:
 		mime="application/zip"
 	)
 
+# if __name__== '__main__':
+# 	main()
