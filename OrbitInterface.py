@@ -10,7 +10,7 @@ from astropy.time import Time
 
 from LocalSgp4PropagSistem import update_elements, rumm
 
-from io_functions import dellfile, writetle, read_json
+from io_functions import dellfile, noradfileread
 
 # def main():
 st.title("Propagador SGP4") #
@@ -24,14 +24,16 @@ st.subheader('**Saídas:**')
 
 # Seleção do modo de atualização dos elementos orbitais
 st.sidebar.title("Elementos orbitais:")
+help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxi)  \n'
+	  'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
 menuUpdate = ["Space-Track","Arquivo de elementos"]
-choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate)
+choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate,help=help)
 if choiceUpdate == "Space-Track":
 	SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:',"francisval20@yahoo.com.br")
 	SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
 
 	#st.sidebar.markdown("Lista de NORAD_ID a propagar:")
-	data_norad = st.sidebar.file_uploader("Carregar lista de NORAD_ID candidatos:",type=['txt'], help='Arquivo de texto com uma unica coluna com os numeros NORAD_ID')
+	data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_ID padrão ou carregar lista de NORAD_ID:", type=['txt'], help='Arquivo de texto com uma unica coluna com os numeros NORAD_ID, se não for carregado será utilizada uma lista padrão')
 	if st.sidebar.button("Atualizar Elementos"):
 		if data_norad is not None:
 			st.markdown('Arquivo de NORAD_IDS carregado:')
@@ -46,6 +48,11 @@ if choiceUpdate == "Space-Track":
 			st.dataframe(elem_json)		
 		else:
 			st.markdown("arquivo não carregado")
+			df_norad_ids = noradfileread("confNorad.txt")
+			elem_json = update_elements(df_norad_ids,SpaceTrackLoguin,SpaceTracksenha)
+			st.markdown('Elementos orbitais obtidos do Space-Track:')
+			st.dataframe(elem_json)	
+			
 
 elif choiceUpdate == "Arquivo de elementos":
 	data_elements = st.sidebar.file_uploader("Upload Json/TLE/3LE",type=['txt','json'])
@@ -93,10 +100,14 @@ sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0,
 st.write('Taxa de amostragem (s): ', sample_time)
 
 # Seleção do modo de obtenção das trajetórias
-menu = ["Automático","Manual"]
-choice = st.sidebar.selectbox("Modo de busca da trajetória:",menu)
+automatico="Automático D-2"
+manual="Manual D-1 e D"
 
-if choice == "Automático":
+help='Automático (D-2 ou antes): busca os periodos de aproximação, retorna as trajetórias e arquivos de configuração.  \n Manual (D-1 a D): recalcula as trajetórias com elementos orbitais atualizados, mantendo o H0, utilizando os arquivos de configuração obtidos em uma execução automática anterior'
+menu = [automatico,manual]
+choice = st.sidebar.selectbox("Modo de busca da trajetória:",menu, help=help )
+
+if choice == automatico:
 	conftrajetoria = 0
 
 	dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
@@ -129,10 +140,11 @@ if choice == "Automático":
 	final_datetime.format = 'isot'
 	st.write('Momento do final da busca: ', final_datetime)
 
-elif choice == "Manual":
+elif choice == manual:
 	conftrajetoria = 1
 	st.sidebar.subheader("Manual")
-	data_conf = st.sidebar.file_uploader("Upload configuração manual de H0",type=['csv'])
+	help='Upload do arquivo de configuração manual de H0: arquivo confH0.csv de uma execução em automático anterior ou editado a partir dele'
+	data_conf = st.sidebar.file_uploader("Upload configuração manual de H0 (confH0.csv)",type=['csv'],help=help)
 	if st.sidebar.button("Carregar configuração manual"):
 		if data_conf is not None:
 			file_details = {"Filename":data_conf.name,"FileType":data_conf.type,"FileSize":data_conf.size}
@@ -184,9 +196,9 @@ my_expander.markdown("Gerar uma nova localização:")
 # altura = col12.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
 # nomeLoc = col11.text_input('Nome',"my location")
 nomeLoc = my_expander.text_input('Nome',"my location")
-latitude = my_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.5f")
-longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.5f")
-altura = my_expander.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
+latitude = my_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.6f")
+longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.6f")
+altura = my_expander.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.6f")
 
 if my_expander.button("Gravar nova localização"):
 	localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
@@ -212,14 +224,14 @@ if st.sidebar.button("Calcular trajetórias"):
 	st.dataframe(df)
 	shutil.make_archive('results', 'zip', './', 'results')
 
-st.subheader('Arquivos:')
-with open("results.zip", "rb") as fp:
-	btn = st.download_button(
-		label="Download ZIP",
-		data=fp,
-		file_name="results.zip",
-		mime="application/zip"
-	)
+	st.subheader('Arquivos:')
+	with open("results.zip", "rb") as fp:
+		btn = st.download_button(
+			label="Download ZIP",
+			data=fp,
+			file_name="results.zip",
+			mime="application/zip"
+		)
 
 # if __name__== '__main__':
 # 	main()
