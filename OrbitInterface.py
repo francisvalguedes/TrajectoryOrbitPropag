@@ -1,5 +1,5 @@
 # https://blog.jcharistech.com/2020/11/08/working-with-file-uploads-in-streamlit-python/
-
+# https://celestrak.com/satcat/search.php
 import streamlit as st
 import pandas as pd
 import datetime
@@ -13,10 +13,10 @@ from LocalSgp4PropagSistem import update_elements, rumm
 from io_functions import dellfile, noradfileread
 
 # def main():
-st.title("Propagador SGP4") #
+st.title("OPTR - Orbit Propagator Tracking Radar") #
 
-st.subheader('**Propagação de orbita e geração de trajetória para radar de trajetografia**')
-st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra e traça um intervalo \
+st.subheader('**Propagação de orbita de satélites e geração de trajetória, para rastreio por radar de trajetografia**')
+st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra, utilizando o SGP4, e traça um intervalo \
 	de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
 st.markdown('Por: Francisval Guedes Soares, Email: francisval20@yahoo.com.br')
 
@@ -24,7 +24,7 @@ st.subheader('**Saídas:**')
 
 # Seleção do modo de atualização dos elementos orbitais
 st.sidebar.title("Elementos orbitais:")
-help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxi)  \n'
+help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxy)  \n'
 	  'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
 menuUpdate = ["Space-Track","Arquivo de elementos"]
 choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate,help=help)
