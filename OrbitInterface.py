@@ -113,7 +113,7 @@ if choice == automatico:
 	dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
 		min_value = 400,
 		max_value = 10000,
-		value = 1000,
+		value = 1100,
 		step = 50)
 
 	st.write('Distância máxima (Km): ', dmax)
@@ -121,7 +121,7 @@ if choice == automatico:
 	dmin = st.sidebar.number_input('O ponto de distância mínima da trajetória a partir do qual a trajetória é salva (Km)',
 		min_value = 200,
 		max_value = 5000,
-		value = 800,
+		value = 1000,
 		step = 50)
 
 	st.write('Distância mínima (Km): ', dmin)
@@ -216,7 +216,7 @@ st.sidebar.title("Executar:")
 
 if st.sidebar.button("Calcular trajetórias"):
 	if conftrajetoria==0:
-		rumm(localizacao,sample_time,conftrajetoria,initial_datetime,final_datetime,dmin*1000,dmax*1000)
+		rumm(localizacao,sample_time,conftrajetoria,initial_datetime,final_datetime,dmax*1000,dmin*1000)
 	else:
 		rumm(localizacao,sample_time ,conftrajetoria)
 	
