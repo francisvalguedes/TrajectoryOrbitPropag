@@ -100,7 +100,7 @@ def rumm(localizacao,
     sel_rcs = []
     sel_json = []
 
-    # verificar possivel bug quando conftrajetoria = 1 e tiver mais de uma trajetória por objeto
+    # 
     for idx in range(0, len_satt): # len(tle.satellite)
         if confElements == 'tle':
             satellite = Satrec.twoline2rv(tle.l1[idx], tle.l2[idx])
