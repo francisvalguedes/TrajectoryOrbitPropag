@@ -2,10 +2,10 @@ from re import split
 from spacetrack import SpaceTrackClient
 from astropy.time import Time
 import time
-from io_functions import LocalFrame, noradfileread, writetrn,  writedots, writetle,\
+from source.io_functions import LocalFrame, noradfileread, writetrn,  writedots, writetle,\
     dellfiles, dellfile, ConfRead, writecsvdata, write2csvdata, writecsvconf, TrnH0FileRead, T32leFileRead, RcsRead
 
-from orbit_functions import  PropagInit
+from source.orbit_functions import  PropagInit
 import json
 import os
 

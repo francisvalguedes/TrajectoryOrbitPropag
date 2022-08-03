@@ -8,9 +8,9 @@ import json
 import shutil
 from astropy.time import Time
 
-from LocalSgp4PropagSistem import update_elements, rumm
+from source.sistem import update_elements, rumm
 
-from io_functions import dellfile, noradfileread
+from source.io_functions import dellfile, noradfileread
 
 # def main():
 st.title("OPTR - Orbit Propagator Tracking Radar") #
@@ -18,7 +18,7 @@ st.title("OPTR - Orbit Propagator Tracking Radar") #
 st.subheader('**Propagação de orbita de satélites e geração de trajetória, para rastreio por radar de trajetografia**')
 st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra, utilizando o SGP4, e traça um intervalo \
 	de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
-st.markdown('Por: Francisval Guedes Soares, Email: francisval20@yahoo.com.br')
+st.markdown('Por: Francisval Guedes Soares, Email: francisvalg@gmail.com')
 
 st.subheader('**Saídas:**')
 

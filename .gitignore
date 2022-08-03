@@ -1,7 +1,4 @@
 /.vscode
-/results_comp
-/results
 /cache
-/teste*
-/trn
+/test
 /__pycache__
