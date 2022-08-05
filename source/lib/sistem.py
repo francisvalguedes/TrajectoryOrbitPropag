@@ -2,15 +2,17 @@ from re import split
 from spacetrack import SpaceTrackClient
 from astropy.time import Time
 import time
-from source.io_functions import LocalFrame, noradfileread, writetrn,  writedots, writetle,\
+from lib.io_functions import LocalFrame, noradfileread, writetrn,  writedots, writetle,\
     dellfiles, dellfile, ConfRead, writecsvdata, write2csvdata, writecsvconf, TrnH0FileRead, T32leFileRead, RcsRead
 
-from source.orbit_functions import  PropagInit
+from lib.orbit_functions import  PropagInit
 import json
 import os
+import pandas as pd
 
 from sgp4 import omm
 from sgp4.api import Satrec
+from io import StringIO
 
 
 # ----------------------------------------------------------------------
@@ -18,20 +20,12 @@ from sgp4.api import Satrec
 # ----------------------------------------------------------------------
 def update_elements(norad_ids, loguin, password):
     st = SpaceTrackClient(identity=loguin, password=password)
-    tlevec_json = st.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='json')
-    dellfile('confTle.txt')
-    dellfile('confElem.json')
-    tlevec_json = json.loads(tlevec_json)
-    with open("confElem.json", "wt") as fp:
-        json.dump(tlevec_json, fp)
-    # theele = ''
-    # for line in tlevec_json:
-    #     theele = theele + line["TLE_LINE0"] +'\n'+ line["TLE_LINE1"] +'\n'+ line["TLE_LINE2"] +'\n' 
-    # writetle("conftle.txt", theele)
-    return  tlevec_json  
+    tlevec_csv = st.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
+    df = pd.read_csv(StringIO(tlevec_csv), sep=",")
+    return  df  
  
 # ----------------------------------------------------------------------
-# Atualiza a ultima versão dos elementos orbitais no site do Space-Track
+# Calcula as trajetórias
 # ----------------------------------------------------------------------
 def rumm(localizacao,
          sample_time = 1,           # tempo de amostragem em segundos

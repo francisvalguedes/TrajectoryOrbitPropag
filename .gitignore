@@ -1,4 +1,4 @@
 /.vscode
 /cache
-/test
+# /test
 /__pycache__
