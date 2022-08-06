@@ -17,7 +17,7 @@ import os
 import tempfile
 import glob
 
-from lib.sistem import update_elements
+from lib.sistem import update_elements, rumm
 from lib.io_functions import LocalFrame, RcsRead, writetrn, writedots
 from lib.orbit_functions import  PropagInit
 
@@ -29,8 +29,7 @@ from lib.orbit_functions import  PropagInit
 # setattr(sys.modules["__main__"], "update_elements", update_elements)
 # setattr(sys.modules["__main__"], "rumm", rumm)
 
-def main():  
-
+def main():
     st.title("OPTR - Orbit Propagator Tracking Radar") #
 
     st.subheader('**Propagação de orbita de satélites e geração de trajetória, para rastreio por radar de trajetografia**')
@@ -44,20 +43,59 @@ def main():
     st.sidebar.title("Elementos orbitais:")
     help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxy)  \n'
         'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
-    
-    SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:') # ,"francisval20@yahoo.com.br"
-    SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
+    menuUpdate = ["Space-Track","Arquivo de elementos"]
+    choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate,help=help)
+    if choiceUpdate == "Space-Track":
+        SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:',"francisval20@yahoo.com.br")
+        SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
 
-    st.write('Space-Track login:', SpaceTrackLoguin)
+        #st.sidebar.markdown("Lista de NORAD_ID a propagar:")
+        data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
+        if st.sidebar.button("Atualizar Elementos"):
+            if data_norad is not None:
+                st.markdown('Arquivo de NORAD_CAT_ID carregado:')
+                file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
+                st.write(file_details)
+                import pandas as pd
+                df_norad_ids = pd.read_csv(data_norad)            
+                st.dataframe(df_norad_ids)
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                st.markdown('Elementos orbitais obtidos do Space-Track:')
+                st.dataframe(elem_df)
+                elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)		
+            else:
+                st.markdown("arquivo NORAD_CAT_ID não carregado")
+                df_norad_ids = pd.read_csv("data/norad_id.csv")
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                st.markdown('Elementos orbitais obtidos do Space-Track a partir da lista de NORAD_CAT_ID padrão:')
+                st.dataframe(elem_df)
+                elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
+                
 
-    st.sidebar.markdown("Lista de NORAD_ID a propagar:")
-    data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
-    
+    elif choiceUpdate == "Arquivo de elementos":
+        data_elements = st.sidebar.file_uploader("Upload Json/TLE/3LE",type=['txt','json'])
+        if st.sidebar.button("Carregar elementos orbitais"):
+            if data_elements is not None:
+                file_details = {"Filename":data_elements.name,"FileType":data_elements.type,"FileSize":data_elements.size}
+                st.write(file_details)
+                st.markdown("Elementos orbitais atualizados manualmente:")    
+                if data_elements.type == "application/json":
+                    elem_df = pd.read_json(data_elements)
+                    st.dataframe(elem_df)
+                    elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
+
+                elif data_elements.type == "application/csv":
+                    elem_df = pd.read_csv(data_elements)
+                    st.dataframe(elem_df)
+                    elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
+
+
     st.sidebar.title("Configurações")
 
     # Seleção do tempo de amostragem
     sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Taxa de amostragem (s): ', sample_time)
+
 
     dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
         min_value = 400,
@@ -89,47 +127,46 @@ def main():
     final_datetime.format = 'isot'
     st.write('Momento do final da busca: ', final_datetime)
 
+    # my_expander = st.sidebar.expander("Gerenciar localização:", expanded=False)
+    # latitude = my_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.6f")
+    # longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.6f")
+    # altitude = my_expander.number_input('Altitude (m)',-1000.0, 2000.0, 0.0, format="%.6f")
+# -5.923568, -35.167801
     st.write('Gerenciar localização:')
     latitude = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
     longitude = st.sidebar.number_input('longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
     altitude = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
 
+    nomeLoc = "loc"
     # localizacao = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altitude': altitude }
     lc = LocalFrame(latitude, longitude, altitude)
-    st.write('latitude: ', latitude)
-    st.write('longitude: ', longitude)
-    st.write('altitude: ', altitude)
+    # st.write('latitude: ', localizacao["latitude"])
+    # st.write('longitude: ', localizacao["longitude"])
+    # st.write('altitude: ', localizacao["altitude"])
     st.sidebar.title("Executar:")
 
 
     if st.sidebar.button("Calcular trajetórias"):
-        if data_norad is not None:
-            st.markdown('Arquivo de NORAD_CAT_ID carregado:')
-            file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
-            st.write(file_details)
-            df_norad_ids = pd.read_csv(data_norad)            
-            st.dataframe(df_norad_ids)
-            elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
-            st.markdown('Elementos orbitais obtidos do Space-Track:')
-            st.dataframe(elem_df)
-            #elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)		
-        else:
-            st.markdown("arquivo NORAD_CAT_ID não carregado")
-            df_norad_ids = pd.read_csv("data/norad_id.csv")
-            elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
-            st.markdown('Elementos orbitais obtidos do Space-Track a partir da lista de NORAD_CAT_ID padrão:')
-            st.dataframe(elem_df)
-            #elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
-
-        #elem_df = pd.read_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv")
+        import pandas as pd
+        elem_df = pd.read_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv")
         orbital_elem = elem_df.to_dict('records')
         lc = LocalFrame(latitude, longitude, altitude)
 
         sel_orbital_elem = []
 
-        sel = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],"DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
+        sel = { "H0":[],
+                "DIST_H0":[],
+                "H_DIST_MIN":[],
+                "PT_DIST_MIN":[],
+                "DIST_MIN":[],
+                "HF":[],
+                "N_PT":[],
+                "DIST_HF":[],
+                "RCS":[]
+            }
 
-        rcs = RcsRead("data/RCS.csv")   
+        rcs = RcsRead("data/RCS.csv") 
+  
         date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
         print(dir_name)
@@ -168,12 +205,12 @@ def main():
                 sel["N_PT"].append(len(distenu) - 1)
                 sel["DIST_HF"].append(distenu[len(distenu) - 1])
         
-        df_traj = pd.DataFrame(sel)
-        df_orb = pd.DataFrame(sel_orbital_elem)
-        df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
-
-        df_traj = df_traj.join(df_orb)
-        df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
+        import pandas as pd
+        pd = pd.DataFrame(sel)
+        pd.to_csv(dir_name + "/traj_data.csv", index=False)
+        import pandas as pd
+        pd_orb = pd.DataFrame(sel_orbital_elem)
+        pd_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
 
         st.subheader('Arquivos:')
         # f = tempfile.TemporaryFile()
