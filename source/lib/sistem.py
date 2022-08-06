@@ -22,7 +22,7 @@ def update_elements(norad_ids, loguin, password):
     st = SpaceTrackClient(identity=loguin, password=password)
     tlevec_csv = st.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
     df = pd.read_csv(StringIO(tlevec_csv), sep=",")
-    return  df  
+    return  df
  
 # ----------------------------------------------------------------------
 # Calcula as trajetórias

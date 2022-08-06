@@ -2,12 +2,25 @@
 # https://celestrak.com/satcat/search.php
 import streamlit as st
 import pandas as pd
-import datetime
+# import datetime
+from datetime import datetime
+from datetime import time
+
 import json
 import shutil
 from astropy.time import Time
 
-from lib.sistem import update_elements #, rumm
+from sgp4 import omm
+from sgp4.api import Satrec
+
+import os
+import tempfile
+import glob
+
+from lib.sistem import update_elements, rumm
+from lib.io_functions import LocalFrame, RcsRead, writetrn, writedots
+from lib.orbit_functions import  PropagInit
+
 
 # from source.io_functions import dellfile, noradfileread
 
@@ -43,17 +56,20 @@ def main():
                 st.markdown('Arquivo de NORAD_CAT_ID carregado:')
                 file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
                 st.write(file_details)
+                import pandas as pd
                 df_norad_ids = pd.read_csv(data_norad)            
                 st.dataframe(df_norad_ids)
-                elem_csv = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
                 st.markdown('Elementos orbitais obtidos do Space-Track:')
-                st.dataframe(elem_csv)		
+                st.dataframe(elem_df)
+                elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)		
             else:
                 st.markdown("arquivo NORAD_CAT_ID não carregado")
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
-                elem_csv = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
                 st.markdown('Elementos orbitais obtidos do Space-Track a partir da lista de NORAD_CAT_ID padrão:')
-                st.dataframe(elem_csv)	
+                st.dataframe(elem_df)
+                elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
                 
 
     elif choiceUpdate == "Arquivo de elementos":
@@ -64,152 +80,157 @@ def main():
                 st.write(file_details)
                 st.markdown("Elementos orbitais atualizados manualmente:")    
                 if data_elements.type == "application/json":
-                    df_elements = pd.read_json(data_elements)
-                    st.dataframe(df_elements)
+                    elem_df = pd.read_json(data_elements)
+                    st.dataframe(elem_df)
+                    elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
 
                 elif data_elements.type == "application/csv":
-                    df_elements = pd.read_csv(data_elements)
-                    st.dataframe(df_elements)
-
-    # st.sidebar.title("Configurações")
-
-    # # Seleção do tempo de amostragem
-    # sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0, step = 0.1)
-    # st.write('Taxa de amostragem (s): ', sample_time)
-
-    # # Seleção do modo de obtenção das trajetórias
-    # automatico="Automático D-2"
-    # manual="Manual D-1 e D"
-
-    # help='Automático (D-2 ou antes): busca os periodos de aproximação, retorna as trajetórias e arquivos de configuração.  \n Manual (D-1 a D): recalcula as trajetórias com elementos orbitais atualizados, mantendo o H0, utilizando os arquivos de configuração obtidos em uma execução automática anterior'
-    # menu = [automatico,manual]
-    # choice = st.sidebar.selectbox("Modo de busca da trajetória:",menu, help=help )
-
-    # if choice == automatico:
-    #     conftrajetoria = 0
-
-    #     dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
-    #         min_value = 400,
-    #         max_value = 10000,
-    #         value = 1100,
-    #         step = 50)
-
-    #     st.write('Distância máxima (Km): ', dmax)
-
-    #     dmin = st.sidebar.number_input('O ponto de distância mínima da trajetória a partir do qual a trajetória é salva (Km)',
-    #         min_value = 200,
-    #         max_value = 5000,
-    #         value = 1000,
-    #         step = 50)
-
-    #     st.write('Distância mínima (Km): ', dmin)
-
-    #     initial_date = st.sidebar.date_input("Data de inicio da busca automática do H0", key=1)
-    #     initial_time = st.sidebar.time_input("Hora de inicio da busca automática do H0 TU", datetime.time(11, 0,0),  key=2)
-    #     initial_datetime = datetime.datetime.combine(initial_date, initial_time)
-    #     initial_datetime=Time(initial_datetime)
-    #     initial_datetime.format = 'isot'
-    #     st.write('Momento do final da busca: ', initial_datetime)
-
-    #     final_date = st.sidebar.date_input("Data Final da busca automática do H0", key=3)
-    #     final_time = st.sidebar.time_input("Hora de final da busca automática do H0 TU", datetime.time(19, 0,0),  key=4)
-    #     final_datetime = datetime.datetime.combine(final_date, final_time)
-    #     final_datetime=Time(final_datetime)
-    #     final_datetime.format = 'isot'
-    #     st.write('Momento do final da busca: ', final_datetime)
-
-    # elif choice == manual:
-    #     conftrajetoria = 1
-    #     st.sidebar.subheader("Manual")
-    #     help='Upload do arquivo de configuração manual de H0: arquivo confH0.csv de uma execução em automático anterior ou editado a partir dele'
-    #     data_conf = st.sidebar.file_uploader("Upload configuração manual de H0 (confH0.csv)",type=['csv'],help=help)
-    #     if st.sidebar.button("Carregar configuração manual"):
-    #         if data_conf is not None:
-    #             file_details = {"Filename":data_conf.name,"FileType":data_conf.type,"FileSize":data_conf.size}
-    #             st.write(file_details)
-    #             df = pd.read_csv(data_conf)
-    #             st.dataframe(df)			
-    #         else:
-    #             st.markdown("arquivo não carregado")
-    # else:
-    #     print("erro")
+                    elem_df = pd.read_csv(data_elements)
+                    st.dataframe(elem_df)
+                    elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
 
 
-    # # Salvar a localização
+    st.sidebar.title("Configurações")
 
-    # with open("confLocalWGS84.json", 'r') as fp:
-    #     loc = json.load(fp)
-    # # with open("confLocalWGS84.json", "wt") as fp:
-    # #     json.dump(loc, fp)
-    # # lc = LocalFrame(-5.92256, -35.1615, 32.704)
-    # st.markdown("Localização Geodésica WGS84 do referencial local:")
-    # st.sidebar.title("Localização Geodésica WGS84:")
+    # Seleção do tempo de amostragem
+    sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0, step = 0.1)
+    st.write('Taxa de amostragem (s): ', sample_time)
 
-    # menuloc = list(map(str, [row["Nome"] for row in loc]))
-    # choiceLoc = st.sidebar.selectbox("local:",menuloc)
-    # for sel in menuloc:
-    #     if sel==choiceLoc:
-    #         localizacao = loc[menuloc.index(choiceLoc)]
-    #         print(localizacao)
 
-    # #st.sidebar.markdown("Gravar nova localização:")
+    dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
+        min_value = 400,
+        max_value = 10000,
+        value = 1100,
+        step = 50)
+
+    st.write('Distância máxima (Km): ', dmax)
+
+    dmin = st.sidebar.number_input('O ponto de distância mínima da trajetória a partir do qual a trajetória é salva (Km)',
+        min_value = 200,
+        max_value = 5000,
+        value = 1000,
+        step = 50)
+
+    st.write('Distância mínima (Km): ', dmin)
+
+    initial_date = st.sidebar.date_input("Data de inicio da busca automática do H0", key=1)
+    initial_time = st.sidebar.time_input("Hora de inicio da busca automática do H0 TU", time(11, 0,0),  key=2)
+    initial_datetime = datetime.combine(initial_date, initial_time)
+    initial_datetime=Time(initial_datetime)
+    initial_datetime.format = 'isot'
+    st.write('Momento do final da busca: ', initial_datetime)
+
+    final_date = st.sidebar.date_input("Data Final da busca automática do H0", key=3)
+    final_time = st.sidebar.time_input("Hora de final da busca automática do H0 TU", time(19, 0,0),  key=4)
+    final_datetime = datetime.combine(final_date, final_time)
+    final_datetime=Time(final_datetime)
+    final_datetime.format = 'isot'
+    st.write('Momento do final da busca: ', final_datetime)
+
     # my_expander = st.sidebar.expander("Gerenciar localização:", expanded=False)
-
-    # my_expander.markdown("Apagar localização selecionada:")
-    # if my_expander.button("Apagar selecionada"):
-    #     if localizacao["Nome"] in list(map(str, [row["Nome"] for row in loc])):
-    #         del loc[menuloc.index(choiceLoc)]		
-    #         print("apagar",loc)
-    #         with open("confLocalWGS84.json", "wt") as fp:
-    #             json.dump(loc, fp)
-    #         # st._update_logger()
-
-    # # Entrada de localização
-    # my_expander.markdown("Gerar uma nova localização:")
-    # # col1, col2 = my_expander.columns(2)
-    # # col1, col2 = my_expander.columns(2)
-
-    # # latitude = col21.number_input('Latitude',-90.0, 90.0, 0.0, format="%.5f")
-    # # longitude = col22.number_input('longitude', -180.0, 80.0, 0.0, format="%.5f")
-    # # altura = col12.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.5f")
-    # # nomeLoc = col11.text_input('Nome',"my location")
-    # nomeLoc = my_expander.text_input('Nome',"my location")
     # latitude = my_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.6f")
     # longitude = my_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.6f")
-    # altura = my_expander.number_input('Altura (m)',-1000.0, 2000.0, 0.0, format="%.6f")
+    # altitude = my_expander.number_input('Altitude (m)',-1000.0, 2000.0, 0.0, format="%.6f")
+# -5.923568, -35.167801
+    st.write('Gerenciar localização:')
+    latitude = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
+    longitude = st.sidebar.number_input('longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
+    altitude = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
 
-    # if my_expander.button("Gravar nova localização"):
-    #     localiz = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altura': altura }
-    #     if nomeLoc not in list(map(str, [row["Nome"] for row in loc])):
-    #         loc.append(localiz)
-    #         with open("confLocalWGS84.json", "wt") as fp:
-    #             json.dump(loc, fp)
-
-    # st.write('Nome: ', localizacao["Nome"])
+    nomeLoc = "loc"
+    # localizacao = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altitude': altitude }
+    lc = LocalFrame(latitude, longitude, altitude)
     # st.write('latitude: ', localizacao["latitude"])
     # st.write('longitude: ', localizacao["longitude"])
-    # st.write('altura: ', localizacao["altura"])
+    # st.write('altitude: ', localizacao["altitude"])
+    st.sidebar.title("Executar:")
 
-    # st.sidebar.title("Executar:")
 
-    # if st.sidebar.button("Calcular trajetórias"):
-    #     if conftrajetoria==0:
-    #         rumm(localizacao,sample_time,conftrajetoria,initial_datetime,final_datetime,dmax*1000,dmin*1000)
-    #     else:
-    #         rumm(localizacao,sample_time ,conftrajetoria)
+    if st.sidebar.button("Calcular trajetórias"):
+        import pandas as pd
+        elem_df = pd.read_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv")
+        orbital_elem = elem_df.to_dict('records')
+        lc = LocalFrame(latitude, longitude, altitude)
+
+        sel_orbital_elem = []
+
+        sel = { "H0":[],
+                "DIST_H0":[],
+                "H_DIST_MIN":[],
+                "PT_DIST_MIN":[],
+                "DIST_MIN":[],
+                "HF":[],
+                "N_PT":[],
+                "DIST_HF":[],
+                "RCS":[]
+            }
+
+        rcs = RcsRead("data/RCS.csv") 
+  
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
+        print(dir_name)
+        os.mkdir(dir_name)
+
+        for idx in range(0, len(orbital_elem)):
+            satellite = Satrec()
+            omm.initialize(satellite, orbital_elem[idx])
+            propag = PropagInit(satellite, lc, sample_time)
+            pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
+            for i in range(0, len(pos.traj)):
+                sel_orbital_elem.append(orbital_elem[idx]) 
+                tempo = pos.tempo[i]
+                posenu = pos.traj[i]
+                distenu = pos.dist[i]
+                # print(tempo[0].value)
+                ttxt = tempo[0].value[0:19]
+                ttxt = ttxt.replace(":", "_")
+                ttxt = ttxt.replace("-", "_")
+                ttxt = ttxt.replace("T", "-H0-")
+                writetrn(dir_name +"/" + "obj-" + str(satellite.satnum) + "-" + ttxt + "TU.trn", posenu)
+                writedots(dir_name + "/" + "pontos-" + str(satellite.satnum) + "-" + ttxt + "TU.txt", tempo,
+                        distenu, posenu)
+
+                # Summarized data set of the trajectories obtained
+                if satellite.satnum in rcs.satnum:
+                    sel["RCS"].append(rcs.rcs[rcs.satnum.index(satellite.satnum)])
+                else:
+                    sel["RCS"].append(orbital_elem[idx]['RCS_SIZE'])
+                sel["H0"].append(tempo[0].value)
+                sel["DIST_H0"].append(distenu[0])
+                sel["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
+                sel["PT_DIST_MIN"].append(pos.hrmin[i])
+                sel["DIST_MIN"].append(pos.dmin[i])
+                sel["HF"].append(tempo[len(tempo) - 1].value[11:])
+                sel["N_PT"].append(len(distenu) - 1)
+                sel["DIST_HF"].append(distenu[len(distenu) - 1])
         
-    #     df = pd.read_csv("results/" + 'planilhapy.csv')
-    #     st.dataframe(df)
-    #     shutil.make_archive('results', 'zip', './', 'results')
+        import pandas as pd
+        pd = pd.DataFrame(sel)
+        pd.to_csv(dir_name + "/traj_data.csv", index=False)
+        import pandas as pd
+        pd_orb = pd.DataFrame(sel_orbital_elem)
+        pd_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
 
-    #     st.subheader('Arquivos:')
-    #     with open("results.zip", "rb") as fp:
-    #         btn = st.download_button(
-    #             label="Download ZIP",
-    #             data=fp,
-    #             file_name="results.zip",
-    #             mime="application/zip"
-    #         )
+        st.subheader('Arquivos:')
+        # f = tempfile.TemporaryFile()
+        # f.write('something on temporaryfile')
+        # f.seek(0) # return to beginning of file
+        # print f.read() # reads data back from the file
+        # f.close() # temporary file is automatically deleted here        
+        shutil.make_archive(dir_name, 'zip', dir_name)
+
+        with open(dir_name + ".zip", "rb") as fp:
+            btn = st.download_button(
+                label="Download",
+                data=fp,
+                file_name="orbit_results.zip",
+                mime="application/zip"
+            )
+    
+    # txt_files = glob.glob(tempfile.gettempdir() + '/*/')
+    # for line in txt_files:
+    #     st.markdown(line)
 
 if __name__== '__main__':
     main()
