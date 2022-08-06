@@ -45,8 +45,8 @@ def main():
     help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxy)  \n'
         'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
     
-    SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:') # ,"francisval20@yahoo.com.br"
-    SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
+    SpaceTrackLoguin = st.sidebar.text_input('Space-Track Nome de usuário:') # ,"francisval20@yahoo.com.br"
+    SpaceTracksenha = st.sidebar.text_input('Space-Track Senha:',type="password")
 
     st.write('Space-Track login:', SpaceTrackLoguin)
 
