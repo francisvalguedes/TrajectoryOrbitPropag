@@ -48,7 +48,8 @@ def main():
     SpaceTrackLoguin = st.sidebar.text_input('Space-Track Nome de usuário:') # ,"francisval20@yahoo.com.br"
     SpaceTracksenha = st.sidebar.text_input('Space-Track Senha:',type="password")
 
-    st.write('Space-Track login:', SpaceTrackLoguin)
+    if SpaceTrackLoguin=="": st.markdown('ATENÇÃO - Digite o login Space-Track')
+    else: st.write('Space-Track login:', SpaceTrackLoguin)
 
     st.sidebar.markdown("Lista de NORAD_ID a propagar:")
     data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
@@ -108,7 +109,7 @@ def main():
             file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
             st.write(file_details)
             df_norad_ids = pd.read_csv(data_norad)            
-            st.dataframe(df_norad_ids)
+            st.dataframe(df_norad_ids)                
             elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
             st.markdown('Elementos orbitais obtidos do Space-Track:')
             st.dataframe(elem_df)
@@ -121,7 +122,6 @@ def main():
             st.dataframe(elem_df)
             #elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
 
-        #elem_df = pd.read_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv")
         orbital_elem = elem_df.to_dict('records')
         lc = LocalFrame(latitude, longitude, altitude)
 
