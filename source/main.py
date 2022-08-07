@@ -52,7 +52,9 @@ def get_orbital_element():
     if choiceUpdate == "Space-Track":
 
         SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:')        
-        if SpaceTrackLoguin=="": st.sidebar.markdown('ATENÇÃO - Digite o login Space-Track')        
+        if SpaceTrackLoguin=="":
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">ATENÇÃO - Carregue o login Space-Track</p>'
+            st.sidebar.markdown(log_error, unsafe_allow_html=True)       
         SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
 
         st.sidebar.markdown("Lista de NORAD_ID a propagar:")
