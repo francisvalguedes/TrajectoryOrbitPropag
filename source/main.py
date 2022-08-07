@@ -53,7 +53,7 @@ def get_orbital_element():
 
         SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:')        
         if SpaceTrackLoguin=="":
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">ATENÇÃO - Carregue o login Space-Track</p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Carregue o login Space-Track</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)       
         SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
 
@@ -191,11 +191,8 @@ def main():
                     tempo = pos.tempo[i]
                     posenu = pos.traj[i]
                     distenu = pos.dist[i]
-                    # print(tempo[0].value)
-                    ttxt = tempo[0].value[0:19]
-                    ttxt = ttxt.replace(":", "_")
-                    ttxt = ttxt.replace("-", "_")
-                    ttxt = ttxt.replace("T", "-H0-")
+                    
+                    ttxt = tempo[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
                     writetrn(dir_name +"/" + "obj-" + str(satellite.satnum) + "-" + ttxt + "TU.trn", posenu)
                     writedots(dir_name + "/" + "pontos-" + str(satellite.satnum) + "-" + ttxt + "TU.txt", tempo,
                             distenu, posenu)
