@@ -44,16 +44,56 @@ def main():
     st.sidebar.title("Elementos orbitais:")
     help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxy)  \n'
         'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
-    
-    SpaceTrackLoguin = st.sidebar.text_input('Space-Track Nome de usuário:') # ,"francisval20@yahoo.com.br"
-    SpaceTracksenha = st.sidebar.text_input('Space-Track Senha:',type="password")
 
-    if SpaceTrackLoguin=="": st.markdown('ATENÇÃO - Digite o login Space-Track')
-    else: st.write('Space-Track login:', SpaceTrackLoguin)
 
-    st.sidebar.markdown("Lista de NORAD_ID a propagar:")
-    data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
-    
+    menuUpdate = ["Space-Track","Arquivo de elementos"]
+    choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate,help=help)
+    if choiceUpdate == "Space-Track":
+        SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:',"francisval20@yahoo.com.br")
+        SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
+
+        if SpaceTrackLoguin=="": st.markdown('ATENÇÃO - Digite o login Space-Track')
+        else: st.write('Space-Track login:', SpaceTrackLoguin)
+
+        st.sidebar.markdown("Lista de NORAD_ID a propagar:")
+        data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
+        if st.sidebar.button("Atualizar Elementos"):
+            if data_norad is not None:
+                st.markdown('Arquivo de NORAD_CAT_ID carregado:')
+                file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
+                st.write(file_details)
+                df_norad_ids = pd.read_csv(data_norad)            
+                st.dataframe(df_norad_ids)
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                st.markdown('Elementos orbitais obtidos do Space-Track:')
+                st.dataframe(elem_df)
+                st.session_state.ss_elem_df = elem_df		
+            else:
+                st.markdown("arquivo NORAD_CAT_ID não carregado")
+                df_norad_ids = pd.read_csv("data/norad_id.csv")
+                elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
+                st.markdown('Elementos orbitais obtidos do Space-Track a partir da lista de NORAD_CAT_ID padrão:')
+                st.dataframe(elem_df)
+                st.session_state.ss_elem_df = elem_df	
+                
+
+    elif choiceUpdate == "Arquivo de elementos":
+        data_elements = st.sidebar.file_uploader("Upload Json/csv",type=['csv','json'])
+        if st.sidebar.button("Carregar elementos orbitais"):
+            if data_elements is not None:
+                file_details = {"Filename":data_elements.name,"FileType":data_elements.type,"FileSize":data_elements.size}
+                st.write(file_details)
+                st.markdown("Elementos orbitais atualizados manualmente:")    
+                if data_elements.type == "application/json":
+                    elem_df = pd.read_json(data_elements)
+                    st.dataframe(elem_df)
+                    st.session_state.ss_elem_df = elem_df
+
+                elif data_elements.type == "text/csv":
+                    elem_df = pd.read_csv(data_elements)
+                    st.dataframe(elem_df)
+                    st.session_state.ss_elem_df = elem_df
+
     st.sidebar.title("Configurações")
 
     # Seleção do tempo de amostragem
@@ -104,23 +144,10 @@ def main():
 
 
     if st.sidebar.button("Calcular trajetórias"):
-        if data_norad is not None:
-            st.markdown('Arquivo de NORAD_CAT_ID carregado:')
-            file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
-            st.write(file_details)
-            df_norad_ids = pd.read_csv(data_norad)            
-            st.dataframe(df_norad_ids)                
-            elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
-            st.markdown('Elementos orbitais obtidos do Space-Track:')
-            st.dataframe(elem_df)
-            #elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)		
+        if "ss_elem_df" not in st.session_state:
+            st.write('carregue os elementos orbitais')
         else:
-            st.markdown("arquivo NORAD_CAT_ID não carregado")
-            df_norad_ids = pd.read_csv("data/norad_id.csv")
-            elem_df = update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha)
-            st.markdown('Elementos orbitais obtidos do Space-Track a partir da lista de NORAD_CAT_ID padrão:')
-            st.dataframe(elem_df)
-            #elem_df.to_csv(tempfile.gettempdir()+"/optr_orbital_elem.csv", index=False)	
+            elem_df = st.session_state["ss_elem_df"]
 
         orbital_elem = elem_df.to_dict('records')
         lc = LocalFrame(latitude, longitude, altitude)
