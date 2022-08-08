@@ -89,10 +89,45 @@ def get_orbital_element():
                     st.session_state.ss_elem_df = pd.read_csv(data_elements)
 
 
-def main():  
+# ----------------------------------------------------------------------
+# Salva as trajetórias
+# ----------------------------------------------------------------------
+class SummarizeDataFiles:
+    def __init__(self):
+        self.sel_orbital_elem = []
+        self.sel_resume = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],
+                    "DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
 
-    st.title("OPTR - Orbit Propagator Tracking Radar") #
 
+    def save_trajectories(self,pos,orbital_elem,idx,dir_name,rcs): 
+        for i in range(0, len(pos.traj)):
+            tempo = pos.tempo[i]
+            posenu = pos.traj[i]
+            distenu = pos.dist[i]
+            
+            ttxt = tempo[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
+            writetrn(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn", posenu)
+            writedots(dir_name + "/" + "pontos-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.txt", tempo,
+                    distenu, posenu)
+
+            # Summarized data set of the trajectories obtained
+            self.sel_orbital_elem.append(orbital_elem[idx]) 
+            if pos.satellite.satnum in rcs.satnum:
+                self.sel_resume["RCS"].append(rcs.rcs[rcs.satnum.index(pos.satellite.satnum)])
+            else:
+                self.sel_resume["RCS"].append(orbital_elem[idx]['RCS_SIZE'])
+            self.sel_resume["H0"].append(tempo[0].value)
+            self.sel_resume["DIST_H0"].append(distenu[0])
+            self.sel_resume["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
+            self.sel_resume["PT_DIST_MIN"].append(pos.hrmin[i])
+            self.sel_resume["DIST_MIN"].append(pos.dmin[i])
+            self.sel_resume["HF"].append(tempo[len(tempo) - 1].value[11:])
+            self.sel_resume["N_PT"].append(len(distenu) - 1)
+            self.sel_resume["DIST_HF"].append(distenu[len(distenu) - 1])        
+
+
+def main(): 
+    st.title("OPTR - Orbit Propagator Tracking Radar")
     st.subheader('**Propagação de orbita de satélites e geração de trajetória, para rastreio por radar de trajetografia**')
     st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra, utilizando o SGP4, e traça um intervalo \
         de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
@@ -170,47 +205,23 @@ def main():
             orbital_elem = elem_df.to_dict('records')
             lc = LocalFrame(latitude, longitude, altitude)
 
-            sel_orbital_elem = []
-            sel = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],
-                    "DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
-
             rcs = RcsRead("data/RCS.csv")   
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
             os.mkdir(dir_name)
+            
+            sdf = SummarizeDataFiles()
 
             for idx in range(0, len(orbital_elem)):
                 satellite = Satrec()
                 omm.initialize(satellite, orbital_elem[idx])
                 propag = PropagInit(satellite, lc, sample_time)
                 pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
-                for i in range(0, len(pos.traj)):
-                    sel_orbital_elem.append(orbital_elem[idx]) 
-                    tempo = pos.tempo[i]
-                    posenu = pos.traj[i]
-                    distenu = pos.dist[i]
-                    
-                    ttxt = tempo[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
-                    writetrn(dir_name +"/" + "obj-" + str(satellite.satnum) + "-" + ttxt + "TU.trn", posenu)
-                    writedots(dir_name + "/" + "pontos-" + str(satellite.satnum) + "-" + ttxt + "TU.txt", tempo,
-                            distenu, posenu)
-
-                    # Summarized data set of the trajectories obtained
-                    if satellite.satnum in rcs.satnum:
-                        sel["RCS"].append(rcs.rcs[rcs.satnum.index(satellite.satnum)])
-                    else:
-                        sel["RCS"].append(orbital_elem[idx]['RCS_SIZE'])
-                    sel["H0"].append(tempo[0].value)
-                    sel["DIST_H0"].append(distenu[0])
-                    sel["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
-                    sel["PT_DIST_MIN"].append(pos.hrmin[i])
-                    sel["DIST_MIN"].append(pos.dmin[i])
-                    sel["HF"].append(tempo[len(tempo) - 1].value[11:])
-                    sel["N_PT"].append(len(distenu) - 1)
-                    sel["DIST_HF"].append(distenu[len(distenu) - 1])
+                
+                sdf.save_trajectories(pos,orbital_elem,idx,dir_name,rcs)
             
-            df_traj = pd.DataFrame(sel)
-            df_orb = pd.DataFrame(sel_orbital_elem)
+            df_traj = pd.DataFrame(sdf.sel_resume)
+            df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
 
             df_traj = df_traj.join(df_orb)
