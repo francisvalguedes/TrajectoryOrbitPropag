@@ -97,7 +97,6 @@ def main():
     st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra, utilizando o SGP4, e traça um intervalo \
         de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
     st.markdown('Por: Francisval Guedes Soares, Email: francisvalg@gmail.com')
-
     st.subheader('**Saídas:**')
 
     get_orbital_element()
@@ -172,13 +171,12 @@ def main():
             lc = LocalFrame(latitude, longitude, altitude)
 
             sel_orbital_elem = []
-
-            sel = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],"DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
+            sel = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],
+                    "DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
 
             rcs = RcsRead("data/RCS.csv")   
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
-            print(dir_name)
             os.mkdir(dir_name)
 
             for idx in range(0, len(orbital_elem)):
@@ -218,12 +216,10 @@ def main():
             df_traj = df_traj.join(df_orb)
             df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
 
-            st.subheader('Arquivos:')
-            # f = tempfile.TemporaryFile()
-            # f.write('something on temporaryfile')
-            # f.seek(0) # return to beginning of file
-            # print f.read() # reads data back from the file
-            # f.close() # temporary file is automatically deleted here        
+            st.write('Objetos que se aproximam do ponto de referência:')
+            st.dataframe(df_traj)
+
+            st.subheader('Arquivos:')       
             shutil.make_archive(dir_name, 'zip', dir_name)
 
             with open(dir_name + ".zip", "rb") as fp:
