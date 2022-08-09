@@ -191,7 +191,7 @@ def main():
     st.sidebar.title("Calculate trajectories:")
 
     max_num_obj = 250
-    if st.sidebar.button("Run"):
+    if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
             st.markdown(log_error, unsafe_allow_html=True)
@@ -243,7 +243,7 @@ def main():
 
     st.sidebar.write('Files can be downloaded on the right side')
 
-    st.write('The files contain:')
+    st.write('The resulting files contain:')
     st.write('orbital_elem.csv - Orbital elements of selected objects')
     st.write('traj_data.csv - Relevant trajectory and object data')
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
