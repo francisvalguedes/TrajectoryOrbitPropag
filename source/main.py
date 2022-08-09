@@ -43,45 +43,46 @@ def update_elements(norad_ids, loguin, password):
 
 def get_orbital_element():
     # Seleção do modo de atualização dos elementos orbitais
-    st.sidebar.title("Elementos orbitais:")
-    help=('Space-Track: Obtem os elementos orbitais automaticamente do Space-Track (exige cadastro no Space-Track e não aceita configuração de proxy)  \n'
-        'Arquivo de elementos: Carregar arquivo de elementos de outra fonte ou obtido manualmento do Space-Track (TLE, 3LE ou JSON).')
+    st.sidebar.title("Orbital elements:")
+    help=('Space-Track: Obtains orbital elements automatically from Space-Track (requires registration in Space-Track))  \n'
+        'Elements file: Load elements file from another source or manually obtained from Space-Track (TLE, 3LE ou JSON).')
 
-    menuUpdate = ["Space-Track","Arquivo de elementos"]
-    choiceUpdate = st.sidebar.selectbox("Fonte dos elementos orbitais:",menuUpdate,help=help)
+    menuUpdate = ["Space-Track","Orbital Elements File"]
+    choiceUpdate = st.sidebar.selectbox("Source of orbital elements:",menuUpdate,help=help)
     if choiceUpdate == "Space-Track":
 
         SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:')        
         if SpaceTrackLoguin=="":
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Carregue o login Space-Track</p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Load the login Space-Track</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)       
-        SpaceTracksenha = st.sidebar.text_input('Space-Track senha:',type="password")
+        SpaceTracksenha = st.sidebar.text_input('Space-Track password:',type="password")
 
-        st.sidebar.markdown("Lista de NORAD_ID a propagar:")
-        data_norad = st.sidebar.file_uploader("Utilizar lista de NORAD_CAT_ID padrão ou carregar lista de NORAD_CAT_ID:", type=['csv'], help='Arquivo de texto com extensão .csv com uma unica coluna com os numeros NORAD_CAT_ID e com o texto NORAD_CAT_ID na primeira linha, se não for carregado será utilizada uma lista padrão')
+        st.sidebar.markdown("List of NORAD_CAT_ID to propagate:")
+        help='Text file with .csv extension with a single column with the numbers NORAD_CAT_ID and with the text NORAD_CAT_ID in the first line, if not loaded, a standard list will be used'
+        data_norad = st.sidebar.file_uploader("Use APP's default NORAD_CAT_ID list or load NORAD_CAT_ID list:", type=['csv'], help=help)
     
-        if st.sidebar.button("Obter Elementos Orbitais"):
+        if st.sidebar.button("Get Orbital Elements"):
             if data_norad is not None:
-                st.markdown('Arquivo de NORAD_CAT_ID carregado:')
+                st.markdown('NORAD_CAT_ID file loaded:')
                 file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
                 st.write(file_details)
                 df_norad_ids = pd.read_csv(data_norad) 
             else:
-                st.markdown("arquivo NORAD_CAT_ID não carregado")
+                st.markdown("NORAD_CAT_ID file not loaded")
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
 
             st.dataframe(df_norad_ids)
             if update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha):
-                st.markdown('Elementos orbitais obtidos do Space-Track:')
+                st.markdown('Orbital elements obtained from Space-Track:')
                
 
-    elif choiceUpdate == "Arquivo de elementos":
-        data_elements = st.sidebar.file_uploader("Upload Json/csv",type=['csv','json'])
-        if st.sidebar.button("Carregar Elementos Orbitais"):
+    elif choiceUpdate == "Orbital Elements File":
+        data_elements = st.sidebar.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
+        if st.sidebar.button("Upload orbital elements"):
             if data_elements is not None:
                 file_details = {"Filename":data_elements.name,"FileType":data_elements.type,"FileSize":data_elements.size}
                 st.write(file_details)
-                st.markdown("Elementos orbitais atualizados manualmente:")    
+                st.markdown("Orbital elements manually updated:")    
                 if data_elements.type == "application/json":
                     st.session_state.ss_elem_df = pd.read_json(data_elements)
 
@@ -128,78 +129,77 @@ class SummarizeDataFiles:
 
 def main(): 
     st.title("OPTR - Orbit Propagator Tracking Radar")
-    st.subheader('**Propagação de orbita de satélites e geração de trajetória, para rastreio por radar de trajetografia**')
-    st.markdown('Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra, utilizando o SGP4, e traça um intervalo \
-        de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia ')
-    st.markdown('Por: Francisval Guedes Soares, Email: francisvalg@gmail.com')
+    st.subheader('**Satellite orbit propagation and trajectory generation, for radar tracking**')
+    st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in a local plane reference (ENU), to be used as a target for Radar Tracking')
+    st.markdown('by: Francisval Guedes Soares, Email: francisvalg@gmail.com')
     st.subheader('**Saídas:**')
 
     get_orbital_element()
     if "ss_elem_df" not in st.session_state:
-        log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Carregue os elementos orbitais</p>'
+        log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
         st.markdown(log_error, unsafe_allow_html=True)
     else:
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df)
 
-    st.sidebar.title("Configurações")
+    st.sidebar.title("Settings")
 
     # Seleção do tempo de amostragem
-    sample_time = st.sidebar.number_input('Taxa de amostragem (s):', 0.1, 10.0, 1.0, step = 0.1)
-    st.write('Taxa de amostragem (s): ', sample_time)
+    sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
+    st.write('Sampling rate (s): ', sample_time)
 
-    dmax = st.sidebar.number_input('Distâcia máxima para limites da trajetória (Km)',
+    dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
         min_value = 400,
         max_value = 10000,
         value = 1100,
         step = 50)
 
-    st.write('Distância máxima (Km): ', dmax)
+    st.write('Maximum distance to trajectory limits (Km): ', dmax)
 
-    dmin = st.sidebar.number_input('O ponto de distância mínima da trajetória a partir do qual a trajetória é salva (Km)',
+    dmin = st.sidebar.number_input('The minimum trajectory distance point from which the trajectory is saved (Km)',
         min_value = 200,
         max_value = 5000,
         value = 1000,
         step = 50)
 
-    st.write('Distância mínima (Km): ', dmin)
+    st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
 
-    initial_date = st.sidebar.date_input("Data de inicio da busca automática do H0", key=1)
-    initial_time = st.sidebar.time_input("Hora de inicio da busca automática do H0 TU", time(11, 0,0),  key=2)
+    initial_date = st.sidebar.date_input("Start date of the automatic H0 search", key=1)
+    initial_time = st.sidebar.time_input("Start time of the automatic H0 search TU", time(11, 0,0),  key=2)
     initial_datetime = datetime.combine(initial_date, initial_time)
     initial_datetime=Time(initial_datetime)
     initial_datetime.format = 'isot'
-    st.write('Momento do final da busca: ', initial_datetime)
+    st.write('Search start time: ', initial_datetime)
 
-    final_date = st.sidebar.date_input("Data Final da busca automática do H0", key=3)
-    final_time = st.sidebar.time_input("Hora de final da busca automática do H0 TU", time(19, 0,0),  key=4)
+    final_date = st.sidebar.date_input("End date of the automatic H0 search", key=3)
+    final_time = st.sidebar.time_input("End time of the automatic H0 search TU", time(19, 0,0),  key=4)
     final_datetime = datetime.combine(final_date, final_time)
     final_datetime=Time(final_datetime)
     final_datetime.format = 'isot'
-    st.write('Momento do final da busca: ', final_datetime)
+    st.write('Search end time: ', final_datetime)
 
-    st.write('Gerenciar localização:')
+    st.write('Reference point location: ')
     latitude = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
-    longitude = st.sidebar.number_input('longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
+    longitude = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
     altitude = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
 
     # localizacao = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altitude': altitude }
     lc = LocalFrame(latitude, longitude, altitude)
-    st.write('latitude: ', latitude)
-    st.write('longitude: ', longitude)
-    st.write('altitude: ', altitude)
-    st.sidebar.title("Executar:")
+    st.write('Latitude: ', latitude)
+    st.write('Longitude: ', longitude)
+    st.write('Altitude: ', altitude)
+    st.sidebar.title("Calculate trajectories:")
 
-
-    if st.sidebar.button("Calcular trajetórias"):
+    max_num_obj = 250
+    if st.sidebar.button("Run"):
         if "ss_elem_df" not in st.session_state:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Carregue os elementos orbitais</p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
             st.markdown(log_error, unsafe_allow_html=True)
-        elif len(st.session_state["ss_elem_df"].index)>250:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Numero máximo de objetos 250</p>'
+        elif len(st.session_state["ss_elem_df"].index)>max_num_obj:
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects:' + max_num_obj + '</p>'
             st.markdown(log_error, unsafe_allow_html=True)
         else:
-            st.write('Numero de objetos: ', len(st.session_state["ss_elem_df"].index))
+            st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
             elem_df = st.session_state["ss_elem_df"]
 
             orbital_elem = elem_df.to_dict('records')
@@ -227,10 +227,10 @@ def main():
             df_traj = df_traj.join(df_orb)
             df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
 
-            st.write('Objetos que se aproximam do ponto de referência:')
+            st.write('Objects approaching the reference point:')
             st.dataframe(df_traj)
 
-            st.subheader('Arquivos:')       
+            st.subheader('Files:')       
             shutil.make_archive(dir_name, 'zip', dir_name)
 
             with open(dir_name + ".zip", "rb") as fp:
@@ -241,7 +241,14 @@ def main():
                     mime="application/zip"
                 )
 
-    st.sidebar.write('End')
+    st.sidebar.write('Files can be downloaded on the right side')
+
+    st.write('The files contain:')
+    st.write('orbital_elem.csv - Orbital elements of selected objects')
+    st.write('traj_data.csv - Relevant trajectory and object data')
+    st.write('*.trn files - Trajectory from H0, in the ENU reference system')
+    st.write('*.txt files - Trajectory from H0, in the ENU reference system, including distance and times for analysis')
+
     
     # txt_files = glob.glob(tempfile.gettempdir() + '/*/')
     # for line in txt_files:
