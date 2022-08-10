@@ -99,8 +99,7 @@ class SummarizeDataFiles:
         self.sel_resume = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],
                     "DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
 
-
-    def save_trajectories(self,pos,orbital_elem,idx,dir_name,rcs): 
+    def save_trajectories(self,pos,orbital_elem,dir_name,rcs): 
         for i in range(0, len(pos.traj)):
             tempo = pos.tempo[i]
             posenu = pos.traj[i]
@@ -112,11 +111,11 @@ class SummarizeDataFiles:
                     distenu, posenu)
 
             # Summarized data set of the trajectories obtained
-            self.sel_orbital_elem.append(orbital_elem[idx]) 
+            self.sel_orbital_elem.append(orbital_elem) 
             if pos.satellite.satnum in rcs.satnum:
                 self.sel_resume["RCS"].append(rcs.rcs[rcs.satnum.index(pos.satellite.satnum)])
             else:
-                self.sel_resume["RCS"].append(orbital_elem[idx]['RCS_SIZE'])
+                self.sel_resume["RCS"].append(orbital_elem['RCS_SIZE'])
             self.sel_resume["H0"].append(tempo[0].value)
             self.sel_resume["DIST_H0"].append(distenu[0])
             self.sel_resume["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
@@ -148,36 +147,6 @@ def main():
     sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Sampling rate (s): ', sample_time)
 
-    dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
-        min_value = 400,
-        max_value = 10000,
-        value = 1100,
-        step = 50)
-
-    st.write('Maximum distance to trajectory limits (Km): ', dmax)
-
-    dmin = st.sidebar.number_input('The minimum trajectory distance point from which the trajectory is saved (Km)',
-        min_value = 200,
-        max_value = 5000,
-        value = 1000,
-        step = 50)
-
-    st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
-
-    initial_date = st.sidebar.date_input("Start date of the automatic H0 search", key=1)
-    initial_time = st.sidebar.time_input("Start time of the automatic H0 search TU", time(11, 0,0),  key=2)
-    initial_datetime = datetime.combine(initial_date, initial_time)
-    initial_datetime=Time(initial_datetime)
-    initial_datetime.format = 'isot'
-    st.write('Search start time: ', initial_datetime)
-
-    final_date = st.sidebar.date_input("End date of the automatic H0 search", key=3)
-    final_time = st.sidebar.time_input("End time of the automatic H0 search TU", time(19, 0,0),  key=4)
-    final_datetime = datetime.combine(final_date, final_time)
-    final_datetime=Time(final_datetime)
-    final_datetime.format = 'isot'
-    st.write('Search end time: ', final_datetime)
-
     st.write('Reference point location: ')
     latitude = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
     longitude = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
@@ -188,6 +157,56 @@ def main():
     st.write('Latitude: ', latitude)
     st.write('Longitude: ', longitude)
     st.write('Altitude: ', altitude)
+
+    # Seleção do modo de obtenção das trajetórias
+    automatico="Automatic"
+    manual="Manual"
+
+    help='Automatic (D-2 or earlier): fetches approach periods, returns trajectories and configuration files. \n Manual (D-1 to D): recalculates trajectories with updated orbital elements, keeping the H0, using the configuration files obtained in a previous autorun'
+    menu = [automatico,manual]
+    choice = st.sidebar.selectbox("Trajectory search mode:",menu, help=help, key="mode" )
+
+    if choice == automatico:
+        st.sidebar.subheader("Automatic:")
+        dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
+            min_value = 400,
+            max_value = 10000,
+            value = 1100,
+            step = 50)
+
+        st.write('Maximum distance to trajectory limits (Km): ', dmax)
+
+        dmin = st.sidebar.number_input('The minimum trajectory distance point from which the trajectory is saved (Km)',
+            min_value = 200,
+            max_value = 5000,
+            value = 1000,
+            step = 50)
+
+        st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
+
+        initial_date = st.sidebar.date_input("Start date of the automatic H0 search", key=1)
+        initial_time = st.sidebar.time_input("Start time of the automatic H0 search TU", time(11, 0,0),  key=2)
+        initial_datetime=Time(datetime.combine(initial_date, initial_time))
+        initial_datetime.format = 'isot'
+        st.write('Search start time: ', initial_datetime)
+
+        final_date = st.sidebar.date_input("End date of the automatic H0 search", key=3)
+        final_time = st.sidebar.time_input("End time of the automatic H0 search TU", time(19, 0,0),  key=4)
+        final_datetime=Time(datetime.combine(final_date, final_time))
+        final_datetime.format = 'isot'
+        st.write('Search end time: ', final_datetime)
+    
+    elif choice == manual:
+        st.sidebar.subheader("Manual:")
+        help='Manual config file upload from H0: traj_data.csv file from a previous auto run or edited from it'
+        data_conf = st.sidebar.file_uploader("Upload configuração manual de H0 (traj_data.csv)",type=['csv'],help=help)
+        if data_conf is not None:
+            file_details = {"Filename":data_conf.name,"FileType":data_conf.type,"FileSize":data_conf.size}
+            st.write(file_details)
+            df_conf = pd.read_csv(data_conf)
+            st.dataframe(df_conf)
+
+    
     st.sidebar.title("Calculate trajectories:")
 
     max_num_obj = 250
@@ -210,23 +229,32 @@ def main():
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
             os.mkdir(dir_name)
             
-            sdf = SummarizeDataFiles()
-
+            sdf = SummarizeDataFiles()            
             for idx in range(0, len(orbital_elem)):
                 satellite = Satrec()
                 omm.initialize(satellite, orbital_elem[idx])
-                propag = PropagInit(satellite, lc, sample_time)
-                pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
+                propag = PropagInit(satellite, lc, sample_time) 
                 
-                sdf.save_trajectories(pos,orbital_elem,idx,dir_name,rcs)
+                mode = st.session_state["mode"]
+                if mode == automatico:                   
+                    pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
+                elif mode == manual:
+                    pos = propag.orbitpropag(Time(df_conf.loc[idx,'H0'], format='isot'), df_conf.loc[idx,'N_PT'])           
+                sdf.save_trajectories(pos,orbital_elem[idx],dir_name,rcs)
             
-            df_traj = pd.DataFrame(sdf.sel_resume)
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
 
+            df_traj = pd.DataFrame(sdf.sel_resume)
             df_traj = df_traj.join(df_orb)
-            df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
 
+            col_list = df_traj.columns.to_list()
+            col_first = ['NORAD_CAT_ID','OBJECT_NAME']
+            for line in col_first: col_list.remove(line)
+            col_first.extend(col_list)
+            df_traj = df_traj.reindex(columns=col_first)
+
+            df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
             st.write('Objects approaching the reference point:')
             st.dataframe(df_traj)
 
