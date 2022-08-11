@@ -203,7 +203,8 @@ def main():
         if data_conf is not None:
             file_details = {"Filename":data_conf.name,"FileType":data_conf.type,"FileSize":data_conf.size}
             st.write(file_details)
-            df_conf = pd.read_csv(data_conf)
+            usecols = ['NORAD_CAT_ID', 'H0', 'N_PT']
+            df_conf = pd.read_csv(data_conf,usecols=usecols)
             st.dataframe(df_conf)
 
     
@@ -219,29 +220,36 @@ def main():
             st.markdown(log_error, unsafe_allow_html=True)
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
-            elem_df = st.session_state["ss_elem_df"]
 
-            orbital_elem = elem_df.to_dict('records')
+            orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
+
             lc = LocalFrame(latitude, longitude, altitude)
 
-            rcs = RcsRead("data/RCS.csv")   
+            rcs = RcsRead("data/RCS.csv")  
+
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
             os.mkdir(dir_name)
-            
-            sdf = SummarizeDataFiles()            
-            for idx in range(0, len(orbital_elem)):
-                satellite = Satrec()
-                omm.initialize(satellite, orbital_elem[idx])
-                propag = PropagInit(satellite, lc, sample_time) 
-                
-                mode = st.session_state["mode"]
-                if mode == automatico:                   
+
+            sdf = SummarizeDataFiles() 
+            mode = st.session_state["mode"]
+            if mode == automatico:                           
+                for orbital_elem_row in orbital_elem:
+                    satellite = Satrec()
+                    omm.initialize(satellite, orbital_elem_row)
+                    propag = PropagInit(satellite, lc, sample_time) 
                     pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
-                elif mode == manual:
-                    pos = propag.orbitpropag(Time(df_conf.loc[idx,'H0'], format='isot'), df_conf.loc[idx,'N_PT'])           
-                sdf.save_trajectories(pos,orbital_elem[idx],dir_name,rcs)
-            
+                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
+
+            elif mode == manual:
+                for index, row in df_conf.iterrows():
+                    satellite = Satrec()
+                    orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
+                    omm.initialize(satellite, orbital_elem_row)
+                    propag = PropagInit(satellite, lc, sample_time) 
+                    pos = propag.orbitpropag(Time(row['H0'], format='isot'),row['N_PT'])
+                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)                      
+           
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
 
