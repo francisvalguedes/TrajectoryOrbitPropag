@@ -231,16 +231,25 @@ def main():
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
             os.mkdir(dir_name)
 
+            st.write('Progress bar:')
+            my_bar = st.progress(0)
+
             sdf = SummarizeDataFiles() 
             mode = st.session_state["mode"]
-            if mode == automatico:                           
-                for orbital_elem_row in orbital_elem:
+            if mode == automatico:                          
+                for index in range(len(orbital_elem)):
                     satellite = Satrec()
-                    omm.initialize(satellite, orbital_elem_row)
+                    omm.initialize(satellite, orbital_elem[index])
                     propag = PropagInit(satellite, lc, sample_time) 
                     pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
-                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
-
+                    sdf.save_trajectories(pos,orbital_elem[index],dir_name,rcs)
+                    my_bar.progress((index+1)/len(orbital_elem))
+                # for orbital_elem_row in orbital_elem:
+                #     satellite = Satrec()
+                #     omm.initialize(satellite, orbital_elem_row)
+                #     propag = PropagInit(satellite, lc, sample_time) 
+                #     pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
+                #     sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
             elif mode == manual:
                 for index, row in df_conf.iterrows():
                     satellite = Satrec()
@@ -248,7 +257,8 @@ def main():
                     omm.initialize(satellite, orbital_elem_row)
                     propag = PropagInit(satellite, lc, sample_time) 
                     pos = propag.orbitpropag(Time(row['H0'], format='isot'),row['N_PT'])
-                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)                      
+                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
+                    my_bar.progress((index+1)/len(df_conf.index))                     
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
