@@ -42,8 +42,9 @@ def update_elements(norad_ids, loguin, password):
     return  True
 
 def get_orbital_element():
-    # Seleção do modo de atualização dos elementos orbitais
+    # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.title("Orbital elements:")
+    # expander = st.sidebar.expander("Orbital elements:", expanded=True)
     help=('Space-Track: Obtains orbital elements automatically from Space-Track (requires registration in Space-Track))  \n'
         'Elements file: Load elements file from another source or manually obtained from Space-Track (TLE, 3LE ou JSON).')
 
@@ -141,7 +142,7 @@ def main():
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df)
 
-    st.sidebar.title("Settings")
+    st.sidebar.title("Settings:")
 
     # Seleção do tempo de amostragem
     sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
@@ -184,14 +185,16 @@ def main():
 
         st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
 
-        initial_date = st.sidebar.date_input("Start date of the automatic H0 search", key=1)
-        initial_time = st.sidebar.time_input("Start time of the automatic H0 search TU", time(11, 0,0),  key=2)
+        st.sidebar.write('Start and end time for H0 search TU:')
+        col1, col2 = st.sidebar.columns(2)
+        initial_date = col1.date_input("Start date", key=1)
+        initial_time = col2.time_input("Start time", time(11, 0,0),  key=2)
         initial_datetime=Time(datetime.combine(initial_date, initial_time))
         initial_datetime.format = 'isot'
         st.write('Search start time: ', initial_datetime)
 
-        final_date = st.sidebar.date_input("End date of the automatic H0 search", key=3)
-        final_time = st.sidebar.time_input("End time of the automatic H0 search TU", time(19, 0,0),  key=4)
+        final_date = col1.date_input("End date", key=3)
+        final_time = col2.time_input("End time", time(19, 0,0),  key=4)
         final_datetime=Time(datetime.combine(final_date, final_time))
         final_datetime.format = 'isot'
         st.write('Search end time: ', final_datetime)
