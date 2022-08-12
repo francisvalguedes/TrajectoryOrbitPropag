@@ -4,11 +4,11 @@ from astropy.coordinates import TEME, CartesianRepresentation  # CartesianDiffer
 from astropy import units as u
 from astropy.coordinates import ITRS
 from astropy.time import Time
+from astropy.time import TimeDelta
 
 import pymap3d as pm
 
-import os
-import glob
+import numpy as np
 
 class PropagInit:
     def __init__(self, satellite, lc, sample_time=1):
@@ -23,7 +23,36 @@ class PropagInit:
         self.dmin = []
         self.hrmin = []
 
+    def orbit_propag(self, h0, n):
+    # Fast array accelerated
+        time_array = np.linspace(h0,h0 + TimeDelta((n -1)* u.s),n)
+        error_code, teme_p, teme_v = self.satellite.sgp4_array(time_array.jd1, time_array.jd2)
+        teme_p = np.array(teme_p)
+        x, y, z = teme_p[:,0], teme_p[:,1], teme_p[:,2]
+        teme_p = CartesianRepresentation(x*u.km, y*u.km, z*u.km)
+        teme = TEME(teme_p, obstime=time_array)  
+        itrsp = teme.transform_to(ITRS(obstime=time_array))
+        location = itrsp.earth_location
+        enu_p = pm.ecef2enu(1000 * location.x.value,
+                            1000 * location.y.value,
+                            1000 * location.z.value, self.lc.lat,
+                                    self.lc.lon, self.lc.height)
+
+        enu_p = np.transpose(enu_p)
+        enu_d = np.linalg.norm(enu_p,axis=1)
+        min_index = np.argmin(enu_d)
+        d_min = enu_d[min_index]
+  
+        self.tempo.append(time_array)
+        self.traj.append(enu_p)
+        self.dist.append(enu_d)
+        self.hdmin.append(time_array[min_index])
+        self.dmin.append(d_min)
+        self.hrmin.append(min_index)
+        return self
+
     def orbitpropag(self, t_inic, n):
+    # Slowly, obsolete
         tvar = t_inic
 
         enu_dv = []
@@ -76,7 +105,7 @@ class PropagInit:
         return self
 
     def searchh0(self, t_inic, t_final, distmin, distmin2,  n):
-
+    # Slowly, obsolete in process update
         enu_dv = []
         tv = []
         enu_pv = []
