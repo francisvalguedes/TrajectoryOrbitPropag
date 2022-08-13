@@ -3,31 +3,35 @@ from sgp4.api import SGP4_ERRORS
 from astropy.coordinates import TEME, CartesianRepresentation  # CartesianDifferential
 from astropy import units as u
 from astropy.coordinates import ITRS
-from astropy.time import Time
-from astropy.time import TimeDelta
 
 import pymap3d as pm
 
+import pandas as pd
+from sgp4 import omm
+from sgp4.api import Satrec
+from astropy.time import Time
+from astropy.time import TimeDelta
+import time
 import numpy as np
 
 class PropagInit:
-    def __init__(self, satellite, lc, sample_time=1):
-        self.satellite = satellite
+    def __init__(self, orbital_elem, lc, sample_time=1):
         self.lc = lc
         self.sample_time = sample_time
-
+        self.sample_fast = 30
         self.tempo = []
         self.traj = []
         self.dist = []
         self.hdmin = []
         self.dmin = []
         self.hrmin = []
+        satellite = Satrec()
+        omm.initialize(satellite, orbital_elem)
+        self.satellite = satellite
 
-    def orbit_propag(self, h0, n):
-    # Fast array accelerated
-        time_array = np.linspace(h0,h0 + TimeDelta((n -1)* u.s),n)
+    def orbit_propag(self, h0, n, sample_time_v):
+        time_array = np.linspace(h0,h0 + TimeDelta(sample_time_v*(n -1)* u.s),n)
         error_code, teme_p, teme_v = self.satellite.sgp4_array(time_array.jd1, time_array.jd2)
-        #teme_p = np.array(teme_p)
         x, y, z = teme_p[:,0], teme_p[:,1], teme_p[:,2]
         teme_p = CartesianRepresentation(x*u.km, y*u.km, z*u.km)
         teme = TEME(teme_p, obstime=time_array)  
@@ -39,9 +43,15 @@ class PropagInit:
                                     self.lc.lon, self.lc.height)
 
         enu_p = np.transpose(enu_p)
-        enu_d = np.linalg.norm(enu_p,axis=1)
+        enu_d = np.linalg.norm(enu_p,axis=1)   
+
+        return time_array, enu_p, enu_d
+
+    def traj_calc(self, h0, n):
+        time_array, enu_p, enu_d = self.orbit_propag(h0, n, self.sample_time)        
         min_index = np.argmin(enu_d)
         d_min = enu_d[min_index]
+        posit_min = enu_p[min_index]
   
         self.tempo.append(time_array)
         self.traj.append(enu_p)
@@ -49,6 +59,47 @@ class PropagInit:
         self.hdmin.append(time_array[min_index])
         self.dmin.append(d_min)
         self.hrmin.append(min_index)
+        return self
+
+    def search2h0(self, t_inic, t_final, dist_max, dist_min):
+        time_array, enu_p, enu_d = self.orbit_propag(t_inic,
+                                                    1 + int((t_final-t_inic)/TimeDelta(self.sample_fast * u.s)),
+                                                    self.sample_fast)
+        #print(time_array)
+        dist_dif = enu_d - dist_max
+        idx1 = np.where(dist_dif[:-1] * dist_dif[1:] < 0 )[0] +1
+
+        i = 0
+        while i < len(idx1)-1:
+            if dist_dif[idx1[i]]<0:
+                #print( 'H0: {}, HF: {} \n'.format(time_array[idx1[i]], time_array[idx1[i+1]]))
+                t_in = time_array[idx1[i]] - TimeDelta(self.sample_fast * u.s)
+                t_o = time_array[idx1[i+1]]
+                #print( 'H0: {}, HF: {} \n'.format(t_in, t_o))        
+                time_array1, enu_p, enu_d = self.orbit_propag(t_in,
+                                                            1 + int((t_o-t_in)/TimeDelta(self.sample_time * u.s)),
+                                                            self.sample_time)
+
+                #print( 'H0: {}, HF: {}, dmin: {}, d0: {}, df: {} \n'.format(time_array1[0], time_array1[-1], np.min(enu_d),enu_d[0],enu_d[-1] ))
+                idx = np.where(enu_d < dist_max)[0]
+                time_array1 = time_array1[idx]
+                enu_p = enu_p[idx]
+                enu_d = enu_d[idx]                
+                
+                min_index = np.argmin(enu_d)
+                d_min = enu_d[min_index]
+
+                if d_min < dist_min:
+                    self.tempo.append(time_array1)
+                    self.traj.append(enu_p)
+                    self.dist.append(enu_d)
+                    self.hdmin.append(time_array1[min_index])
+                    self.dmin.append(d_min)
+                    self.hrmin.append(min_index)                
+                i+=2
+            else: 
+                i+=1        
+
         return self
 
     def orbitpropag(self, t_inic, n):

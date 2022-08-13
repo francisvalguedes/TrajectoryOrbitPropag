@@ -241,19 +241,15 @@ def main():
             mode = st.session_state["mode"]
             if mode == automatico:                          
                 for index in range(len(orbital_elem)):
-                    satellite = Satrec()
-                    omm.initialize(satellite, orbital_elem[index])
-                    propag = PropagInit(satellite, lc, sample_time) 
-                    pos = propag.searchh0(initial_datetime, final_datetime, dmax*1000, dmin*1000, 10000)
+                    propag = PropagInit(orbital_elem[index], lc, sample_time) 
+                    pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
                     sdf.save_trajectories(pos,orbital_elem[index],dir_name,rcs)
                     my_bar.progress((index+1)/len(orbital_elem))
             elif mode == manual:
                 for index, row in df_conf.iterrows():
-                    satellite = Satrec()
                     orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
-                    omm.initialize(satellite, orbital_elem_row)
-                    propag = PropagInit(satellite, lc, sample_time) 
-                    pos = propag.orbit_propag(Time(row['H0'], format='isot'),row['N_PT'])
+                    propag = PropagInit(orbital_elem_row, lc, sample_time) 
+                    pos = propag.traj_calc(Time(row['H0'], format='isot'),row['N_PT'])
                     sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
