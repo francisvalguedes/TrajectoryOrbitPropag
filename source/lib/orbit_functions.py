@@ -27,7 +27,7 @@ class PropagInit:
     # Fast array accelerated
         time_array = np.linspace(h0,h0 + TimeDelta((n -1)* u.s),n)
         error_code, teme_p, teme_v = self.satellite.sgp4_array(time_array.jd1, time_array.jd2)
-        teme_p = np.array(teme_p)
+        #teme_p = np.array(teme_p)
         x, y, z = teme_p[:,0], teme_p[:,1], teme_p[:,2]
         teme_p = CartesianRepresentation(x*u.km, y*u.km, z*u.km)
         teme = TEME(teme_p, obstime=time_array)  
