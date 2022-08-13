@@ -71,11 +71,15 @@ def get_orbital_element():
             else:
                 st.markdown("NORAD_CAT_ID file not loaded")
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
-
+            
             st.dataframe(df_norad_ids)
-            if update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha):
-                st.markdown('Orbital elements obtained from Space-Track:')
-               
+            max_num_norad = 650 
+            if len(df_norad_ids.index)<max_num_norad:
+                if update_elements(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],SpaceTrackLoguin,SpaceTracksenha):
+                    st.markdown('Orbital elements obtained from Space-Track:')
+            else:                
+                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_norad) + ' , please load orbital elements manually</p>'
+                st.markdown(log_error, unsafe_allow_html=True)               
 
     elif choiceUpdate == "Orbital Elements File":
         data_elements = st.sidebar.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
@@ -213,13 +217,13 @@ def main():
     
     st.sidebar.title("Calculate trajectories:")
 
-    max_num_obj = 250
+    max_num_obj = 2000
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
             st.markdown(log_error, unsafe_allow_html=True)
         elif len(st.session_state["ss_elem_df"].index)>max_num_obj:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects:' + max_num_obj + '</p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_obj) + ' </p>'
             st.markdown(log_error, unsafe_allow_html=True)
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
