@@ -116,7 +116,7 @@ class SummarizeDataFiles:
             if pos.satellite.satnum in rcs.satnum:
                 self.sel_resume["RCS"].append(rcs.rcs[rcs.satnum.index(pos.satellite.satnum)])
             else:
-                self.sel_resume["RCS"].append(orbital_elem['RCS_SIZE'])
+                self.sel_resume["RCS"].append(0.0)
             self.sel_resume["H0"].append(tempo[0].value)
             self.sel_resume["DIST_H0"].append(distenu[0])
             self.sel_resume["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
