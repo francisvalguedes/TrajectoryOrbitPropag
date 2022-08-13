@@ -224,7 +224,7 @@ def main():
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
 
-            orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
+            orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
 
             lc = LocalFrame(latitude, longitude, altitude)
 
