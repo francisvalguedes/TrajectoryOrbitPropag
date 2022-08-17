@@ -270,7 +270,7 @@ def main():
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
-            df_orb.to_csv(dir_name + "/"+ date_time[0:-4] +"_orbital_elem.csv", index=False)
+            df_orb.to_csv(dir_name + "/"+ date_time[0:19] +"_orbital_elem.csv", index=False)
 
             df_traj = pd.DataFrame(sdf.sel_resume)
             df_traj = df_traj.join(df_orb)
@@ -281,7 +281,7 @@ def main():
             col_first.extend(col_list)
             df_traj = df_traj.reindex(columns=col_first)
 
-            df_traj.to_csv(dir_name + "/"+ date_time[0:-4] +"_traj_summary.csv", index=False)
+            df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
             st.write('Objects approaching the reference point:')
             st.dataframe(df_traj)
 
@@ -292,7 +292,7 @@ def main():
                 btn = st.download_button(
                     label="Download",
                     data=fp,
-                    file_name="results_"+ date_time[0:-4] +".zip",
+                    file_name="results_"+ date_time[0:19] +".zip",
                     mime="application/zip"
                 )
 
