@@ -16,6 +16,7 @@ from sgp4.api import Satrec
 import os
 import tempfile
 import glob
+import numpy as np
 
 #from lib.sistem import update_elements
 from lib.io_functions import LocalFrame, RcsRead, writetrn, writedots
@@ -101,34 +102,44 @@ def get_orbital_element():
 class SummarizeDataFiles:
     def __init__(self):
         self.sel_orbital_elem = []
-        self.sel_resume = { "H0":[], "DIST_H0":[],"H_DIST_MIN":[],"PT_DIST_MIN":[],
-                    "DIST_MIN":[],"HF":[], "N_PT":[], "DIST_HF":[],"RCS":[] }
+        self.sel_resume = { "H0":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
+                    "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[],"RCS":[] }
 
     def save_trajectories(self,pos,orbital_elem,dir_name,rcs): 
-        for i in range(0, len(pos.traj)):
-            tempo = pos.tempo[i]
-            posenu = pos.traj[i]
-            distenu = pos.dist[i]
+        for i in range(0, len(pos.time_array)):
+            time_arr = pos.time_array[i]
             
-            ttxt = tempo[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
-            writetrn(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn", posenu)
-            writedots(dir_name + "/" + "pontos-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.txt", tempo,
-                    distenu, posenu)
+            ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
+            #writetrn(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU1.trn", pos.enu[i])  
 
-            # Summarized data set of the trajectories obtained
+            df_enu = pd.DataFrame(pos.enu[i])
+            df_enu.to_csv(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn",
+                            index=False, header=['1',str(len(df_enu.index)),'1'],float_format="%.3f")
+
+            df_data = pd.DataFrame(np.concatenate((
+                            time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
+                            pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
+                            'ENU_E(m)','ENU_N(m)','ENU_U(m)', 'AZ(deg)','ELEV(deg)','RANGE(m)',
+                            'ITRS_X(km)','ITRS_Y(km)','ITRS_Z(km)','LON(deg)','LAT(deg)','HEIGHT(km)'])
+            df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
+
+            enu_d = pos.az_el_r[i][:,2]
+            min_index = np.argmin(enu_d)
+            min_d = enu_d[min_index]
+
             self.sel_orbital_elem.append(orbital_elem) 
             if pos.satellite.satnum in rcs.satnum:
                 self.sel_resume["RCS"].append(rcs.rcs[rcs.satnum.index(pos.satellite.satnum)])
             else:
                 self.sel_resume["RCS"].append(0.0)
-            self.sel_resume["H0"].append(tempo[0].value)
-            self.sel_resume["DIST_H0"].append(distenu[0])
-            self.sel_resume["H_DIST_MIN"].append(pos.hdmin[i].value[11:])
-            self.sel_resume["PT_DIST_MIN"].append(pos.hrmin[i])
-            self.sel_resume["DIST_MIN"].append(pos.dmin[i])
-            self.sel_resume["HF"].append(tempo[len(tempo) - 1].value[11:])
-            self.sel_resume["N_PT"].append(len(distenu) - 1)
-            self.sel_resume["DIST_HF"].append(distenu[len(distenu) - 1])        
+            self.sel_resume["H0"].append(time_arr[0].value)
+            self.sel_resume["RANGE_H0"].append(enu_d[0])
+            self.sel_resume["MIN_RANGE_H"].append(time_arr[min_index].strftime('%H:%M:%S.%f'))
+            self.sel_resume["MIN_RANGE_PT"].append(min_index)
+            self.sel_resume["MIN_RANGE"].append(min_d)
+            self.sel_resume["END_H"].append(time_arr[-1].strftime('%H:%M:%S.%f'))
+            self.sel_resume["END_PT"].append(len(enu_d) - 1)
+            self.sel_resume["END_RANGE"].append(enu_d[-1]) 
 
 
 def main(): 
@@ -201,7 +212,7 @@ def main():
         final_time = col2.time_input("End time", time(19, 0,0),  key=4)
         final_datetime=Time(datetime.combine(final_date, final_time))
         final_datetime.format = 'isot'
-        st.write('Search end time: ', final_datetime)
+        st.write('Search end time: ', final_datetime)     
     
     elif choice == manual:
         st.sidebar.subheader("Manual:")
@@ -236,13 +247,14 @@ def main():
 
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
-            os.mkdir(dir_name)
+            os.mkdir(dir_name)          
 
             st.write('Progress bar:')
             my_bar = st.progress(0)
 
             sdf = SummarizeDataFiles() 
             mode = st.session_state["mode"]
+
             if mode == automatico:                          
                 for index in range(len(orbital_elem)):
                     propag = PropagInit(orbital_elem[index], lc, sample_time) 
@@ -258,7 +270,7 @@ def main():
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
-            df_orb.to_csv(dir_name + "/orbital_elem.csv", index=False)
+            df_orb.to_csv(dir_name + "/"+ date_time[0:-4] +"_orbital_elem.csv", index=False)
 
             df_traj = pd.DataFrame(sdf.sel_resume)
             df_traj = df_traj.join(df_orb)
@@ -269,7 +281,7 @@ def main():
             col_first.extend(col_list)
             df_traj = df_traj.reindex(columns=col_first)
 
-            df_traj.to_csv(dir_name + "/traj_data.csv", index=False)
+            df_traj.to_csv(dir_name + "/"+ date_time[0:-4] +"_traj_summary.csv", index=False)
             st.write('Objects approaching the reference point:')
             st.dataframe(df_traj)
 
@@ -280,7 +292,7 @@ def main():
                 btn = st.download_button(
                     label="Download",
                     data=fp,
-                    file_name="orbit_results.zip",
+                    file_name="results_"+ date_time[0:-4] +".zip",
                     mime="application/zip"
                 )
 
