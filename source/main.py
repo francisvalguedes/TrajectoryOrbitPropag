@@ -53,7 +53,7 @@ def get_orbital_element():
     choiceUpdate = st.sidebar.selectbox("Source of orbital elements:",menuUpdate,help=help)
     if choiceUpdate == "Space-Track":
 
-        SpaceTrackLoguin = st.sidebar.text_input('Space-Track login:')        
+        SpaceTrackLoguin = st.sidebar.text_input('Email Space-Track login:')        
         if SpaceTrackLoguin=="":
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Load the login Space-Track</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)       
