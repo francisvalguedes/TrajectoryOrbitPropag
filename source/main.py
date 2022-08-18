@@ -1,25 +1,16 @@
-# https://blog.jcharistech.com/2020/11/08/working-with-file-uploads-in-streamlit-python/
-# https://celestrak.com/satcat/search.php
 import streamlit as st
 import pandas as pd
-# import datetime
+
 from datetime import datetime
 from datetime import time
 
-import json
 import shutil
 from astropy.time import Time
 
-from sgp4 import omm
-from sgp4.api import Satrec
-
 import os
 import tempfile
-import glob
 import numpy as np
 
-#from lib.sistem import update_elements
-from lib.io_functions import LocalFrame, RcsRead, writetrn, writedots
 from lib.orbit_functions import  PropagInit
 
 from spacetrack import SpaceTrackClient
@@ -49,11 +40,16 @@ def get_orbital_element():
     help=('Space-Track: Obtains orbital elements automatically from Space-Track (requires registration in Space-Track))  \n'
         'Elements file: Load elements file from another source or manually obtained from Space-Track (TLE, 3LE ou JSON).')
 
-    menuUpdate = ["Space-Track","Orbital Elements File"]
+    menuUpdate = ["Celestrak", "Space-Track","Orbital Elements File"]
     choiceUpdate = st.sidebar.selectbox("Source of orbital elements:",menuUpdate,help=help)
-    if choiceUpdate == "Space-Track":
+    if choiceUpdate == "Celestrak":
+        norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
+        elem_df = pd.read_csv('https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv')
+        st.session_state.ss_elem_df = elem_df
+        st.markdown('Orbital elements obtained from Celestrak:')
 
-        SpaceTrackLoguin = st.sidebar.text_input('Email Space-Track login:')        
+    elif choiceUpdate == "Space-Track":
+        SpaceTrackLoguin = st.sidebar.text_input('User name Space-Track:')
         if SpaceTrackLoguin=="":
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Load the login Space-Track</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)       
@@ -110,7 +106,6 @@ class SummarizeDataFiles:
             time_arr = pos.time_array[i]
             
             ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
-            #writetrn(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU1.trn", pos.enu[i])  
 
             df_enu = pd.DataFrame(pos.enu[i])
             df_enu.to_csv(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn",
@@ -128,8 +123,8 @@ class SummarizeDataFiles:
             min_d = enu_d[min_index]
 
             self.sel_orbital_elem.append(orbital_elem) 
-            if pos.satellite.satnum in rcs.satnum:
-                self.sel_resume["RCS"].append(rcs.rcs[rcs.satnum.index(pos.satellite.satnum)])
+            if pos.satellite.satnum in rcs['NORAD_CAT_ID']:
+                self.sel_resume["RCS"].append(rcs['RCS'][rcs['NORAD_CAT_ID'].index(pos.satellite.satnum)])
             else:
                 self.sel_resume["RCS"].append(0.0)
             self.sel_resume["H0"].append(time_arr[0].value)
@@ -164,15 +159,14 @@ def main():
     st.write('Sampling rate (s): ', sample_time)
 
     st.write('Reference point location: ')
-    latitude = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
-    longitude = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
-    altitude = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
+    lc = { "lat":0, "lon":0,"height":0}
+    lc['lat'] = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
+    lc['lon'] = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
+    lc['height'] = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
 
-    # localizacao = {'Nome': nomeLoc, 'latitude': latitude, 'longitude': longitude, 'altitude': altitude }
-    lc = LocalFrame(latitude, longitude, altitude)
-    st.write('Latitude: ', latitude)
-    st.write('Longitude: ', longitude)
-    st.write('Altitude: ', altitude)
+    st.write('Latitude: ', lc['lat'])
+    st.write('Longitude: ', lc['lon'] )
+    st.write('Altitude: ', lc['height'])
 
     # Seleção do modo de obtenção das trajetórias
     automatico="Automatic"
@@ -241,9 +235,7 @@ def main():
 
             orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
 
-            lc = LocalFrame(latitude, longitude, altitude)
-
-            rcs = RcsRead("data/RCS.csv")  
+            rcs = pd.read_csv('data/RCS.csv').to_dict('list')
 
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time

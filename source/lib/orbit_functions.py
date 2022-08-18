@@ -6,12 +6,10 @@ from astropy.coordinates import ITRS
 
 import pymap3d as pm
 
-import pandas as pd
 from sgp4 import omm
 from sgp4.api import Satrec
 from astropy.time import Time
 from astropy.time import TimeDelta
-import time
 import numpy as np
 
 class PropagInit:
@@ -38,7 +36,7 @@ class PropagInit:
         enu_p = pm.ecef2enu(u.km.to(u.m,location.x).value,
                     u.km.to(u.m,location.y).value,
                     u.km.to(u.m,location.z).value,
-                    self.lc.lat, self.lc.lon, self.lc.height)
+                    self.lc['lat'], self.lc['lon'], self.lc['height'])
         az_el_r = np.transpose(pm.enu2aer(enu_p[0],enu_p[1],enu_p[2]))
         enu_p = np.transpose(enu_p)
         geodetic = np.transpose(location.geodetic)
@@ -127,8 +125,8 @@ class PropagInit:
     #         itrsp = teme.transform_to(ITRS(obstime=tvar))
     #         location = itrsp.earth_location
     #         # location.geodetic
-    #         enu_p = pm.ecef2enu(1000 * location.x.value, 1000 * location.y.value, 1000 * location.z.value, self.lc.lat,
-    #                             self.lc.lon, self.lc.height)
+    #         enu_p = pm.ecef2enu(1000 * location.x.value, 1000 * location.y.value, 1000 * location.z.value, self.lc['lat'],
+    #                             self.lc['lon'], self.lc['height'])
     #         enu_d = (enu_p[0] ** 2 + enu_p[1] ** 2 + enu_p[2] ** 2) ** 0.5
     #         enu_dv.append(enu_d)
     #         enu_pv.append(enu_p)
@@ -176,8 +174,8 @@ class PropagInit:
     #         itrsp = teme.transform_to(ITRS(obstime=tvar))
     #         location = itrsp.earth_location
     #         # location.geodetic
-    #         enu_p = pm.ecef2enu(1000 * location.x.value, 1000 * location.y.value, 1000 * location.z.value, self.lc.lat,
-    #                             self.lc.lon, self.lc.height)
+    #         enu_p = pm.ecef2enu(1000 * location.x.value, 1000 * location.y.value, 1000 * location.z.value, self.lc['lat'],
+    #                             self.lc['lon'], self.lc['height'])
     #         enu_d = (enu_p[0]**2 + enu_p[1]**2 + enu_p[2]**2)**0.5
 
     #         if enu_d > distmin:
