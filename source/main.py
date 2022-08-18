@@ -138,9 +138,9 @@ class SummarizeDataFiles:
 
 
 def main(): 
-    st.title("OPTR - Orbit Propagator Tracking Radar")
-    st.subheader('**Satellite orbit propagation and trajectory generation, for radar tracking**')
-    st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in a local plane reference (ENU), to be used as a target for Radar Tracking')
+    st.title("OPTAS - Orbit Propagator for Tracking Earth's Artificial Satellites")
+    st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites)**')
+    st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system')
     st.markdown('by: Francisval Guedes Soares, Email: francisvalg@gmail.com')
     st.subheader('**Saídas:**')
 
