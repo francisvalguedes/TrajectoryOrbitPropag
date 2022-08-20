@@ -6,6 +6,8 @@ from datetime import time
 
 import shutil
 from astropy.time import Time
+from astropy.time import TimeDelta
+from astropy import units as u
 
 import os
 import tempfile
@@ -206,7 +208,13 @@ def main():
         final_time = col2.time_input("End time", time(19, 0,0),  key=4)
         final_datetime=Time(datetime.combine(final_date, final_time))
         final_datetime.format = 'isot'
-        st.write('Search end time: ', final_datetime)     
+        st.write('Search end time: ', final_datetime) 
+
+        max_time = TimeDelta(7*u.d)
+        if  (final_datetime - initial_datetime)> max_time:
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_time) + ' days </p>'
+            st.markdown(log_error, unsafe_allow_html=True)
+            final_datetime = initial_datetime + max_time
     
     elif choice == manual:
         st.sidebar.subheader("Manual:")
