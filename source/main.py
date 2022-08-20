@@ -159,10 +159,10 @@ def main():
     st.write('Sampling rate (s): ', sample_time)
 
     st.write('Reference point location: ')
-    lc = { "lat":0, "lon":0,"height":0}
-    lc['lat'] = st.sidebar.number_input('Latitude',-90.0, 90.0,value= -5.923568, format="%.6f")
-    lc['lon'] = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.167801, format="%.6f")
-    lc['height'] = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 50.0, format="%.6f")
+    lc = { "lat":0, "lon":0,"height":0} 
+    lc['lat'] = st.sidebar.number_input('Latitude',-90.0, 90.0,value=-5.919178, format="%.6f")
+    lc['lon'] = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.173372, format="%.6f")
+    lc['height'] = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 55.0, format="%.6f")
 
     st.write('Latitude: ', lc['lat'])
     st.write('Longitude: ', lc['lon'] )
@@ -222,7 +222,7 @@ def main():
     
     st.sidebar.title("Calculate trajectories:")
 
-    max_num_obj = 2000
+    max_num_obj = 5000
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
