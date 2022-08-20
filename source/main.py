@@ -212,7 +212,7 @@ def main():
 
         max_time = TimeDelta(7*u.d)
         if  (final_datetime - initial_datetime)> max_time:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_time) + ' days </p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum time delta: ' + str(max_time) + ' days </p>'
             st.markdown(log_error, unsafe_allow_html=True)
             final_datetime = initial_datetime + max_time
     
@@ -230,7 +230,7 @@ def main():
     
     st.sidebar.title("Calculate trajectories:")
 
-    max_num_obj = 5000
+    max_num_obj = 5000 # - max_time
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
