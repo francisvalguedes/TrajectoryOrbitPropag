@@ -210,7 +210,7 @@ def main():
         final_datetime.format = 'isot'
         st.write('Search end time: ', final_datetime) 
 
-        max_time = TimeDelta(7*u.d)
+        max_time = TimeDelta(8*u.d)
         if  (final_datetime - initial_datetime)> max_time:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum time delta: ' + str(max_time) + ' days </p>'
             st.markdown(log_error, unsafe_allow_html=True)
@@ -230,13 +230,14 @@ def main():
     
     st.sidebar.title("Calculate trajectories:")
 
-    max_num_obj = 5000 # - max_time
+    max_num_obj = np.ceil(1 + 5000*(max_time - (final_datetime - initial_datetime))/max_time)
+    st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(final_datetime - initial_datetime) + ' days')
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
             st.markdown(log_error, unsafe_allow_html=True)
         elif len(st.session_state["ss_elem_df"].index)>max_num_obj:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_obj) + ' </p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(final_datetime - initial_datetime) + ' days </p>'
             st.markdown(log_error, unsafe_allow_html=True)
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
