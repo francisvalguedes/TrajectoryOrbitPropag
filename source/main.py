@@ -19,6 +19,7 @@ from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
 from io import StringIO
 
+import glob
 # streamlit run source/main.py
 
 # ----------------------------------------------------------------------
@@ -59,8 +60,6 @@ class SpaceTrackClientInit(SpaceTrackClient):
 def get_orbital_element():
     # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.subheader("Orbital elements:")
-    # expander = st.sidebar.expander("Orbital elements:", expanded=True)
-
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
         'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')
@@ -69,8 +68,8 @@ def get_orbital_element():
     MENU_UPDATE2="Space-Track"
     MENU_UPDATE3="Orbital Elements File"
     menuUpdate = [MENU_UPDATE1, MENU_UPDATE2,MENU_UPDATE3]
-    if "choiceUpdate" not in st.session_state:
-        st.session_state.choiceUpdate = MENU_UPDATE1
+    # if "choiceUpdate" not in st.session_state:
+    #     st.session_state.choiceUpdate = MENU_UPDATE1
     st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)  
 
     if st.session_state["choiceUpdate"] == MENU_UPDATE1:
@@ -111,8 +110,8 @@ def get_orbital_element():
         + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
         + MENU_STC3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
 
-        if "choice_stc" not in st.session_state:
-            st.session_state.choice_stc = MENU_STC1
+        # if "choice_stc" not in st.session_state:
+        #     st.session_state.choice_stc = MENU_STC1
         st.sidebar.selectbox("Choice of orbital elements dataset:",menu_stc, key="choice_stc", help=help_stc)
                 
         if st.session_state["choice_stc"] == MENU_STC3:            
@@ -210,7 +209,6 @@ class SummarizeDataFiles:
             self.sel_resume["END_H"].append(time_arr[-1].strftime('%H:%M:%S.%f'))
             self.sel_resume["END_PT"].append(len(enu_d) - 1)
             self.sel_resume["END_RANGE"].append(enu_d[-1]) 
-
 
 def main(): 
     if "stc_loged" not in st.session_state:
@@ -395,7 +393,8 @@ def main():
     st.write('*.txt files - Trajectory from H0, in the ENU reference system, including distance and times for analysis')
 
     
-    # txt_files = glob.glob(tempfile.gettempdir() + '/*/')
+    txt_files = glob.glob(tempfile.gettempdir() + '/*/')
+    st.write('tmp files count: ', len(txt_files))
     # for line in txt_files:
     #     st.markdown(line)
 
