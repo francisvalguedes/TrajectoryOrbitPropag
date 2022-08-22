@@ -390,7 +390,7 @@ def main():
     st.write('orbital_elem.csv - Orbital elements of selected objects')
     st.write('traj_data.csv - Relevant trajectory and object data')
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
-    st.write('*.txt files - Trajectory from H0, in the ENU reference system, including distance and times for analysis')
+    st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
 
     
     txt_files = glob.glob(tempfile.gettempdir() + '/*/')
