@@ -19,6 +19,7 @@ from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
 from io import StringIO
 
+# streamlit run source/main.py
 
 # ----------------------------------------------------------------------
 # Atualiza a ultima versão dos elementos orbitais no site do Space-Track
@@ -59,21 +60,27 @@ def get_orbital_element():
     # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.subheader("Orbital elements:")
     # expander = st.sidebar.expander("Orbital elements:", expanded=True)
+
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
         'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')
-
-    menuUpdate = ["Celestrak", "Space-Track","Orbital Elements File"]
-    st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)
     
-    if st.session_state["choiceUpdate"] == "Celestrak":
+    MENU_UPDATE1="Celestrak"
+    MENU_UPDATE2="Space-Track"
+    MENU_UPDATE3="Orbital Elements File"
+    menuUpdate = [MENU_UPDATE1, MENU_UPDATE2,MENU_UPDATE3]
+    if "choiceUpdate" not in st.session_state:
+        st.session_state.choiceUpdate = MENU_UPDATE1
+    st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)  
+
+    if st.session_state["choiceUpdate"] == MENU_UPDATE1:
         norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
         elem_df = pd.read_csv('https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv')
         st.session_state.ss_elem_df = elem_df
         st.write('Orbital elements obtained from Celestrak:')
         st.write('Updated Orbital Element File:')
 
-    elif st.session_state["choiceUpdate"] == "Space-Track":   
+    elif st.session_state["choiceUpdate"] == MENU_UPDATE2:   
          
         link = '[See the link of Space-Track API](https://www.space-track.org/documentation#/api)'
         st.markdown(link, unsafe_allow_html=True)
@@ -96,37 +103,39 @@ def get_orbital_element():
             fcol2.write("Status: Logged")
         else:  fcol2.write("Status: Unlogged")
 
-        menu_stc1 = "App's list 200+ NORAD_CAT_ID"
-        menu_stc2 = "App's selection 3000+ NORAD_CAT_ID"
-        menu_stc3 = "Personalized NORAD_CAT_ID file"
-        menu_stc = [menu_stc1, menu_stc2, menu_stc3]
-        help_stc=(menu_stc1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
-        + menu_stc2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
-        + menu_stc3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
+        MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
+        MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
+        MENU_STC3 = "Personalized NORAD_CAT_ID file"
+        menu_stc = [MENU_STC1, MENU_STC2, MENU_STC3]
+        help_stc=(MENU_STC1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
+        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
+        + MENU_STC3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
 
-        help_stc = 'select the set of NORAD_CAT_ID to be updated'
+        if "choice_stc" not in st.session_state:
+            st.session_state.choice_stc = MENU_STC1
         st.sidebar.selectbox("Choice of orbital elements dataset:",menu_stc, key="choice_stc", help=help_stc)
                 
-        if (st.session_state["choice_stc"] == menu_stc3):            
+        if st.session_state["choice_stc"] == MENU_STC3:            
             st.write("Personalized NORAD_CAT_ID file")
             help='Text file with .csv extension with a column with the header "NORAD_CAT_ID" and lines NORAD_CAT_ID numbers'
             data_norad = st.sidebar.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
+
         get_oe_bt = st.sidebar.button("Get Orbital Elements")
         if get_oe_bt and st.session_state.stc_loged:
-            if (st.session_state["choice_stc"] == menu_stc1):
+            if st.session_state["choice_stc"] == MENU_STC1:
                 st.write("App's list +200 LEO NORAD_CAT_ID") 
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
                 st.write('NORAD_CAT_ID file uploaded for update:')
                 st.dataframe(df_norad_ids)
                 st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
                       
-            if (st.session_state["choice_stc"] == menu_stc2):
+            if st.session_state["choice_stc"] == MENU_STC2:
                 st.write("App's selection +3000 LEO NORAD_CAT_ID")
                 link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C700/orderby/EPOCH%20desc/format/csv)'
                 st.markdown(link, unsafe_allow_html=True)
                 st.session_state.stc.get_select()
 
-            if (st.session_state["choice_stc"] == menu_stc3):            
+            if st.session_state["choice_stc"] == MENU_STC3:            
                 if (data_norad is not None):
                     st.write('NORAD_CAT_ID file loaded:')
                     file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
@@ -145,7 +154,7 @@ def get_orbital_element():
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">log in to Space-Track</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)           
 
-    elif st.session_state["choiceUpdate"] == "Orbital Elements File":
+    elif st.session_state["choiceUpdate"] == MENU_UPDATE3:
         data_elements = st.sidebar.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
         if st.sidebar.button("Upload orbital elements"):
             if data_elements is not None:
