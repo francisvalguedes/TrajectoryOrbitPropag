@@ -59,8 +59,9 @@ def get_orbital_element():
     # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.subheader("Orbital elements:")
     # expander = st.sidebar.expander("Orbital elements:", expanded=True)
-    help=('Space-Track: Obtains orbital elements automatically from Space-Track (requires registration in Space-Track))  \n'
-        'Elements file: Load elements file from another source or manually obtained from Space-Track (TLE, 3LE ou JSON).')
+    help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
+        'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
+        'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')
 
     menuUpdate = ["Celestrak", "Space-Track","Orbital Elements File"]
     st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)
@@ -79,23 +80,30 @@ def get_orbital_element():
         
         form = st.sidebar.form("my_form")
         stc_log = form.text_input('User name Space-Track:')    
-        stc_ss = form.text_input('Space-Track password:',type="password")  
-        submitted = form.form_submit_button("Submit")
+        stc_ss = form.text_input('Space-Track password:',type="password") 
+        fcol1, fcol2 = form.columns(2)
+        submitted = fcol1.form_submit_button("Submit")
         if submitted:
             stc = SpaceTrackClientInit(stc_log, stc_ss)
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
-            if not st.session_state.stc_loged:              
+            if st.session_state.stc_loged:          
+                del st.session_state.ss_elem_df
+            else: 
                 log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_norad) + ' , please load orbital elements manually</p>'
                 st.markdown(log_error, unsafe_allow_html=True)
-            else: del st.session_state.ss_elem_df
         if st.session_state.stc_loged:
-            st.write('logged into Space-Track')
+            fcol2.write("Status: Logged")
+        else:  fcol2.write("Status: Unlogged")
 
         menu_stc1 = "App's list 200+ NORAD_CAT_ID"
         menu_stc2 = "App's selection 3000+ NORAD_CAT_ID"
         menu_stc3 = "Personalized NORAD_CAT_ID file"
         menu_stc = [menu_stc1, menu_stc2, menu_stc3]
+        help_stc=(menu_stc1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
+        + menu_stc2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
+        + menu_stc3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
+
         help_stc = 'select the set of NORAD_CAT_ID to be updated'
         st.sidebar.selectbox("Choice of orbital elements dataset:",menu_stc, key="choice_stc", help=help_stc)
                 
@@ -107,23 +115,19 @@ def get_orbital_element():
         if get_oe_bt and st.session_state.stc_loged:
             if (st.session_state["choice_stc"] == menu_stc1):
                 st.write("App's list +200 LEO NORAD_CAT_ID") 
-                stc = st.session_state.stc
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
                 st.write('NORAD_CAT_ID file uploaded for update:')
                 st.dataframe(df_norad_ids)
-                stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"]) 
-                
+                st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
                       
             if (st.session_state["choice_stc"] == menu_stc2):
-                stc = st.session_state.stc
                 st.write("App's selection +3000 LEO NORAD_CAT_ID")
                 link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C700/orderby/EPOCH%20desc/format/csv)'
                 st.markdown(link, unsafe_allow_html=True)
-                stc.get_select()
+                st.session_state.stc.get_select()
 
             if (st.session_state["choice_stc"] == menu_stc3):            
                 if (data_norad is not None):
-                    stc = st.session_state.stc
                     st.write('NORAD_CAT_ID file loaded:')
                     file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
                     st.write('File details:')
@@ -134,7 +138,7 @@ def get_orbital_element():
 
                     max_num_norad = 650
                     if len(df_norad_ids.index)<max_num_norad:
-                        stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
+                        st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
                 else:
                     st.write("NORAD_CAT_ID file not loaded")
         elif  get_oe_bt and not st.session_state.stc_loged:
@@ -151,7 +155,6 @@ def get_orbital_element():
                 st.write("Orbital elements manually updated:")    
                 if data_elements.type == "application/json":
                     st.session_state.ss_elem_df = pd.read_json(data_elements)
-
                 elif data_elements.type == "text/csv":
                     st.session_state.ss_elem_df = pd.read_csv(data_elements)
 
@@ -181,7 +184,7 @@ class SummarizeDataFiles:
                             'ITRS_X(km)','ITRS_Y(km)','ITRS_Z(km)','LON(deg)','LAT(deg)','HEIGHT(km)'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
-            enu_d = pos.az_el_r[i][:,2]
+            enu_d = 0.001*pos.az_el_r[i][:,2]
             min_index = np.argmin(enu_d)
             min_d = enu_d[min_index]
 
@@ -201,17 +204,17 @@ class SummarizeDataFiles:
 
 
 def main(): 
+    if "stc_loged" not in st.session_state:
+        st.session_state.stc_loged = False
+
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
-    st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...)**')
+    st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
     st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system')
     st.markdown('by: Francisval Guedes Soares, Email: francisvalg@gmail.com')
     
     st.subheader('Orbital Elements:')
 
     get_orbital_element()
-
-    if "stc_loged" not in st.session_state:
-        st.session_state.stc_loged = False
 
     if "ss_elem_df" not in st.session_state:
         log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
@@ -227,12 +230,13 @@ def main():
     sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Sampling rate (s): ', sample_time)
 
-    st.write('Reference point location: ')
+    expander = st.sidebar.expander("Sensor location in the WGS84 Geodetic", expanded=True)
     lc = { "lat":0, "lon":0,"height":0} 
-    lc['lat'] = st.sidebar.number_input('Latitude',-90.0, 90.0,value=-5.919178, format="%.6f")
-    lc['lon'] = st.sidebar.number_input('Longitude', -180.0, 80.0, value=-35.173372, format="%.6f")
-    lc['height'] = st.sidebar.number_input('Altitude (m)',-1000.0, 2000.0,value= 55.0, format="%.6f")
-
+    lc['lat'] = expander.number_input('Latitude (deg)',-90.0, 90.0,value=-5.919178, format="%.6f")
+    lc['lon'] = expander.number_input('Longitude (deg)', -180.0, 80.0, value=-35.173372, format="%.6f")
+    lc['height'] = expander.number_input('Altitude (m)',-1000.0, 2000.0,value= 55.0, format="%.6f")
+    
+    st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Latitude: ', lc['lat'])
     st.write('Longitude: ', lc['lon'] )
     st.write('Altitude: ', lc['height'])
@@ -241,10 +245,11 @@ def main():
     automatico="Automatic"
     manual="Manual"
 
-    help='Automatic (D-2 or earlier): fetches approach periods, returns trajectories and configuration files. \n Manual (D-1 to D): recalculates trajectories with updated orbital elements, keeping the H0, using the configuration files obtained in a previous autorun'
+    help=(automatico + ' (D-2 or earlier): fetches approach periods, returns trajectories and configuration files.  \n'
+    + manual +' (D-1 to D): recalculates trajectories with updated orbital elements, keeping the H0, using the configuration files obtained in a previous automatic calculate')
     menu = [automatico,manual]
     choice = st.sidebar.selectbox("Trajectory search mode:",menu, help=help, key="mode" )
-
+    max_time = TimeDelta(8*u.d)
     if choice == automatico:
         st.sidebar.subheader("Automatic:")
         dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
@@ -255,7 +260,7 @@ def main():
 
         st.write('Maximum distance to trajectory limits (Km): ', dmax)
 
-        dmin = st.sidebar.number_input('The minimum trajectory distance point from which the trajectory is saved (Km)',
+        dmin = st.sidebar.number_input('The minimum distance that the trajectory must reach in order to be accepted (Km)',
             min_value = 200,
             max_value = 5000,
             value = 1000,
@@ -276,8 +281,8 @@ def main():
         final_datetime=Time(datetime.combine(final_date, final_time))
         final_datetime.format = 'isot'
         st.write('Search end time: ', final_datetime) 
-
-        max_time = TimeDelta(8*u.d)
+        
+        time_norm = (max_time - (final_datetime - initial_datetime))/max_time
         if  (final_datetime - initial_datetime)> max_time:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum time delta: ' + str(max_time) + ' days </p>'
             st.markdown(log_error, unsafe_allow_html=True)
@@ -285,6 +290,7 @@ def main():
     
     elif choice == manual:
         st.sidebar.subheader("Manual:")
+        time_norm = 1
         help='Manual config file upload from H0: traj_data.csv file from a previous auto run or edited from it'
         data_conf = st.sidebar.file_uploader("Upload configuração manual de H0 (traj_data.csv)",type=['csv'],help=help)
         if data_conf is not None:
@@ -297,8 +303,9 @@ def main():
     st.sidebar.subheader("Calculate trajectories:")
     st.subheader('Outputs:')
 
-    max_num_obj = np.ceil(1 + 5000*(max_time - (final_datetime - initial_datetime))/max_time)
-    st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(final_datetime - initial_datetime) + ' days')
+    max_num_obj = np.ceil(1 + 5000*time_norm)
+    st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(time_norm*max_time) + ' days')
+    
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
@@ -324,15 +331,14 @@ def main():
             my_bar = st.progress(0)
 
             sdf = SummarizeDataFiles() 
-            mode = st.session_state["mode"]
 
-            if mode == automatico:                          
+            if st.session_state["mode"] == automatico:                          
                 for index in range(len(orbital_elem)):
                     propag = PropagInit(orbital_elem[index], lc, sample_time) 
                     pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
                     sdf.save_trajectories(pos,orbital_elem[index],dir_name,rcs)
                     my_bar.progress((index+1)/len(orbital_elem))
-            elif mode == manual:
+            elif st.session_state["mode"] == manual:
                 for index, row in df_conf.iterrows():
                     orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
                     propag = PropagInit(orbital_elem_row, lc, sample_time) 
@@ -341,31 +347,35 @@ def main():
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
-            df_orb.to_csv(dir_name + "/"+ date_time[0:19] +"_orbital_elem.csv", index=False)
+            obj_aprox = len(df_orb.index)
+            st.write('Numero de trajetórias calculadas: ', obj_aprox)
 
-            df_traj = pd.DataFrame(sdf.sel_resume)
-            df_traj = df_traj.join(df_orb)
+            if obj_aprox > 0:
+                df_orb.to_csv(dir_name + "/"+ date_time[0:19] +"_orbital_elem.csv", index=False)
 
-            col_list = df_traj.columns.to_list()
-            col_first = ['NORAD_CAT_ID','OBJECT_NAME']
-            for line in col_first: col_list.remove(line)
-            col_first.extend(col_list)
-            df_traj = df_traj.reindex(columns=col_first)
+                df_traj = pd.DataFrame(sdf.sel_resume)
+                df_traj = df_traj.join(df_orb)
 
-            df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
-            st.write('Objects approaching the reference point:')
-            st.dataframe(df_traj)
+                col_list = df_traj.columns.to_list()
+                col_first = ['NORAD_CAT_ID','OBJECT_NAME']
+                for line in col_first: col_list.remove(line)
+                col_first.extend(col_list)
+                df_traj = df_traj.reindex(columns=col_first)
 
-            st.subheader('Files:')       
-            shutil.make_archive(dir_name, 'zip', dir_name)
+                df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
+                st.write('Objects approaching the reference point:')
+                st.dataframe(df_traj)
 
-            with open(dir_name + ".zip", "rb") as fp:
-                btn = st.download_button(
-                    label="Download",
-                    data=fp,
-                    file_name="results_"+ date_time[0:19] +".zip",
-                    mime="application/zip"
-                )
+                st.subheader('Files:')       
+                shutil.make_archive(dir_name, 'zip', dir_name)
+
+                with open(dir_name + ".zip", "rb") as fp:
+                    btn = st.download_button(
+                        label="Download",
+                        data=fp,
+                        file_name="results_"+ date_time[0:19] +".zip",
+                        mime="application/zip"
+                    )
 
     st.sidebar.write('Files can be downloaded on the right side')
 
