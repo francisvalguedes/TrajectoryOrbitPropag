@@ -191,8 +191,8 @@ class SummarizeDataFiles:
             df_data = pd.DataFrame(np.concatenate((
                             time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
-                            'ENU_E(m)','ENU_N(m)','ENU_U(m)', 'AZ(deg)','ELEV(deg)','RANGE(m)',
-                            'ITRS_X(m)','ITRS_Y(m)','ITRS_Z(m)','lat','lon','HEIGHT(m)'])
+                            'ENU_E','ENU_N','ENU_U', 'AZ(deg)','ELEV(deg)','RANGE',
+                            'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','HEIGHT'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
@@ -286,6 +286,9 @@ def main():
             step = 50)
 
         st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
+        if not dmax>1.05*dmin:
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">The maximum distance must be greater than the minimum distance</p>'
+            st.sidebar.markdown(log_error, unsafe_allow_html=True)
 
         st.sidebar.write('Start and end time for H0 search TU:')
         col1, col2 = st.sidebar.columns(2)
@@ -431,7 +434,8 @@ def main():
 
         df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
                         usecols= ['lat', 'lon', 'ELEV(deg)'])
-        
+        # idx = np.arange(0, len(df_data.index), +2)
+        # df_data = df_data.loc[idx]
         dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
         df = pd.concat([df_data, dfn], axis=0)    
         dfn = geodetic_circ(4,lc['lat'] ,lc['lon'], lc['height'])  
