@@ -21,7 +21,7 @@ from io import StringIO
 
 import glob
 
-import pydeck as pdk
+import pymap3d as pm
 
 # streamlit run source/main.py
 
@@ -213,6 +213,15 @@ class SummarizeDataFiles:
             self.sel_resume["END_PT"].append(len(enu_d) - 1)
             self.sel_resume["END_RANGE"].append(enu_d[-1]) 
 
+def geodetic_circ(r,center_lat,center_lon, center_h):
+    theta = np.linspace(0, 2*np.pi, 30)
+    e =  1000*r*np.cos(theta)
+    n =  1000*r*np.sin(theta)
+    u =  np.zeros(len(theta))
+    lat, lon, _ = pm.enu2geodetic(e, n, u,center_lat, center_lon, center_h)
+    dfn = pd.DataFrame(np.transpose([lat, lon]), columns=['lat', 'lon'])
+    return dfn
+
 def main(): 
     if "stc_loged" not in st.session_state:
         st.session_state.stc_loged = False
@@ -310,11 +319,11 @@ def main():
             df_conf = pd.read_csv(data_conf,usecols=usecols)
             st.dataframe(df_conf)
     
-    st.sidebar.subheader("Calculate trajectories:")
-    st.subheader('Outputs:')
-
     max_num_obj = np.ceil(1 + 5000*time_norm)
     st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(time_norm*max_time) + ' days')
+
+    st.sidebar.subheader("Calculate trajectories:")
+    st.subheader('Outputs:')    
     
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
@@ -358,7 +367,7 @@ def main():
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             obj_aprox = len(df_orb.index)
-            st.write('Numero de trajetórias calculadas: ', obj_aprox)
+            st.write('Number of calculated trajectories: ', obj_aprox)
 
             if obj_aprox > 0:
                 df_orb.to_csv(dir_name + "/"+ date_time[0:19] +"_orbital_elem.csv", index=False)
@@ -373,22 +382,25 @@ def main():
                 df_traj = df_traj.reindex(columns=col_first)
 
                 df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
-                st.write('Objects approaching the reference point:')
-                st.dataframe(df_traj)
+                st.write('Objects approaching the reference point: ', len(df_traj.index ))
+                #st.dataframe(df_traj)
 
                 st.session_state.ss_result_df = df_traj
                 st.session_state.ss_dir_name = dir_name
-
-                st.subheader('Files:')       
-                shutil.make_archive(dir_name, 'zip', dir_name)
-
-                with open(dir_name + ".zip", "rb") as fp:
-                    btn = st.download_button(
-                        label="Download",
-                        data=fp,
-                        file_name="results_"+ date_time[0:19] +".zip",
-                        mime="application/zip"
-                    )
+                st.session_state.date_time = date_time
+        
+    st.subheader('Files:')     
+    if "ss_dir_name" not in st.session_state:
+        st.markdown('Run propagation for get files')
+    else:               
+        shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
+        with open(st.session_state.ss_dir_name + ".zip", "rb") as fp:
+            btn = st.download_button(
+                label="Download",
+                data=fp,
+                file_name="results_"+ st.session_state.date_time[0:19] +".zip",
+                mime="application/zip"
+            )
 
     st.sidebar.write('Files can be downloaded on the right side')
 
@@ -397,28 +409,42 @@ def main():
     st.write('traj_data.csv - Relevant trajectory and object data')
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
     st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
-
   
     txt_files = glob.glob(tempfile.gettempdir() + '/*/')
     st.write('tmp folder count: ', len(txt_files))
     # for line in txt_files:
     #     st.markdown(line)
-
+    st.subheader('Data visualization:')
 
     if "ss_result_df" not in st.session_state:
-        st.markdown('Run propagation')
+        st.markdown('Run propagation for visualization')
     else:
-        st.write('The data summary:')
+        st.write('The data summary:')                   
+        st.write('Objects approaching the reference point: ', len(st.session_state.ss_result_df.index))
         st.dataframe(st.session_state.ss_result_df)
-        files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')
-        choice_file = st.sidebar.selectbox("Select file:",files_map)
-        print(choice_file)
-        st.sidebar.markdown('fim')
-        st.sidebar.markdown('fim')
+        files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')        
+        files_m = []
+        for files in files_map:
+            files_m.append(files.split('data-')[-1])
 
-        usecols = ['lat', 'lon']
-        df = pd.read_csv(choice_file,usecols=usecols)        
+        choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
+
+        df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
+                        usecols= ['lat', 'lon', 'HEIGHT(km)','ELEV(deg)'])
+        
+        dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, df_data.iloc[-1]['HEIGHT(km)'] )  
+        df = pd.concat([df_data, dfn], axis=0)    
+        dfn = geodetic_circ(4,lc['lat'] ,lc['lon'], lc['height'])  
+        df = pd.concat([df, dfn], axis=0)  
+        dfn = geodetic_circ(dmax * np.cos(np.radians(df_data.iloc[-1]['ELEV(deg)']))  ,lc['lat'] ,lc['lon'], lc['height'])
+        df = pd.concat([df, dfn], axis=0) 
+        dfn = geodetic_circ(dmax ,lc['lat'] ,lc['lon'], lc['height'])
+        df = pd.concat([df, dfn], axis=0) 
+          
+        st.write('The map:') 
         st.map(df)
+        st.sidebar.markdown('The map can be seen on the right')
+        st.sidebar.markdown('Thanks')
         
 if __name__== '__main__':
     main()
