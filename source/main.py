@@ -192,7 +192,7 @@ class SummarizeDataFiles:
                             time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
                             'ENU_E(m)','ENU_N(m)','ENU_U(m)', 'AZ(deg)','ELEV(deg)','RANGE(m)',
-                            'ITRS_X(km)','ITRS_Y(km)','ITRS_Z(km)','lon','lat','HEIGHT(km)'])
+                            'ITRS_X(m)','ITRS_Y(m)','ITRS_Z(m)','lon','lat','HEIGHT(m)'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
@@ -430,9 +430,9 @@ def main():
         choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
         df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
-                        usecols= ['lat', 'lon', 'HEIGHT(km)','ELEV(deg)'])
+                        usecols= ['lat', 'lon', 'ELEV(deg)'])
         
-        dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, df_data.iloc[-1]['HEIGHT(km)'] )  
+        dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
         df = pd.concat([df_data, dfn], axis=0)    
         dfn = geodetic_circ(4,lc['lat'] ,lc['lon'], lc['height'])  
         df = pd.concat([df, dfn], axis=0)  
