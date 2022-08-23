@@ -2,23 +2,27 @@ import pydeck as pdk
 import pandas as pd
 import streamlit as st
 import numpy as np
+import pymap3d as pm
 
-df = pd.DataFrame(
-    np.random.randn(20, 2) / [30, 30] + [-5.919178, -35.1733],
-    columns=['lat', 'lon'])
+
 usecols = ['lat', 'lon']
-
 df = pd.read_csv('test/data.csv',usecols=usecols)
 
-dfn = pd.DataFrame(
-            0.05*np.random.randn(100, 2) + [df.iloc[-1].lat ,df.iloc[-1].lon],
-            columns=['lat', 'lon'])
+def geodetic_circ(r,center_lat,center_lon):
+    theta = np.linspace(0, 2*np.pi, 30)
+    e =  1000*r*np.cos(theta)
+    n =  1000*r*np.sin(theta)
+    u =  np.zeros(len(theta))
+    lat, lon, _ = pm.enu2geodetic(e, n, u,center_lat, center_lon, 0)
+    dfn = pd.DataFrame(np.transpose([lat, lon]), columns=['lat', 'lon'])
+    return dfn
+
+dfn = geodetic_circ(10,df.iloc[-1].lat ,df.iloc[-1].lon)
 
 df = pd.concat([df, dfn], axis=0)
 
-dfn = pd.DataFrame(
-            0.01*np.random.randn(100, 2) + [-5.919178, -35.1733],
-            columns=['lat', 'lon'])
+#68.744825, -123.813838
+dfn = geodetic_circ(1000,-5.919178, -35.1733)
 
 df = pd.concat([df, dfn], axis=0)
 
