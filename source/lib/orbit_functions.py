@@ -11,6 +11,7 @@ from sgp4.api import Satrec
 from astropy.time import Time
 from astropy.time import TimeDelta
 import numpy as np
+import time
 
 class PropagInit:
     def __init__(self, orbital_elem, lc, sample_time=1):
@@ -28,21 +29,28 @@ class PropagInit:
 
     def orbit_propag(self, h0, n, sample_time_v):
         time_array = np.linspace(h0,h0 + TimeDelta(sample_time_v*(n -1)* u.s),n)
-        error_code, teme_p, teme_v = self.satellite.sgp4_array(time_array.jd1, time_array.jd2)
-        teme_p = CartesianRepresentation(teme_p[:,0]*u.km, teme_p[:,1]*u.km, teme_p[:,2]*u.km)
+        error_code, teme_p, _ = self.satellite.sgp4_array(time_array.jd1, time_array.jd2)
+        teme_p = 1000*teme_p
+        teme_p = CartesianRepresentation(teme_p[:,0]*u.m, teme_p[:,1]*u.m, teme_p[:,2]*u.m)
         teme = TEME(teme_p, obstime=time_array)  
         itrsp = teme.transform_to(ITRS(obstime=time_array))
         location = itrsp.earth_location
-        enu_p = pm.ecef2enu(u.km.to(u.m,location.x).value,
-                    u.km.to(u.m,location.y).value,
-                    u.km.to(u.m,location.z).value,
-                    self.lc['lat'], self.lc['lon'], self.lc['height'])
-
-        #geodetic =np.transpose(pm.ecef2geodetic(enu_p[0], enu_p[1], enu_p[2]))
+        # x = u.km.to(u.m,itrsp.earth_location.x).value
+        # y = u.km.to(u.m,itrsp.earth_location.y).value
+        # z = u.km.to(u.m,itrsp.earth_location.z).value
+        x = location.x.value
+        y = location.y.value
+        z = location.z.value
+        enu_p = pm.ecef2enu(x,y,z,self.lc['lat'], self.lc['lon'], self.lc['height'])
+        geodetic = np.transpose(pm.ecef2geodetic(x, y, z))
         az_el_r = np.transpose(pm.enu2aer(enu_p[0],enu_p[1],enu_p[2]))
         enu_p = np.transpose(enu_p)
-        geodetic = np.transpose(location.geodetic)    # slowly    
-        geocentric = np.transpose([location.x.value,location.y.value,location.z.value])
+        geocentric = np.transpose([x,y,z])
+        # geo = np.transpose(location.geodetic)                  #slower
+        # geodetic2 = np.transpose([geo[:,1],geo[:,0],geo[:,2]])        
+        # print(geodetic)
+        # print(geodetic2)
+        # print(np.max(np.abs(geodetic - geodetic2), axis=0))  
         return time_array, enu_p, az_el_r, geodetic, geocentric
 
     def traj_calc(self, h0, n):
