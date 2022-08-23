@@ -37,12 +37,12 @@ class PropagInit:
                     u.km.to(u.m,location.y).value,
                     u.km.to(u.m,location.z).value,
                     self.lc['lat'], self.lc['lon'], self.lc['height'])
+
+        geodetic =np.transpose(pm.ecef2geodetic(enu_p[0], enu_p[1], enu_p[2]))
         az_el_r = np.transpose(pm.enu2aer(enu_p[0],enu_p[1],enu_p[2]))
         enu_p = np.transpose(enu_p)
-        #pm.ecef2geodetic(x, y, z)
-        geodetic = np.transpose(location.geodetic)
-        geocentric = np.transpose([location.x.value,location.y.value,location.z.value])   
-
+        # geodetic = np.transpose(location.geodetic)    # slowly    
+        geocentric = np.transpose([location.x.value,location.y.value,location.z.value])
         return time_array, enu_p, az_el_r, geodetic, geocentric
 
     def traj_calc(self, h0, n):
@@ -83,8 +83,7 @@ class PropagInit:
                 geodetic = geodetic[idx]
                 geocentric = geocentric[idx]               
                 
-                d_min = np.min(enu_d)
-                
+                d_min = np.min(enu_d)                
 
                 if d_min < dist_min:
                     self.time_array.append(time_array)
