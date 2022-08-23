@@ -3,6 +3,7 @@ import pandas as pd
 
 from datetime import datetime
 from datetime import time
+import time as tm
 
 import shutil
 from astropy.time import Time
@@ -293,13 +294,13 @@ def main():
         st.sidebar.write('Start and end time for H0 search TU:')
         col1, col2 = st.sidebar.columns(2)
         initial_date = col1.date_input("Start date", key=1)
-        initial_time = col2.time_input("Start time", time(11, 0,0),  key=2)
+        initial_time = col2.time_input("Start time", time(11, 0),  key=2)
         initial_datetime=Time(datetime.combine(initial_date, initial_time))
         initial_datetime.format = 'isot'
         st.write('Search start time: ', initial_datetime)
 
         final_date = col1.date_input("End date", key=3)
-        final_time = col2.time_input("End time", time(19, 0,0),  key=4)
+        final_time = col2.time_input("End time", time(19, 0),  key=4)
         final_datetime=Time(datetime.combine(final_date, final_time))
         final_datetime.format = 'isot'
         st.write('Search end time: ', final_datetime) 
@@ -347,13 +348,14 @@ def main():
 
             date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
-            os.mkdir(dir_name)          
+            os.mkdir(dir_name)  
+
+            ini = tm.time()    
 
             st.write('Progress bar:')
             my_bar = st.progress(0)
 
-            sdf = SummarizeDataFiles() 
-
+            sdf = SummarizeDataFiles()
             if st.session_state["mode"] == automatico:                          
                 for index in range(len(orbital_elem)):
                     propag = PropagInit(orbital_elem[index], lc, sample_time) 
@@ -385,12 +387,15 @@ def main():
                 df_traj = df_traj.reindex(columns=col_first)
 
                 df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
-                st.write('Objects approaching the reference point: ', len(df_traj.index ))
+                st.write('Approaching the reference point: ', len(df_traj.index ))
                 #st.dataframe(df_traj)
 
                 st.session_state.ss_result_df = df_traj
                 st.session_state.ss_dir_name = dir_name
                 st.session_state.date_time = date_time
+
+            fim = tm.time()
+            st.write("Processing time (s): ", fim - ini)
         
     st.subheader('Files:')     
     if "ss_dir_name" not in st.session_state:
@@ -423,7 +428,7 @@ def main():
         st.markdown('Run propagation for visualization')
     else:
         st.write('The data summary:')                   
-        st.write('Objects approaching the reference point: ', len(st.session_state.ss_result_df.index))
+        st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
         st.dataframe(st.session_state.ss_result_df)
         files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')        
         files_m = []
