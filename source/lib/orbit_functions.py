@@ -39,6 +39,7 @@ class PropagInit:
                     self.lc['lat'], self.lc['lon'], self.lc['height'])
         az_el_r = np.transpose(pm.enu2aer(enu_p[0],enu_p[1],enu_p[2]))
         enu_p = np.transpose(enu_p)
+        #pm.ecef2geodetic(x, y, z)
         geodetic = np.transpose(location.geodetic)
         geocentric = np.transpose([location.x.value,location.y.value,location.z.value])   
 
