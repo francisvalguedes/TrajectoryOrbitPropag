@@ -192,7 +192,7 @@ class SummarizeDataFiles:
                             time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
                             'ENU_E(m)','ENU_N(m)','ENU_U(m)', 'AZ(deg)','ELEV(deg)','RANGE(m)',
-                            'ITRS_X(m)','ITRS_Y(m)','ITRS_Z(m)','lon','lat','HEIGHT(m)'])
+                            'ITRS_X(m)','ITRS_Y(m)','ITRS_Z(m)','lat','lon','HEIGHT(m)'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
