@@ -192,7 +192,7 @@ class SummarizeDataFiles:
             df_data = pd.DataFrame(np.concatenate((
                             time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
-                            'ENU_E','ENU_N','ENU_U', 'AZ(deg)','ELEV(deg)','RANGE',
+                            'ENU_E','ENU_N','ENU_U', 'AZIMUTH','ELEVATION','RANGE',
                             'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','HEIGHT'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
@@ -438,14 +438,14 @@ def main():
         choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
         df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
-                        usecols= ['lat', 'lon', 'ELEV(deg)'])
+                        usecols= ['lat', 'lon', 'ELEVATION'])
         # idx = np.arange(0, len(df_data.index), +2)
         # df_data = df_data.loc[idx]
         dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
         df = pd.concat([df_data, dfn], axis=0)    
         dfn = geodetic_circ(4,lc['lat'] ,lc['lon'], lc['height'])  
         df = pd.concat([df, dfn], axis=0)  
-        dfn = geodetic_circ(dmax * np.cos(np.radians(df_data.iloc[-1]['ELEV(deg)']))  ,lc['lat'] ,lc['lon'], lc['height'])
+        dfn = geodetic_circ(dmax * np.cos(np.radians(df_data.iloc[-1]['ELEVATION']))  ,lc['lat'] ,lc['lon'], lc['height'])
         df = pd.concat([df, dfn], axis=0) 
         dfn = geodetic_circ(dmax ,lc['lat'] ,lc['lon'], lc['height'])
         df = pd.concat([df, dfn], axis=0) 
