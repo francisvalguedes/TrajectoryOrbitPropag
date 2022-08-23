@@ -20,6 +20,9 @@ import spacetrack.operators as op
 from io import StringIO
 
 import glob
+
+import pydeck as pdk
+
 # streamlit run source/main.py
 
 # ----------------------------------------------------------------------
@@ -189,7 +192,7 @@ class SummarizeDataFiles:
                             time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
                             'ENU_E(m)','ENU_N(m)','ENU_U(m)', 'AZ(deg)','ELEV(deg)','RANGE(m)',
-                            'ITRS_X(km)','ITRS_Y(km)','ITRS_Z(km)','LON(deg)','LAT(deg)','HEIGHT(km)'])
+                            'ITRS_X(km)','ITRS_Y(km)','ITRS_Z(km)','lon','lat','HEIGHT(km)'])
             df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
@@ -373,6 +376,9 @@ def main():
                 st.write('Objects approaching the reference point:')
                 st.dataframe(df_traj)
 
+                st.session_state.ss_result_df = df_traj
+                st.session_state.ss_dir_name = dir_name
+
                 st.subheader('Files:')       
                 shutil.make_archive(dir_name, 'zip', dir_name)
 
@@ -392,11 +398,27 @@ def main():
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
     st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
 
-    
+  
     txt_files = glob.glob(tempfile.gettempdir() + '/*/')
-    st.write('tmp files count: ', len(txt_files))
+    st.write('tmp folder count: ', len(txt_files))
     # for line in txt_files:
     #     st.markdown(line)
 
+
+    if "ss_result_df" not in st.session_state:
+        st.markdown('Run propagation')
+    else:
+        st.write('The data summary:')
+        st.dataframe(st.session_state.ss_result_df)
+        files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')
+        choice_file = st.sidebar.selectbox("Select file:",files_map)
+        print(choice_file)
+        st.sidebar.markdown('fim')
+        st.sidebar.markdown('fim')
+
+        usecols = ['lat', 'lon']
+        df = pd.read_csv(choice_file,usecols=usecols)        
+        st.map(df)
+        
 if __name__== '__main__':
     main()
