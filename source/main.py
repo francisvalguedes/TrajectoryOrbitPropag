@@ -26,16 +26,27 @@ import pymap3d as pm
 
 # streamlit run source/main.py
 
-# ----------------------------------------------------------------------
-# Atualiza a ultima versão dos elementos orbitais no site do Space-Track
-# ----------------------------------------------------------------------
+
+# Updates the latest version of the orbital elements on the Space-Track website
 class SpaceTrackClientInit(SpaceTrackClient):
     def __init__(self,identity,password):
+        """initialize the class.
+
+        Args:
+        https://www.space-track.org/auth/login
+        identity (str): login space-track.
+        password (str): password space-track.
+
+        Returns:
+
+        """
         super().__init__(identity, password)
-        self.identity = identity
-        self.password = password
 
     def ss(self):
+        """authenticate.
+
+        Returns: True or False
+        """
         try:
             self.authenticate()
         except:
@@ -43,12 +54,29 @@ class SpaceTrackClientInit(SpaceTrackClient):
             return False
         return  True
     def get_by_norad(self, norad_ids):
+        """get the orbital elements from NORAD_CAT_IDs.
+
+        Args:
+        norad_ids (list of int): NORAD_CAT_IDs
+
+        Returns:         
+        pandas DataFrame: OMM format
+        """
         elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
         elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
         st.write('Updated Orbital Element File:')
         st.session_state.ss_elem_df = elem_df
         return elem_df
     def get_select(self):
+        """get the orbital elements from specified filter.
+
+           Selection of 3000+ objects by Space-Track API mean_motion>11.25 (LEO orbit),
+           decay_date = null-val (no reentry), rcs_size = Large (greater than 1m),
+           periapsis < 700km, epoch = >now-1 (updated until a day ago), orderby= EPOCH desc
+
+        Returns:         
+        pandas DataFrame: OMM format
+        """
         elements_csv = self.gp(mean_motion = op.greater_than(11.25),
                     decay_date = 'null-val',
                     rcs_size = 'Large',
@@ -62,6 +90,7 @@ class SpaceTrackClientInit(SpaceTrackClient):
         return elem_df
 
 def get_orbital_element():
+    """Streamlite interface to choose a way to get the orbital elements """
     # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.subheader("Orbital elements:")
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
@@ -87,7 +116,7 @@ def get_orbital_element():
          
         link = '[See the link of Space-Track API](https://www.space-track.org/documentation#/api)'
         st.markdown(link, unsafe_allow_html=True)
-        
+        # Form to Space-Track loguin 
         form = st.sidebar.form("my_form")
         stc_log = form.text_input('User name Space-Track:')    
         stc_ss = form.text_input('Space-Track password:',type="password") 
@@ -175,11 +204,22 @@ def get_orbital_element():
 # ----------------------------------------------------------------------
 class SummarizeDataFiles:
     def __init__(self):
+        """initialize the class"""        
         self.sel_orbital_elem = []
         self.sel_resume = { "H0":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
                     "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[],"RCS":[] }
 
-    def save_trajectories(self,pos,orbital_elem,dir_name,rcs): 
+    def save_trajectories(self,pos,orbital_elem,dir_name,rcs):
+        """saves trajectories and summarizes important data for tracking analysis.
+
+        Args:
+            pos (PropagInit obj): all calculated trajectories of an sattelite (orbital_elem) 
+            orbital_elem (OMM dict): orbital element of sattelite
+            dir_name (str): path to save files
+        Returns:
+            self
+        """ 
+
         for i in range(0, len(pos.time_array)):
             time_arr = pos.time_array[i]
             
@@ -215,6 +255,14 @@ class SummarizeDataFiles:
             self.sel_resume["END_RANGE"].append(enu_d[-1]) 
 
 def geodetic_circ(r,center_lat,center_lon, center_h):
+    """calculates a circle in the geodetic system.
+
+        Args:
+            r (float): circle radius (km)
+            center_lat, center_lon, center_h (float): circle center point             
+        Returns:
+            pandas DataFrame
+        """
     theta = np.linspace(0, 2*np.pi, 30)
     e =  1000*r*np.cos(theta)
     n =  1000*r*np.sin(theta)
@@ -223,7 +271,9 @@ def geodetic_circ(r,center_lat,center_lon, center_h):
     dfn = pd.DataFrame(np.transpose([lat, lon]), columns=['lat', 'lon'])
     return dfn
 
-def main(): 
+def main():
+    """função principal que fornece a interface simplificada para configuração,
+                        visualização e download de dados. """ 
     if "stc_loged" not in st.session_state:
         st.session_state.stc_loged = False
 
