@@ -2,7 +2,7 @@ from re import split
 from spacetrack import SpaceTrackClient
 from astropy.time import Time
 import time
-from source.lib.io_functions import LocalFrame, TleFileRead, noradfileread, writetrn,  writedots, writetle,\
+from test.io_functions import LocalFrame, TleFileRead, noradfileread, writetrn,  writedots, writetle,\
     dellfiles, ConfRead, writecsvdata, writecsvconf, TrnH0FileRead, writesatnum
 
 from source.lib.orbit_functions import  PropagInit
