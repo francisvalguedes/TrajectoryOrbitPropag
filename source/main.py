@@ -431,7 +431,7 @@ def main():
                 df_traj = df_traj.join(df_orb)
 
                 col_list = df_traj.columns.to_list()
-                col_first = ['NORAD_CAT_ID','OBJECT_NAME']
+                col_first = ['NORAD_CAT_ID','OBJECT_NAME','EPOCH']
                 for line in col_first: col_list.remove(line)
                 col_first.extend(col_list)
                 df_traj = df_traj.reindex(columns=col_first)
