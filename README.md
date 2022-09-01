@@ -1,4 +1,14 @@
-# TrajectoryOrbitPropag
-Este app faz a busca de um ponto de aproximação de um objeto espacial em órbita da terra e traça um intervalo de trajetória em um referecial plano local (ENU), para ser utilizado como direcionamento para rastreio por radar de trajetografia
+# Orbit Propagator for Tracking Earth's Artificial Satellites in LEO
 
-streamlit run d:/Doutorado/pjpyvscode/TrajectoryOrbitPropag/OrbitInterface.py
+Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Payload) i.e. artificial satellites, especially for low Earth orbit (LEO) objects.
+
+## Developer:
+
+Francisval Guedes, Email: francisvalg@gmail.com
+
+## Introduction
+
+Using SGP4 this app searches for a period of sensor approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system.
+
+## Installation
+

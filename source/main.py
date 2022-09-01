@@ -312,8 +312,8 @@ def main():
     st.write('Altitude: ', lc['height'])
 
     # Seleção do modo de obtenção das trajetórias
-    automatico="Automatic"
-    manual="Manual"
+    automatico="Auto search H0"
+    manual="Upload H0 file"
 
     help=(automatico + ' (D-2 or earlier): fetches approach periods, returns trajectories and configuration files.  \n'
     + manual +' (D-1 to D): recalculates trajectories with updated orbital elements, keeping the H0, using the configuration files obtained in a previous automatic calculate')
