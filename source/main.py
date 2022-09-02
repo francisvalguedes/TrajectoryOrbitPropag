@@ -276,6 +276,9 @@ def main():
                         visualização e download de dados. """ 
     if "stc_loged" not in st.session_state:
         st.session_state.stc_loged = False
+    
+    if "d_max" not in st.session_state:
+        st.session_state.d_max = 1100
 
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
     st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
@@ -327,6 +330,7 @@ def main():
             max_value = 10000,
             value = 1100,
             step = 50)
+        st.session_state.d_max = dmax
 
         st.write('Maximum distance to trajectory limits (Km): ', dmax)
 
@@ -489,6 +493,8 @@ def main():
 
         df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
                         usecols= ['lat', 'lon', 'ELEVATION'])
+
+        dmax = st.session_state.d_max
         # idx = np.arange(0, len(df_data.index), +2)
         # df_data = df_data.loc[idx]
         dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
