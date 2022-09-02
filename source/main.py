@@ -369,7 +369,7 @@ def main():
         if data_conf is not None:
             file_details = {"Filename":data_conf.name,"FileType":data_conf.type,"FileSize":data_conf.size}
             st.write(file_details)
-            usecols = ['NORAD_CAT_ID', 'H0', 'N_PT']
+            usecols = ['NORAD_CAT_ID', 'H0', 'END_PT']
             df_conf = pd.read_csv(data_conf,usecols=usecols)
             st.dataframe(df_conf)
     
@@ -416,7 +416,7 @@ def main():
                 for index, row in df_conf.iterrows():
                     orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
                     propag = PropagInit(orbital_elem_row, lc, sample_time) 
-                    pos = propag.traj_calc(Time(row['H0'], format='isot'),row['N_PT'])
+                    pos = propag.traj_calc(Time(row['H0'], format='isot'),row['END_PT'])
                     sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
