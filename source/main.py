@@ -100,14 +100,30 @@ def get_orbital_element():
     MENU_UPDATE1="Celestrak"
     MENU_UPDATE2="Space-Track"
     MENU_UPDATE3="Orbital Elements File"
-    menuUpdate = [MENU_UPDATE2, MENU_UPDATE1,MENU_UPDATE3]
+    menuUpdate = [MENU_UPDATE1, MENU_UPDATE2,MENU_UPDATE3]
     # if "choiceUpdate" not in st.session_state:
     #     st.session_state.choiceUpdate = MENU_UPDATE1
     st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)  
 
     if st.session_state["choiceUpdate"] == MENU_UPDATE1:
         norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
-        elem_df = pd.read_csv('https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv')
+
+        current_day = datetime.utcnow().strftime('%Y_%m_%d_')
+        celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
+
+        if os.path.exists(celet_fil_n) == False:
+            urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
+            try:
+                elem_df = pd.read_csv(urlCelestrak)
+                elem_df.to_csv(celet_fil_n, index=False)
+            except OSError as e:
+                print(f"Error acess Celestrac") 
+                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually</p>'
+                st.markdown(log_error, unsafe_allow_html=True)
+                elem_df = pd.read_csv('data/oe_celestrac.csv')
+        else:
+            elem_df = pd.read_csv(celet_fil_n)
+
         st.session_state.ss_elem_df = elem_df
         st.write('Orbital elements obtained from Celestrak:')
         st.write('Updated Orbital Element File:')
@@ -281,18 +297,19 @@ def main():
     if "d_max" not in st.session_state:
         st.session_state.d_max = 1100
 
-    if "date_time" not in st.session_state:
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-        st.session_state.date_time = date_time
-
     path_files = tempfile.gettempdir() + '/top_tmp*'
     txt_files = glob.glob(path_files)
     files_count = len(txt_files)
 
+    if "date_time" not in st.session_state:
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
+
     if "ss_dir_name" not in st.session_state:
         dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
-        st.session_state.ss_dir_name = dir_name
-        if files_count > 5:
+        st.session_state.ss_dir_name = dir_name 
+
+        if files_count > 100:
             for py_file in txt_files:
                 print('dell file: ' + py_file)
                 try:
@@ -301,12 +318,16 @@ def main():
                     else:
                         shutil.rmtree(py_file)
                 except OSError as e:
-                    print(f"Error:{e.strerror}")   
+                    print(f"Error:{e.strerror}") 
+
+            path_files = tempfile.gettempdir() + '/top_tmp*'
+            txt_files = glob.glob(path_files)
+            files_count = len(txt_files) 
+
+        # if os.path.exists(st.session_state.ss_dir_name) == False:
+        #     os.mkdir(st.session_state.ss_dir_name)
 
 
-    if os.path.exists(st.session_state.ss_dir_name) == False:
-        os.mkdir(st.session_state.ss_dir_name)
-  
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
     st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
     st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system')
@@ -315,23 +336,10 @@ def main():
     st.subheader('Orbital Elements:')
 
 
-    st.write('dir name: ',st.session_state.ss_dir_name)
+    # st.write('dir name: ',st.session_state.ss_dir_name)
     st.write('tmp folder count: ', files_count)
-    for line in txt_files:
-        st.markdown(line)
-
-    # if files_count > 5:
-    #     for py_file in txt_files:
-    #         if py_file !=st.session_state.ss_dir_name and py_file != (dir_name + '.zip'):
-    #             print('file: ' + py_file + ' dirname: '+ st.session_state.ss_dir_name)
-    #             try:
-    #                 if os.path.isfile(py_file):
-    #                     os.remove(py_file)
-    #                 else:
-    #                     shutil.rmtree(py_file)
-    #             except OSError as e:
-    #                 print(f"Error:{e.strerror}")   
-    #     print("dell files")
+    # for line in txt_files:
+    #     st.markdown(line)
 
 
     get_orbital_element()
@@ -445,7 +453,15 @@ def main():
 
             orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
 
-            rcs = pd.read_csv('data/RCS.csv').to_dict('list')             
+            rcs = pd.read_csv('data/RCS.csv').to_dict('list')
+        
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
+        dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
+        st.session_state.ss_dir_name = dir_name 
+
+        if os.path.exists(st.session_state.ss_dir_name) == False:
+            os.mkdir(st.session_state.ss_dir_name)          
 
             ini = tm.time()    
 
