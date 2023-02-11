@@ -114,18 +114,25 @@ def get_orbital_element():
         if os.path.exists(celet_fil_n) == False:
             urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
             try:
-                elem_df = pd.read_csv(urlCelestrak)
-                elem_df.to_csv(celet_fil_n, index=False)
+                elem_df = pd.read_csv(urlCelestrak) 
+                if 'MEAN_MOTION' in elem_df.columns.to_list():
+                    elem_df.to_csv(celet_fil_n, index=False)                     
+                else:
+                    log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;"> No orbital elements for this object in Celestrat </p>'
+                    st.markdown(log_error, unsafe_allow_html=True)
+                    elem_df = pd.read_csv('data/oe_celestrac.csv')
+
             except OSError as e:
                 print(f"Error acess Celestrac") 
                 log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually</p>'
                 st.markdown(log_error, unsafe_allow_html=True)
                 elem_df = pd.read_csv('data/oe_celestrac.csv')
+
         else:
             elem_df = pd.read_csv(celet_fil_n)
+            st.write('Orbital elements obtained from Celestrak:')
 
-        st.session_state.ss_elem_df = elem_df
-        st.write('Orbital elements obtained from Celestrak:')
+        st.session_state.ss_elem_df = elem_df        
         st.write('Updated Orbital Element File:')
 
     elif st.session_state["choiceUpdate"] == MENU_UPDATE2:   
