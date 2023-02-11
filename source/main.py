@@ -107,7 +107,23 @@ def get_orbital_element():
 
     if st.session_state["choiceUpdate"] == MENU_UPDATE1:
         norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
-        elem_df = pd.read_csv('https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv')
+
+        current_day = datetime.utcnow().strftime('%Y_%m_%d_')
+        celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
+
+        if os.path.exists(celet_fil_n) == False:
+            urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
+            try:
+                elem_df = pd.read_csv(urlCelestrak)
+                elem_df.to_csv(celet_fil_n, index=False)
+            except OSError as e:
+                print(f"Error acess Celestrac") 
+                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually</p>'
+                st.markdown(log_error, unsafe_allow_html=True)
+                elem_df = pd.read_csv('data/oe_celestrac.csv')
+        else:
+            elem_df = pd.read_csv(celet_fil_n)
+
         st.session_state.ss_elem_df = elem_df
         st.write('Orbital elements obtained from Celestrak:')
         st.write('Updated Orbital Element File:')
@@ -127,7 +143,8 @@ def get_orbital_element():
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
             if st.session_state.stc_loged:          
-                del st.session_state.ss_elem_df
+                #del st.session_state.ss_elem_df
+                st.write("ok")
             else: 
                 log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_norad) + ' , please load orbital elements manually</p>'
                 st.markdown(log_error, unsafe_allow_html=True)
@@ -280,12 +297,50 @@ def main():
     if "d_max" not in st.session_state:
         st.session_state.d_max = 1100
 
+    path_files = tempfile.gettempdir() + '/top_tmp*'
+    txt_files = glob.glob(path_files)
+    files_count = len(txt_files)
+
+    if "date_time" not in st.session_state:
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
+
+    if "ss_dir_name" not in st.session_state:
+        dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
+        st.session_state.ss_dir_name = dir_name 
+
+        if files_count > 100:
+            for py_file in txt_files:
+                print('dell file: ' + py_file)
+                try:
+                    if os.path.isfile(py_file):
+                        os.remove(py_file)
+                    else:
+                        shutil.rmtree(py_file)
+                except OSError as e:
+                    print(f"Error:{e.strerror}") 
+
+            path_files = tempfile.gettempdir() + '/top_tmp*'
+            txt_files = glob.glob(path_files)
+            files_count = len(txt_files) 
+
+        # if os.path.exists(st.session_state.ss_dir_name) == False:
+        #     os.mkdir(st.session_state.ss_dir_name)
+
+
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
     st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
     st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system')
     st.markdown('by: Francisval Guedes Soares, Email: francisvalg@gmail.com')
     
     st.subheader('Orbital Elements:')
+
+
+    # st.write('dir name: ',st.session_state.ss_dir_name)
+    st.write('tmp folder count: ', files_count)
+    # for line in txt_files:
+    #     st.markdown(line)
+
 
     get_orbital_element()
 
@@ -399,10 +454,14 @@ def main():
             orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
 
             rcs = pd.read_csv('data/RCS.csv').to_dict('list')
+        
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
+        dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
+        st.session_state.ss_dir_name = dir_name 
 
-            date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-            dir_name = tempfile.gettempdir()+"/optr_temp_"+ date_time
-            os.mkdir(dir_name)  
+        if os.path.exists(st.session_state.ss_dir_name) == False:
+            os.mkdir(st.session_state.ss_dir_name)          
 
             ini = tm.time()    
 
@@ -414,14 +473,14 @@ def main():
                 for index in range(len(orbital_elem)):
                     propag = PropagInit(orbital_elem[index], lc, sample_time) 
                     pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
-                    sdf.save_trajectories(pos,orbital_elem[index],dir_name,rcs)
+                    sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
                     my_bar.progress((index+1)/len(orbital_elem))
             elif st.session_state["mode"] == manual:
                 for index, row in df_conf.iterrows():
                     orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
                     propag = PropagInit(orbital_elem_row, lc, sample_time) 
                     pos = propag.traj_calc(Time(row['H0'], format='isot'),row['END_PT'])
-                    sdf.save_trajectories(pos,orbital_elem_row,dir_name,rcs)
+                    sdf.save_trajectories(pos,orbital_elem_row,st.session_state.ss_dir_name,rcs)
                     my_bar.progress((index+1)/len(df_conf.index))                     
            
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
@@ -429,7 +488,7 @@ def main():
             st.write('Number of calculated trajectories: ', obj_aprox)
 
             if obj_aprox > 0:
-                df_orb.to_csv(dir_name + "/"+ date_time[0:19] +"_orbital_elem.csv", index=False)
+                df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
 
                 df_traj = pd.DataFrame(sdf.sel_resume)
                 df_traj = df_traj.join(df_orb)
@@ -440,19 +499,17 @@ def main():
                 col_first.extend(col_list)
                 df_traj = df_traj.reindex(columns=col_first)
 
-                df_traj.to_csv(dir_name + "/"+ date_time[0:19] +"_traj_summary.csv", index=False)
+                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
                 st.write('Approaching the reference point: ', len(df_traj.index ))
                 #st.dataframe(df_traj)
 
                 st.session_state.ss_result_df = df_traj
-                st.session_state.ss_dir_name = dir_name
-                st.session_state.date_time = date_time
 
             fim = tm.time()
             st.write("Processing time (s): ", fim - ini)
         
     st.subheader('Files:')     
-    if "ss_dir_name" not in st.session_state:
+    if "ss_result_df" not in st.session_state:
         st.markdown('Run propagation for get files')
     else:               
         shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
@@ -460,7 +517,7 @@ def main():
             btn = st.download_button(
                 label="Download",
                 data=fp,
-                file_name="results_"+ st.session_state.date_time[0:19] +".zip",
+                file_name="results_"+ st.session_state.date_time +".zip",
                 mime="application/zip"
             )
 
@@ -471,11 +528,8 @@ def main():
     st.write('traj_data.csv - Relevant trajectory and object data')
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
     st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
-  
-    txt_files = glob.glob(tempfile.gettempdir() + '/*/')
-    st.write('tmp folder count: ', len(txt_files))
-    # for line in txt_files:
-    #     st.markdown(line)
+
+
     st.subheader('Data visualization:')
 
     if "ss_result_df" not in st.session_state:
