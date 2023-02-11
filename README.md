@@ -12,3 +12,4 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 
 ## Installation
 
+./ubuntu_install.sh
