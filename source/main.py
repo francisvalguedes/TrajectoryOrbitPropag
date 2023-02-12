@@ -302,7 +302,20 @@ def geodetic_circ(r,center_lat,center_lon, center_h):
 
 def main():
     """função principal que fornece a interface simplificada para configuração,
-                        visualização e download de dados. """ 
+                        visualização e download de dados. """  
+
+    st.set_page_config(
+    page_title="Orbit Tracking",
+    page_icon="🌏", # "🤖",  # "🧊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # menu_items={
+    #     'Get Help': 'https://www.extremelycoolapp.com/help',
+    #     'Report a bug': "https://www.extremelycoolapp.com/bug",
+    #     'About': "# This is a header. This is an *extremely* cool app!"
+    # }
+    )
+
     if "stc_loged" not in st.session_state:
         st.session_state.stc_loged = False
     
@@ -337,8 +350,7 @@ def main():
             files_count = len(txt_files) 
 
         # if os.path.exists(st.session_state.ss_dir_name) == False:
-        #     os.mkdir(st.session_state.ss_dir_name)
-
+        #     os.mkdir(st.session_state.ss_dir_name)     
 
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
     st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
@@ -347,12 +359,10 @@ def main():
     
     st.subheader('Orbital Elements:')
 
-
     # st.write('dir name: ',st.session_state.ss_dir_name)
     st.write('tmp folder count: ', files_count)
     # for line in txt_files:
     #     st.markdown(line)
-
 
     get_orbital_element()
 
