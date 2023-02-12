@@ -307,6 +307,7 @@ def main():
     st.set_page_config(
     page_title="Orbit Tracking",
     page_icon="🌏", # "🤖",  # "🧊",
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
     initial_sidebar_state="expanded",
     # menu_items={
