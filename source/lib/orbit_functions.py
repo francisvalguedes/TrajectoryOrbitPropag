@@ -15,7 +15,10 @@ import time
 # Orbit propagation class, coordinate system conversion, H0 search and trajectory generation
 class PropagInit:
     def __init__(self, orbital_elem, lc, sample_time=1):
-        """initialize the class.
+        """
+        Creator: Francisval Guedes Soares
+        Date: 2021
+        initialize the class.
         Args:
         orbital_elem (dict): OMM format.
         lc (dict): {"lat":0, "lon":0,"height":0}, sensor(observer) reference point.
@@ -34,7 +37,10 @@ class PropagInit:
         self.satellite = satellite
 
     def orbit_propag(self, h0, n, sample_time_v):
-        """Orbit propagation function, coordinate system conversion
+        """
+        Creator: Francisval Guedes Soares
+        Date: 2021
+        Orbit propagation function, coordinate system conversion
                     and generation of a trajectory
         Args:
         h0 (astropy.time): trajectory start time.
@@ -78,7 +84,10 @@ class PropagInit:
         return time_array, enu_p, az_el_r, geodetic, geocentric
 
     def traj_calc(self, h0, n):
-        """Orbit propagation, coordinate system conversion
+        """
+        Creator: Francisval Guedes Soares
+        Date: 2021
+        Orbit propagation, coordinate system conversion
             and generation of a trajectory returned in self
         Args:
         h0 (astropy.time): trajectory start time.
@@ -102,7 +111,10 @@ class PropagInit:
         return self
 
     def search2h0(self, t_inic, t_final, dist_max, dist_min):
-        """Orbit propagation, coordinate system conversion,
+        """
+        Creator: Francisval Guedes Soares
+        Date: 2021
+        Orbit propagation, coordinate system conversion,
             H0 search and generation of a trajectory returned in self
         Args:
         t_inic (astropy.time): H0 search start time.
