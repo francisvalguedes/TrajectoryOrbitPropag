@@ -36,7 +36,7 @@ Redirect app port 8080 to web server port 80 according to connection name obtain
 ~~~
 sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
 ~~~
-test if web server works without specifying port: my_ip_address. If it works then make the redirect permanent:
+test if web server works without specifying port, by typing in browser: my_ip_address. If it works then make the redirect permanent:
 ~~~
 sudo apt-get install iptables-persistent
 ~~~
