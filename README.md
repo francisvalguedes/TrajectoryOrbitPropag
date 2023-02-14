@@ -12,5 +12,14 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 
 ## Installation
 
-To ubuntu
+For ubuntu: clone repository then
+
+~~~ 
 ./ubuntu_install.sh
+~~~
+
+## Run App streamlit server:
+
+~~~ 
+./run.sh
+~~~
