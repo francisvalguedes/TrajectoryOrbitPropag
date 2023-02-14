@@ -18,7 +18,7 @@ For ubuntu: clone repository then
 ./ubuntu_install.sh
 ~~~
 
-### Run App streamlit server:
+## Run App streamlit server:
 
 ~~~ 
 ./run.sh
