@@ -1,9 +1,9 @@
-name: orbit2prop
+name: env
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.8
+  - python
   - streamlit
   - spacetrack
   - pandas

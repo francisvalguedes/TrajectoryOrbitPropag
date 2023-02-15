@@ -12,14 +12,17 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 
 ## Installation
 
-For ubuntu: clone repository then
+For ubuntu: clone repository then:
 
 ~~~ 
 ./ubuntu_install.sh
 ~~~
 
+the ubuntu_install.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
+
 ## Run App streamlit server:
 
+Activate env and run streamlit app
 ~~~ 
 ./run.sh
 ~~~
