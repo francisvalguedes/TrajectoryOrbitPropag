@@ -12,13 +12,13 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 
 ## Installation
 
-For ubuntu: clone repository then:
+For debian/ubuntu: clone repository then without sudo:
 
 ~~~ 
-./ubuntu_install.sh
+./install_debian.sh
 ~~~
 
-the ubuntu_install.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
+the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
 
 ## Run App streamlit server:
 
@@ -27,7 +27,7 @@ Activate env and run streamlit app
 ./run.sh
 ~~~
 
-### Redirect port 80 to 8080
+## If necessary redirect port 80 to 8080
 
 Test if the web server works on port 8080: my_ip_address:8080
 
@@ -35,18 +35,22 @@ to redirect the port:
 ~~~
 netstat -i
 ~~~
+
 Redirect app port 8080 to web server port 80 according to connection name obtained above:
 ~~~
 sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
 ~~~
+
 test if web server works without specifying port, by typing in browser: my_ip_address. If it works then make the redirect permanent:
 ~~~
 sudo apt-get install iptables-persistent
 ~~~
+
 if already isntalled then restart it:
 ~~~
 sudo dpkg-reconfigure iptables-persistent
 ~~~
+
 now save iptables permenantley to files:
 ~~~
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
