@@ -517,7 +517,11 @@ def main():
                 df_traj = df_traj.join(df_orb)
 
                 col_list = df_traj.columns.to_list()
-                col_first = ['NORAD_CAT_ID','OBJECT_NAME','EPOCH']
+
+                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME','EPOCH', "RCS_SIZE"]
+                col_first = []
+                for line in col_first0:
+                    if line in col_list: col_first.append(line)
                 for line in col_first: col_list.remove(line)
                 col_first.extend(col_list)
                 df_traj = df_traj.reindex(columns=col_first)
