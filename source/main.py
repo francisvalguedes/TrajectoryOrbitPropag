@@ -518,7 +518,7 @@ def main():
 
                 col_list = df_traj.columns.to_list()
 
-                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME','EPOCH', "RCS_SIZE"]
+                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME', "RCS_SIZE"]
                 col_first = []
                 for line in col_first0:
                     if line in col_list: col_first.append(line)
