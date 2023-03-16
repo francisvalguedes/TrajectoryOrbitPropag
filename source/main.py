@@ -495,7 +495,8 @@ def main():
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
 
-            orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
+            #orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID']).to_dict('records')
+            orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
 
             rcs = pd.read_csv('data/RCS.csv').to_dict('list')
         
@@ -545,6 +546,9 @@ def main():
 
                 col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
                 df_traj = columns_first(df_traj, col_first )
+
+                df_traj = df_traj.sort_values(by=['H0'], ascending=True)
+                df_traj = df_traj.reset_index(drop=True)
 
                 df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
                 st.write('Approaching the reference point: ', len(df_traj.index ))
