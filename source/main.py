@@ -44,6 +44,15 @@ def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr
     rcs = ((4*np.pi)**3 * sr_lin * lt_lin * lr_lin * np.power(r_min, 4) * snr_lin )/ (pt_lin * gt_lin * gr_lin * lamb)
     return rcs
 
+def columns_first(df, col_first):
+    col_list = df.columns.to_list()
+    for line in col_first:
+        if line in col_list: col_list.remove(line)
+        else: col_first.remove(line)
+    col_first.extend(col_list)
+    df = df.reindex(columns=col_first)
+    return df
+
 # Updates the latest version of the orbital elements on the Space-Track website
 class SpaceTrackClientInit(SpaceTrackClient):
     def __init__(self,identity,password):
@@ -247,8 +256,8 @@ class SummarizeDataFiles:
     def __init__(self):
         """initialize the class"""        
         self.sel_orbital_elem = []
-        self.sel_resume = { "H0":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
-                    "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[],"RCS":[] }
+        self.sel_resume = {"RCS":[], "H0":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
+                    "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[] }
 
     def save_trajectories(self,pos,orbital_elem,dir_name,rcs):
         """saves trajectories and summarizes important data for tracking analysis.
@@ -522,23 +531,20 @@ def main():
             obj_aprox = len(df_orb.index)
             st.write('Number of calculated trajectories: ', obj_aprox)
 
+
             if obj_aprox > 0:
                 df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
+
+                col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
+                df_orb = columns_first(df_orb, col_first )
 
                 df_traj = pd.DataFrame(sdf.sel_resume)
                 df_traj = df_traj.join(df_orb)
 
                 df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
 
-                col_list = df_traj.columns.to_list()
-
-                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME', "RCS_SIZE", 'RCS_MIN']
-                col_first = []
-                for line in col_first0:
-                    if line in col_list: col_first.append(line)
-                for line in col_first: col_list.remove(line)
-                col_first.extend(col_list)
-                df_traj = df_traj.reindex(columns=col_first)
+                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
+                df_traj = columns_first(df_traj, col_first )
 
                 df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
                 st.write('Approaching the reference point: ', len(df_traj.index ))
