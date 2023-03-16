@@ -31,6 +31,18 @@ import pymap3d as pm
 
 # streamlit run source/main.py
 
+def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr=0 ):
+    pt_lin = 10**(pt/10)
+    gt_lin = 10**(gt/10)
+    gr_lin = 10**(gr/10)
+    lt_lin = 10**(lt/10)
+    lr_lin = 10**(lr/10)
+    sr_lin = 10**(sr/10)
+    snr_lin = 10**(snr/10)
+
+    lamb =  (3*10**8)/(f * 10**6)
+    rcs = ((4*np.pi)**3 * sr_lin * lt_lin * lr_lin * np.power(r_min, 4) * snr_lin )/ (pt_lin * gt_lin * gr_lin * lamb)
+    return rcs
 
 # Updates the latest version of the orbital elements on the Space-Track website
 class SpaceTrackClientInit(SpaceTrackClient):
@@ -516,9 +528,11 @@ def main():
                 df_traj = pd.DataFrame(sdf.sel_resume)
                 df_traj = df_traj.join(df_orb)
 
+                df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
+
                 col_list = df_traj.columns.to_list()
 
-                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME', "RCS_SIZE"]
+                col_first0 = ['NORAD_CAT_ID','OBJECT_NAME', "RCS_SIZE", 'RCS_MIN']
                 col_first = []
                 for line in col_first0:
                     if line in col_list: col_first.append(line)
