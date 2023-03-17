@@ -32,6 +32,21 @@ import pymap3d as pm
 # streamlit run source/main.py
 
 def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr=0 ):
+    """Function that returns the minimum Radar cross section (RCS) for radar detection
+    Creators: Francisval Guedes Soares, Marcos Leal
+    Date: 2023
+    
+    Args:
+    r_min (array[n] - numpy): minimum object-to-radar distance.
+    pt (float in db): radar power
+    gt and gr (float in db): radar transmit and receive gain
+    lt and lr (float in db): radar transmit and receive loss
+    f (float): radar frequency
+    sr (float in db): receiver sensitivity
+    snr (float in db): signal noise ratio
+    Returns:
+    rcs (array[n] - numpy) : Radar cross section (RCS) 
+    """
     pt_lin = 10**(pt/10)
     gt_lin = 10**(gt/10)
     gr_lin = 10**(gr/10)
@@ -39,9 +54,8 @@ def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr
     lr_lin = 10**(lr/10)
     sr_lin = 10**(sr/10)
     snr_lin = 10**(snr/10)
-
     lamb =  (3*10**8)/(f * 10**6)
-    rcs = ((4*np.pi)**3 * sr_lin * lt_lin * lr_lin * np.power(r_min, 4) * snr_lin )/ (pt_lin * gt_lin * gr_lin * lamb)
+    rcs = (((4*np.pi)**3) * sr_lin * lt_lin * lr_lin * np.power(r_min, 4) * snr_lin )/ (pt_lin * gt_lin * gr_lin * lamb**2)
     return rcs
 
 def columns_first(df, col_first):
