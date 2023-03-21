@@ -193,7 +193,7 @@ def get_orbital_element():
                 #del st.session_state.ss_elem_df
                 st.write("ok")
             else: 
-                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum number of objects: ' + str(max_num_norad) + ' , please load orbital elements manually</p>'
+                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Error when logging in</p>'
                 st.markdown(log_error, unsafe_allow_html=True)
         if st.session_state.stc_loged:
             fcol2.write("Status: Logged")
