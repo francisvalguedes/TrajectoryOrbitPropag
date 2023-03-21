@@ -456,7 +456,7 @@ def main():
 
         st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
         if not dmax>1.05*dmin:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">The maximum distance must be greater than the minimum distance</p>'
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">The maximum distance must be greater than the minimum distance in 1.05x</p>'
             st.sidebar.markdown(log_error, unsafe_allow_html=True)
 
         st.sidebar.write('Start and end time for H0 search TU:')
