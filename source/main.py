@@ -372,14 +372,15 @@ def main():
 
         if files_count > 100:
             for py_file in txt_files:
-                print('dell file: ' + py_file)
+                #print('dell file: ' + py_file)
+                st.write('dell files :', files_count)
                 try:
                     if os.path.isfile(py_file):
                         os.remove(py_file)
                     else:
                         shutil.rmtree(py_file)
                 except OSError as e:
-                    print(f"Error:{e.strerror}") 
+                    st.write('Error: ', e.strerror)
 
             path_files = tempfile.gettempdir() + '/top_tmp*'
             txt_files = glob.glob(path_files)
