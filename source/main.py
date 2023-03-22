@@ -570,6 +570,8 @@ def main():
                 #st.dataframe(df_traj)
 
                 st.session_state.ss_result_df = df_traj
+            else:
+                del st.session_state.ss_result_df
 
             fim = tm.time()
             st.write("Processing time (s): ", fim - ini)
