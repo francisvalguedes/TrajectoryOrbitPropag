@@ -54,4 +54,4 @@ cache/
 
 env/
 secret.txt
-# *.csv
+*.csv

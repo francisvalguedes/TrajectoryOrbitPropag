@@ -28,6 +28,7 @@ from io import StringIO
 import glob
 
 import pymap3d as pm
+import re
 
 # streamlit run source/main.py
 
@@ -435,10 +436,13 @@ def main():
     if lc_expander.button("Gravar nova localização"):
         lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [heigth] }
         if lc_name not in lc_df['name'].to_list():
-            lc_df = pd.concat([lc_df, pd.DataFrame(lc_add)], axis=0)
-            lc_df.to_csv('data/confLocalWGS84.csv', index=False)
-            st.session_state["lc_df"]=lc_df
-            lc_expander.write('Recorded location')
+            if (lc_add['name'][0]) and (bool(re.match('^[A-Za-z0-9_-]*$',lc_add['name'][0]))==True):
+                lc_df = pd.concat([lc_df, pd.DataFrame(lc_add)], axis=0)
+                lc_df.to_csv('data/confLocalWGS84.csv', index=False)
+                st.session_state["lc_df"]=lc_df
+                lc_expander.write('Recorded location')
+            else:
+                lc_expander.write('write a name without special characters')
         else:
             lc_expander.write('location already exists')
     
@@ -601,7 +605,8 @@ def main():
 
                 st.session_state.ss_result_df = df_traj
             else:
-                del st.session_state.ss_result_df
+                if "ss_result_df" in st.session_state:
+                    del st.session_state.ss_result_df
 
             fim = tm.time()
             st.write("Processing time (s): ", fim - ini)
@@ -615,7 +620,7 @@ def main():
             btn = st.download_button(
                 label="Download",
                 data=fp,
-                file_name="results_"+ st.session_state.date_time +".zip",
+                file_name="results_"+ lc['name'] + '_' + st.session_state.date_time +".zip",
                 mime="application/zip"
             )
 
