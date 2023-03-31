@@ -338,8 +338,8 @@ def geodetic_circ(r,center_lat,center_lon, center_h):
     return dfn
 
 def main():
-    """função principal que fornece a interface simplificada para configuração,
-                        visualização e download de dados. """  
+    """main function that provides the simplified interface for configuration,
+         visualization and data download. """  
 
     st.set_page_config(
     page_title="Orbit Tracking",
