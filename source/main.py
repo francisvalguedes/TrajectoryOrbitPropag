@@ -90,7 +90,9 @@ class SpaceTrackClientInit(SpaceTrackClient):
         try:
             self.authenticate()
         except:
-            print('space-track loguin error')
+            # print('space-track loguin error')
+            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">space-track loguin error</p>'
+            st.markdown(log_error, unsafe_allow_html=True)
             return False
         return  True
     def get_by_norad(self, norad_ids):
@@ -163,7 +165,7 @@ def get_orbital_element():
                     elem_df = pd.read_csv('data/oe_celestrac.csv')
 
             except OSError as e:
-                print(f"Error acess Celestrac") 
+                # print(f"Error acess Celestrac") 
                 log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually</p>'
                 st.markdown(log_error, unsafe_allow_html=True)
                 elem_df = pd.read_csv('data/oe_celestrac.csv')
@@ -410,23 +412,51 @@ def main():
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df)
 
+    if "lc_df" not in st.session_state:
+        st.session_state["lc_df"] = pd.read_csv('data/confLocalWGS84.csv')
+
     st.sidebar.subheader("Settings:")
     st.subheader("Settings:")
 
-    # Seleção do tempo de amostragem
+    # Select sample time
     sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Sampling rate (s): ', sample_time)
 
-    expander = st.sidebar.expander("Sensor location in the WGS84 Geodetic", expanded=True)
-    lc = { "lat":0, "lon":0,"height":0} 
-    lc['lat'] = expander.number_input('Latitude (deg)',-90.0, 90.0,value=-5.919178, format="%.6f")
-    lc['lon'] = expander.number_input('Longitude (deg)', -180.0, 80.0, value=-35.173372, format="%.6f")
-    lc['height'] = expander.number_input('Altitude (m)',-1000.0, 2000.0,value= 55.0, format="%.6f")
+    # Select sensor location or record another location
+    help=('Select sensor location or record another location above') 
+    lc_expander = st.sidebar.expander("Add new sensor location in the WGS84", expanded=False)
+    lc_name = lc_expander.text_input('Name',"my location")
+    latitude = lc_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.6f")
+    longitude = lc_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.6f")
+    heigth = lc_expander.number_input('heigth (m)',-1000.0, 2000.0, 0.0, format="%.6f")
+
+    lc_df = st.session_state["lc_df"]  
+
+    if lc_expander.button("Gravar nova localização"):
+        lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [heigth] }
+        if lc_name not in lc_df['name'].to_list():
+            lc_df = pd.concat([lc_df, pd.DataFrame(lc_add)], axis=0)
+            lc_df.to_csv('data/confLocalWGS84.csv', index=False)
+            st.session_state["lc_df"]=lc_df
+            lc_expander.write('Recorded location')
+        else:
+            lc_expander.write('location already exists')
+    
+    st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
+    for sel in lc_df['name']:
+        if sel==st.session_state["choice_lc"]:
+            lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
+
+    # lc_expander = st.sidebar.expander("Sensor location in the WGS84 Geodetic", expanded=True)
+    # lc = { "lat":0, "lon":0,"height":0} 
+    # lc['lat'] = lc_expander.number_input('Latitude (deg)',-90.0, 90.0,value=-5.919510, format="%.6f")
+    # lc['lon'] = lc_expander.number_input('Longitude (deg)', -180.0, 80.0, value=-35.173500, format="%.6f")
+    # lc['height'] = lc_expander.number_input('Height (m)',-1000.0, 2000.0,value= 58.954, format="%.6f")
     
     st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Latitude: ', lc['lat'])
     st.write('Longitude: ', lc['lon'] )
-    st.write('Altitude: ', lc['height'])
+    st.write('Height: ', lc['height'])
 
     # Seleção do modo de obtenção das trajetórias
     automatico="Auto search H0"
