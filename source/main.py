@@ -507,11 +507,14 @@ def main():
         final_datetime.format = 'isot'
         st.write('Search end time: ', final_datetime) 
         
-        time_norm = (max_time - (final_datetime - initial_datetime))/max_time
         if  (final_datetime - initial_datetime)> max_time:
+            time_norm = 0
             log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Maximum time delta: ' + str(max_time) + ' days </p>'
             st.markdown(log_error, unsafe_allow_html=True)
             final_datetime = initial_datetime + max_time
+        else:
+            time_norm = (max_time - (final_datetime - initial_datetime))/max_time
+
     
     elif choice == manual:
         st.sidebar.subheader("Manual:")
@@ -526,7 +529,7 @@ def main():
             st.dataframe(df_conf)
     
     max_num_obj = np.ceil(1 + 5000*time_norm)
-    st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(time_norm*max_time) + ' days')
+    st.write('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(max_time - time_norm*max_time) + ' days')
 
     st.sidebar.subheader("Calculate trajectories:")
     st.subheader('Outputs:')    
@@ -549,67 +552,67 @@ def main():
 
             rcs = pd.read_csv('data/RCS.csv').to_dict('list')
         
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-        st.session_state.date_time = date_time
-        dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
-        st.session_state.ss_dir_name = dir_name 
+            date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+            st.session_state.date_time = date_time
+            dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
+            st.session_state.ss_dir_name = dir_name 
 
-        if os.path.exists(st.session_state.ss_dir_name) == False:
-            os.mkdir(st.session_state.ss_dir_name)          
+            if os.path.exists(st.session_state.ss_dir_name) == False:
+                os.mkdir(st.session_state.ss_dir_name)          
 
-            ini = tm.time()    
+                ini = tm.time()    
 
-            st.write('Progress bar:')
-            my_bar = st.progress(0)
+                st.write('Progress bar:')
+                my_bar = st.progress(0)
 
-            sdf = SummarizeDataFiles()
-            if st.session_state["mode"] == automatico:                          
-                for index in range(len(orbital_elem)):
-                    propag = PropagInit(orbital_elem[index], lc, sample_time) 
-                    pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
-                    sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
-                    my_bar.progress((index+1)/len(orbital_elem))
-            elif st.session_state["mode"] == manual:
-                for index, row in df_conf.iterrows():
-                    orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
-                    propag = PropagInit(orbital_elem_row, lc, sample_time) 
-                    pos = propag.traj_calc(Time(row['H0'], format='isot'),row['END_PT'])
-                    sdf.save_trajectories(pos,orbital_elem_row,st.session_state.ss_dir_name,rcs)
-                    my_bar.progress((index+1)/len(df_conf.index))                     
-           
-            df_orb = pd.DataFrame(sdf.sel_orbital_elem)
-            obj_aprox = len(df_orb.index)
-            st.write('Number of calculated trajectories: ', obj_aprox)
+                sdf = SummarizeDataFiles()
+                if st.session_state["mode"] == automatico:                          
+                    for index in range(len(orbital_elem)):
+                        propag = PropagInit(orbital_elem[index], lc, sample_time) 
+                        pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
+                        sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
+                        my_bar.progress((index+1)/len(orbital_elem))
+                elif st.session_state["mode"] == manual:
+                    for index, row in df_conf.iterrows():
+                        orbital_elem_row = next(x for x in orbital_elem if x["NORAD_CAT_ID"] == row['NORAD_CAT_ID'])
+                        propag = PropagInit(orbital_elem_row, lc, sample_time) 
+                        pos = propag.traj_calc(Time(row['H0'], format='isot'),row['END_PT'])
+                        sdf.save_trajectories(pos,orbital_elem_row,st.session_state.ss_dir_name,rcs)
+                        my_bar.progress((index+1)/len(df_conf.index))                     
+            
+                df_orb = pd.DataFrame(sdf.sel_orbital_elem)
+                obj_aprox = len(df_orb.index)
+                st.write('Number of calculated trajectories: ', obj_aprox)
 
 
-            if obj_aprox > 0:
-                df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
+                if obj_aprox > 0:
+                    df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
 
-                col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
-                df_orb = columns_first(df_orb, col_first )
+                    col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
+                    df_orb = columns_first(df_orb, col_first )
 
-                df_traj = pd.DataFrame(sdf.sel_resume)
-                df_traj = df_traj.join(df_orb)
+                    df_traj = pd.DataFrame(sdf.sel_resume)
+                    df_traj = df_traj.join(df_orb)
 
-                df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
+                    df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
 
-                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
-                df_traj = columns_first(df_traj, col_first )
+                    col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
+                    df_traj = columns_first(df_traj, col_first )
 
-                df_traj = df_traj.sort_values(by=['H0'], ascending=True)
-                df_traj = df_traj.reset_index(drop=True)
+                    df_traj = df_traj.sort_values(by=['H0'], ascending=True)
+                    df_traj = df_traj.reset_index(drop=True)
 
-                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
-                st.write('Approaching the reference point: ', len(df_traj.index ))
-                #st.dataframe(df_traj)
+                    df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
+                    st.write('Approaching the reference point: ', len(df_traj.index ))
+                    #st.dataframe(df_traj)
 
-                st.session_state.ss_result_df = df_traj
-            else:
-                if "ss_result_df" in st.session_state:
-                    del st.session_state.ss_result_df
+                    st.session_state.ss_result_df = df_traj
+                else:
+                    if "ss_result_df" in st.session_state:
+                        del st.session_state.ss_result_df
 
-            fim = tm.time()
-            st.write("Processing time (s): ", fim - ini)
+                fim = tm.time()
+                st.write("Processing time (s): ", fim - ini)
         
     st.subheader('Files:')     
     if "ss_result_df" not in st.session_state:
