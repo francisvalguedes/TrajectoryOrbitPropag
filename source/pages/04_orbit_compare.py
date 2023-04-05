@@ -130,7 +130,7 @@ def main():
                 st.info('manually loaded item', icon=ic.info)
 
         elif 'ss_elem_df' in st.session_state:                
-            st.session_state.ss_norad_comp  = st.session_state.ss_elem_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
             st.info('loaded from last orbital propagation results', icon=ic.info)
         else: 
             st.info('Load NORAD_CAT_ID file csv or run propagation', icon=ic.info)
