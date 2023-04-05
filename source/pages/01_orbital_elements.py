@@ -7,6 +7,7 @@ import streamlit as st
 import pandas as pd
 
 from datetime import datetime
+import datetime as dt
 
 import os
 import tempfile
@@ -52,10 +53,23 @@ class SpaceTrackClientInit(SpaceTrackClient):
         Returns:         
         pandas DataFrame: OMM format
         """
-        elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
+
+        epoch_end = datetime.utcnow() + dt.timedelta(days=1)
+        epoch_start = datetime.utcnow() - dt.timedelta(days=3)
+
+        epoch_end = epoch_end.strftime('-%Y-%m-%d')
+        epoch_start = epoch_start.strftime('%Y-%m-%d-')
+
+        epoch = epoch_start + epoch_end
+        elements_csv = st.session_state.stc.gp_history( norad_cat_id=norad_ids,
+                                                            orderby='norad_cat_id desc',epoch=epoch,
+                                                            format='csv')
+
+        # elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
         elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
         st.write('Updated Orbital Element File:')
         st.session_state.ss_elem_df = elem_df
+        elem_df.to_csv('data/space_track/oe_data_spacetrack.csv', index=False)
         return elem_df
     def get_select(self):
         """get the orbital elements from specified filter.
