@@ -247,6 +247,7 @@ def main():
         st.session_state.stc_loged = False
 
     get_orbital_element()
+    
 
     if "ss_elem_df" not in st.session_state:
         log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
@@ -255,7 +256,8 @@ def main():
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df)
         elem_df.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", index=False)
-
+        
+        st.write('Download Orbital Element Files:')
         with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", "rb") as fp:
             btn = st.download_button(
                 label="Download",
