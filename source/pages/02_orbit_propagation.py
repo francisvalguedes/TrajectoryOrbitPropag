@@ -232,9 +232,6 @@ def main():
     st.write('Longitude: ', lc['lon'] )
     st.write('Height: ', lc['height'])
 
-    max_time = TimeDelta(10*u.d)
-    max_num_obj = 5000
-
     dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
         min_value = 400,
         max_value = 10000,
@@ -266,18 +263,19 @@ def main():
     final_time = col2.time_input("End time", time(19, 0))
     final_datetime=Time(datetime.combine(final_date, final_time))
     final_datetime.format = 'isot'
-    st.write('Search end time: ', final_datetime)         
+    st.write('Search end time: ', final_datetime)   
+
+    max_time = TimeDelta(10*u.d)
+    max_num_obj = 5000 
     
-    if  (final_datetime - initial_datetime)> max_time:            
-        time_norm = 0
+    if  (final_datetime - initial_datetime)> max_time:      
         final_datetime = initial_datetime + max_time 
         st.warning('Maximum time delta: ' + str(max_time) + ' days', icon="⚠️")
-    elif  (final_datetime - initial_datetime) < 0:
+    elif  (final_datetime - initial_datetime) < TimeDelta(0.0001*u.d):
         st.error('End date must be after start date', icon="🚨")
         st.stop()
-    else:  
-        time_norm = (max_time - (final_datetime - initial_datetime))/max_time
-    
+        
+    time_norm = (max_time - (final_datetime - initial_datetime))/max_time
     max_num_obj = np.round(1 + max_num_obj*time_norm)
     st.info('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+  str(final_datetime - initial_datetime) + ' days',icon="ℹ️")
 
