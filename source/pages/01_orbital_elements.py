@@ -214,38 +214,41 @@ def get_orbital_element():
                 elif data_elements.type == "text/csv":
                     st.session_state.ss_elem_df = pd.read_csv(data_elements)
 
-st.title("Get the orbital elements of the satellite")
-st.subheader('**Get satellite orbital elements from Celestrack website individually or Space-track allows multiple.**')
+def main():
+    st.title("Get the orbital elements of the satellite")
+    st.subheader('**Get satellite orbital elements from Celestrack website individually or Space-track allows multiple.**')
 
-if "date_time" not in st.session_state:
-    date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-    st.session_state.date_time = date_time
+    if "date_time" not in st.session_state:
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
 
-if "ss_dir_name" not in st.session_state:
-    dir_name = tempfile.gettempdir()+"/top_tmp_"+ st.session_state.date_time
-    st.session_state.ss_dir_name = dir_name 
+    if "ss_dir_name" not in st.session_state:
+        dir_name = tempfile.gettempdir()+"/top_tmp_"+ st.session_state.date_time
+        st.session_state.ss_dir_name = dir_name 
 
-if os.path.exists(st.session_state.ss_dir_name) == False:
-    os.mkdir(st.session_state.ss_dir_name)
+    if os.path.exists(st.session_state.ss_dir_name) == False:
+        os.mkdir(st.session_state.ss_dir_name)
 
-if "stc_loged" not in st.session_state:
-    st.session_state.stc_loged = False
+    if "stc_loged" not in st.session_state:
+        st.session_state.stc_loged = False
 
-get_orbital_element()
+    get_orbital_element()
 
-if "ss_elem_df" not in st.session_state:
-    log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
-    st.markdown(log_error, unsafe_allow_html=True)
-else:        
-    elem_df = st.session_state["ss_elem_df"]
-    st.dataframe(elem_df)
-    elem_df.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", index=False)
+    if "ss_elem_df" not in st.session_state:
+        log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
+        st.markdown(log_error, unsafe_allow_html=True)
+    else:        
+        elem_df = st.session_state["ss_elem_df"]
+        st.dataframe(elem_df)
+        elem_df.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", index=False)
 
-    with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", "rb") as fp:
-        btn = st.download_button(
-            label="Download",
-            data=fp,
-            file_name="all_orbital_elem" + st.session_state.date_time +".csv",
-            mime="application/txt"
-        )
+        with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", "rb") as fp:
+            btn = st.download_button(
+                label="Download",
+                data=fp,
+                file_name="all_orbital_elem" + st.session_state.date_time +".csv",
+                mime="application/txt"
+            )
 
+if __name__== '__main__':
+    main()
