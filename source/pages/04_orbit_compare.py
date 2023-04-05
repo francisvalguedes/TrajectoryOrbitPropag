@@ -49,7 +49,7 @@ def main():
 
     MENU_UPDATE = "Update orbital elements"
     MENU_NUPDATE = "Orbital elements already loaded"
-    menu_update = [MENU_UPDATE, MENU_NUPDATE]
+    menu_update = [ MENU_NUPDATE, MENU_UPDATE]
     help='Choice'
 
     st.selectbox("Choice of orbital elements dataset:",menu_update, key="choice_update_comp", help=help)
@@ -117,6 +117,8 @@ def main():
             orbital_elem_all.to_csv('data/space_track/oe_data_spacetrack.csv', index=False)
     
 # menu to configure the comparison based on the orbital elements propagated on the previous page
+
+    st.write('Use the list of NORAD resulting from the propagation page or upload norad list:')
 
     if st.session_state["choice_update_comp"] == MENU_NUPDATE: 
         norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT_ID",type=['csv'])
