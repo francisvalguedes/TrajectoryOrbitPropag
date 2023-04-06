@@ -12,7 +12,9 @@ from astropy.time import Time
 from astropy.time import TimeDelta
 import numpy as np
 import time
+
 # Orbit propagation class, coordinate system conversion, H0 search and trajectory generation
+
 class PropagInit:
     def __init__(self, orbital_elem, lc, sample_time=1):
         """
