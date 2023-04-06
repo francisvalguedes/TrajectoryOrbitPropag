@@ -21,7 +21,7 @@ import tempfile
 import numpy as np
 
 from lib.orbit_functions import  PropagInit
-from lib.pages_functions import  Icons
+from lib.constants import  ConstantsNamespace
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -32,7 +32,17 @@ import glob
 import pymap3d as pm
 import re
 
-ic = Icons()
+cn = ConstantsNamespace()
+
+def dellfiles(file):
+    py_files = glob.glob(file)
+    err = 0
+    for py_file in py_files:
+        try:
+            os.remove(py_file)
+        except OSError as e:
+            err = e.strerror
+    return err
 
 def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr=0 ):
     """Function that returns the minimum Radar cross section (RCS) for radar detection
@@ -185,9 +195,9 @@ def main():
     st.subheader("*Orbital elements:*")
 
     if "ss_elem_df" not in st.session_state:
-        st.info('Upload the orbital elements', icon=ic.info)        
+        st.info('Upload the orbital elements in previos page', icon=cn.INFO)        
     else:
-        st.success('Orbital Elements loaded!', icon=ic.success )
+        st.success('Orbital Elements loaded!', icon=cn.SUCCESS )
 
     if "lc_df" not in st.session_state:
         st.session_state["lc_df"] = pd.read_csv('data/confLocalWGS84.csv')
@@ -250,7 +260,7 @@ def main():
 
     st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
     if not dmax>1.05*dmin:
-        st.error('The maximum distance must be greater than the minimum distance in 1.05x', icon=ic.error)
+        st.error('The maximum distance must be greater than the minimum distance in 1.05x', icon=cn.ERROR)
 
     st.sidebar.write('Start and end time for H0 search TU:')
     col1, col2 = st.sidebar.columns(2)
@@ -271,92 +281,90 @@ def main():
     
     if  (final_datetime - initial_datetime)> max_time:      
         final_datetime = initial_datetime + max_time 
-        st.warning('Maximum time delta: ' + str(max_time) + ' days', icon=ic.warning)
+        st.warning('Maximum time delta: ' + str(max_time) + ' days', icon=cn.WARNING)
     elif  (final_datetime - initial_datetime) < TimeDelta(0.0001*u.d):
-        st.error('End date must be after start date', icon=ic.error)
+        st.error('End date must be after start date', icon=cn.ERROR)
         st.stop()
         
     time_norm = (max_time - (final_datetime - initial_datetime))/max_time
     max_num_obj = np.round(1 + max_num_obj*time_norm)
-    st.info('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+  str(final_datetime - initial_datetime) + ' days',icon=ic.info)
+    st.info('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+  str(final_datetime - initial_datetime) + ' days',icon=cn.INFO)
 
     st.sidebar.subheader("Calculate trajectories:")
     st.subheader('*Outputs:*')    
     
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
-            st.info('Upload the orbital elements', icon=ic.info)   
+            st.info('Upload the orbital elements', icon=cn.INFO)   
         elif len(st.session_state["ss_elem_df"].index)>max_num_obj:
-            st.warning('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(final_datetime - initial_datetime) + ' days', icon=ic.warning)
+            st.warning('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+ str(final_datetime - initial_datetime) + ' days', icon=cn.WARNING)
         elif 'MEAN_MOTION' not in st.session_state["ss_elem_df"].columns.to_list():
-            st.error('Orbital elements do not match OMM format', icon=ic.error)
+            st.error('Orbital elements do not match OMM format', icon=cn.ERROR)
         else:
             st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
 
             orbital_elem = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first').to_dict('records')
-
             #orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
 
-            rcs = pd.read_csv('data/RCS.csv').to_dict('list')
-        
-            date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-            st.session_state.date_time = date_time
-            dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
-            st.session_state.ss_dir_name = dir_name 
+            rcs = pd.read_csv('data/RCS.csv').to_dict('list')        
 
-            if os.path.exists(st.session_state.ss_dir_name) == False:
-                os.mkdir(st.session_state.ss_dir_name)          
+            dellfiles(st.session_state.ss_dir_name + os.sep +'*.csv')
+            dellfiles(st.session_state.ss_dir_name + os.sep +'*.trn')
+ 
+            ini = tm.time()    
 
-                ini = tm.time()    
+            st.write('Progress bar:')
+            my_bar = st.progress(0)
 
-                st.write('Progress bar:')
-                my_bar = st.progress(0)
+            sdf = SummarizeDataFiles()
 
-                sdf = SummarizeDataFiles()
+            # automatico:                          
+            for index in range(len(orbital_elem)):
+                propag = PropagInit(orbital_elem[index], lc, sample_time) 
+                pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
+                sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
+                my_bar.progress((index+1)/len(orbital_elem))
 
-                # automatico:                          
-                for index in range(len(orbital_elem)):
-                    propag = PropagInit(orbital_elem[index], lc, sample_time) 
-                    pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
-                    sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
-                    my_bar.progress((index+1)/len(orbital_elem))
+            df_orb = pd.DataFrame(sdf.sel_orbital_elem)
+            obj_aprox = len(df_orb.index)
+            st.write('Number of calculated trajectories: ', obj_aprox)
 
-                df_orb = pd.DataFrame(sdf.sel_orbital_elem)
-                obj_aprox = len(df_orb.index)
-                st.write('Number of calculated trajectories: ', obj_aprox)
+            if obj_aprox > 0:
+                df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
 
-                if obj_aprox > 0:
-                    df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
+                col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
+                df_orb = columns_first(df_orb, col_first )
 
-                    col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
-                    df_orb = columns_first(df_orb, col_first )
+                df_traj = pd.DataFrame(sdf.sel_resume)
+                df_traj = df_traj.join(df_orb)
 
-                    df_traj = pd.DataFrame(sdf.sel_resume)
-                    df_traj = df_traj.join(df_orb)
+                df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
 
-                    df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
+                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
+                df_traj = columns_first(df_traj, col_first )
 
-                    col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
-                    df_traj = columns_first(df_traj, col_first )
+                df_traj = df_traj.sort_values(by=['H0'], ascending=True)
+                df_traj = df_traj.reset_index(drop=True)
 
-                    df_traj = df_traj.sort_values(by=['H0'], ascending=True)
-                    df_traj = df_traj.reset_index(drop=True)
+                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
+                st.write('Approaching the reference point: ', len(df_traj.index ))
+                #st.dataframe(df_traj)
 
-                    df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
-                    st.write('Approaching the reference point: ', len(df_traj.index ))
-                    #st.dataframe(df_traj)
+                st.session_state.ss_result_df = df_traj
+            else:
+                if "ss_result_df" in st.session_state:
+                    del st.session_state.ss_result_df
+                st.warning('there are no sensor approach points for this configuration', icon=cn.WARNING)
 
-                    st.session_state.ss_result_df = df_traj
-                else:
-                    if "ss_result_df" in st.session_state:
-                        del st.session_state.ss_result_df
+            
+            fim = tm.time()
+            st.write("Processing time (s): ", fim - ini)
 
-                fim = tm.time()
-                st.write("Processing time (s): ", fim - ini)
-
-                st.write('The data summary:')                   
-                st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
-                st.dataframe(st.session_state.ss_result_df)
+    st.write('The data summary:')  
+    if "ss_result_df" in st.session_state: 
+        st.success('trajectories calculated successfully', icon=cn.SUCCESS)                      
+        st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
+        st.dataframe(st.session_state.ss_result_df)
         
     st.subheader('*Files:*')     
     if "ss_result_df" not in st.session_state:
@@ -378,6 +386,8 @@ def main():
     st.write('traj_data.csv - Relevant trajectory and object data')
     st.write('*.trn files - Trajectory from H0, in the ENU reference system')
     st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
+
+    st.info('To analyze the results, go to the next page.', icon=cn.INFO)
 
 if __name__== '__main__':
     main()

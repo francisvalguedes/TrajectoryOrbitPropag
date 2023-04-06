@@ -20,6 +20,7 @@ import tempfile
 import numpy as np
 
 from lib.orbit_functions import  PropagInit
+from lib.constants import  ConstantsNamespace
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -29,6 +30,8 @@ import glob
 
 import pymap3d as pm
 import re
+
+cn = ConstantsNamespace()
 
 def geodetic_circ(r,center_lat,center_lon, center_h):
     """calculates a circle in the geodetic system.
@@ -52,9 +55,9 @@ def main():
     st.subheader('Data visualization:')
 
     if "ss_result_df" not in st.session_state:
-        st.info('Run propagation for visualization',   icon="ℹ️")
+        st.info('Run propagation for visualization',   icon=cn.INFO)
     elif "ss_lc" not in st.session_state:
-        st.info('Load geodetic wgs84 location',   icon="ℹ️")
+        st.info('Load geodetic wgs84 location',   icon=cn.INFO)
     else:  
         st.write('The data summary:')                   
         st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
@@ -92,6 +95,8 @@ def main():
         st.map(df)
         st.sidebar.markdown('The map can be seen on the right')
         st.sidebar.markdown('Thanks')
+
+    st.info('To analyze the results, go to the next page.', icon=cn.INFO)
 
 if __name__== '__main__':
     main()

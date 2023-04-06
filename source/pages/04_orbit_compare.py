@@ -10,8 +10,8 @@ import os
 from astropy import units as u
 
 from lib.orbit_functions import  PropagInit
-
-from lib.pages_functions import  Icons, SpaceTrackClientInit
+from lib.pages_functions import  SpaceTrackClientInit
+from lib.constants import  ConstantsNamespace
 
 import datetime as dt
 from datetime import datetime
@@ -19,10 +19,7 @@ from datetime import datetime
 import streamlit as st
 import tempfile
 
-sample_time = 60*5 # segundos
-n_samples = 80
-ic = Icons()
-
+cn = ConstantsNamespace()
 
 def main():
     if "date_time" not in st.session_state:
@@ -45,10 +42,10 @@ def main():
         st.session_state["ss_lc"] = lc
 
     st.title('Orbit trajetory compare')
-    st.subheader('Objects to be analyzed:')
+    st.markdown('Use the orbital elements loaded on previous pages or update from space track')
 
-    MENU_UPDATE = "Update orbital elements"
-    MENU_NUPDATE = "Orbital elements already loaded"
+    MENU_UPDATE = "Space-Track Update orbital elements"
+    MENU_NUPDATE = "Space-Track Orbital elements already loaded"
     menu_update = [ MENU_NUPDATE, MENU_UPDATE]
     help='Choice'
 
@@ -58,7 +55,7 @@ def main():
 
     if st.session_state["choice_update_comp"] == MENU_UPDATE:
         if not st.session_state.stc_loged:
-            st.info('Necessary login Space-Track',   icon= ic.info)
+            st.info('Necessary login Space-Track',   icon= cn.INFO)
             
             link = '[See the link of Space-Track API](https://www.space-track.org/documentation#/api)'
             st.markdown(link, unsafe_allow_html=True)
@@ -76,11 +73,11 @@ def main():
                 #     #del st.session_state.ss_elem_df
                 #     st.write("ok")
                 # else: 
-                #     st.error('Error when logging', icon=ic.error)
+                #     st.error('Error when logging', icon=cn.ERROR)
         
         if st.session_state.stc_loged:
-            st.success('Space-Track logged', icon=ic.success)
-        else: st.warning("Status: Space-Track Unlogged",icon=ic.warning)
+            st.success('Space-Track logged', icon=cn.SUCCESS)
+        else: st.warning("Status: Space-Track Unlogged",icon=cn.WARNING)
 
         norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT ID",type=['csv'])
         #if st.button("Upload NORAD_CAT_ID file"):
@@ -93,7 +90,7 @@ def main():
                 st.dataframe(st.session_state.ss_norad_comp)
 
         if 'ss_norad_comp' not in st.session_state:
-            st.info('Load NORAD_CAT_ID file csv', icon=ic.info)
+            st.info('Load NORAD_CAT_ID file csv', icon=cn.INFO)
             st.stop()
 
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
@@ -114,7 +111,7 @@ def main():
             
             orbital_elem_all = pd.read_csv(StringIO(elements_csv), sep=",")
             st.dataframe(orbital_elem_all)
-            orbital_elem_all.to_csv('data/space_track/oe_data_spacetrack.csv', index=False)
+            orbital_elem_all.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
     
 # menu to configure the comparison based on the orbital elements propagated on the previous page
 
@@ -129,26 +126,26 @@ def main():
             if norad_file.type == "text/csv":
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file)
                 st.dataframe(st.session_state.ss_norad_comp)
-                st.info('manually loaded item', icon=ic.info)
+                st.info('manually loaded item', icon=cn.INFO)
 
         elif 'ss_elem_df' in st.session_state:                
             st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-            st.info('loaded from last orbital propagation results', icon=ic.info)
+            st.info('loaded from last orbital propagation results', icon=cn.INFO)
         else: 
-            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=ic.info)
+            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
             st.stop()
 
         # if 'ss_norad_comp' not in st.session_state:
-        #     st.info('Load NORAD_CAT_ID file csv', icon=ic.info)
+        #     st.info('Load NORAD_CAT_ID file csv', icon=cn.INFO)
         #     st.stop()
 
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
 
-    if os.path.exists('data/space_track/oe_data_spacetrack.csv'):
-        orbital_elem_all = pd.read_csv('data/space_track/oe_data_spacetrack.csv')
+    if os.path.exists(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt"):
+        orbital_elem_all = pd.read_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt")
         # norad_comp_list = orbital_elem_all.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first').to_dict('list')['NORAD_CAT_ID']
     else:
-        st.warning('Space-track orbital elements file do not exists, please update', icon=ic.warning)
+        st.warning('Space-track orbital elements file do not exists, please update', icon=cn.WARNING)
 
         
 
@@ -173,13 +170,13 @@ def main():
                     start_time = Time(prev_orbital_elem_row['EPOCH'], format='isot') - TimeDelta( 0.5 * u.d)
                     start_time = Time(start_time, precision=0)
 
-                    propag = PropagInit(prev_orbital_elem_row, st.session_state["ss_lc"], sample_time) 
-                    pos = propag.traj_calc(start_time, n_samples)  #orbital_elem_row['EPOCH'] '2023-02-21T05:56:47'
+                    propag = PropagInit(prev_orbital_elem_row, st.session_state["ss_lc"], cn.COMP_SAMPLE_TIME) 
+                    pos = propag.traj_calc(start_time, cn.COMP_NUMBER_SAMPLES)  #orbital_elem_row['EPOCH'] '2023-02-21T05:56:47'
 
                     prev_traj = pos.enu[0]
 
-                    propag = PropagInit(orbital_elem_row, st.session_state["ss_lc"], sample_time) 
-                    pos = propag.traj_calc(start_time, n_samples)
+                    propag = PropagInit(orbital_elem_row, st.session_state["ss_lc"], cn.COMP_SAMPLE_TIME) 
+                    pos = propag.traj_calc(start_time, cn.COMP_NUMBER_SAMPLES)
 
                     curr_traj = pos.enu[0]
 
@@ -215,12 +212,13 @@ def main():
         st.session_state["df_orb"] = df_orb
 
     if "df_orb" not in st.session_state:
-        st.info('run compare', icon=ic.info)
+        st.info('run compare', icon=cn.INFO)
         st.stop()
 
     st.dataframe(st.session_state.df_orb)
     st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_compare.csv", index=False)
 
+    st.write('Files can be downloaded:')
     with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_compare.csv", "rb") as fp:
         btn = st.download_button(
             label="Download",
