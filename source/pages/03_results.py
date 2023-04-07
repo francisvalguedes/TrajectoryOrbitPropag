@@ -52,6 +52,20 @@ def geodetic_circ(r,center_lat,center_lon, center_h):
 
 
 def main():
+
+    st.set_page_config(
+    page_title="Result analisis",
+    page_icon="🌏", # "🤖",  # "🧊",
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # menu_items={
+    #     'Get Help': 'https://www.sitelink.com',
+    #     'Report a bug': "https://www.sitelink.com",
+    #     'About': "# This is a header. A extremely cool app!"
+    # }
+    )
+        
     st.subheader('Data visualization:')
 
     if "ss_result_df" not in st.session_state:
