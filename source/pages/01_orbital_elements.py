@@ -185,7 +185,7 @@ def main():
     # menu_items={
     #     'Get Help': 'https://www.sitelink.com',
     #     'Report a bug': "https://www.sitelink.com",
-    #     'About': "# This is a header. A extremely cool app!"
+    #     'About': "# A cool app"
     # }
     )
 
@@ -223,8 +223,6 @@ def main():
             col2.warning('Orbital elements not found on Space-Track', icon=cn.WARNING)
             not_foud = df_norad_ids[~df_norad_ids['NORAD_CAT_ID'].isin(st.session_state.ss_elem_df['NORAD_CAT_ID'].tolist())]
             col2.dataframe(not_foud)
-            #df["Name"].tolist()
-            #data[data['name'].isin(list1)]
 
     if "ss_elem_df" not in st.session_state:
         st.info("Load orbital elements", icon=cn.INFO )
