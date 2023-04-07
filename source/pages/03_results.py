@@ -62,7 +62,7 @@ def main():
     # menu_items={
     #     'Get Help': 'https://www.sitelink.com',
     #     'Report a bug': "https://www.sitelink.com",
-    #     'About': "# This is a header. A extremely cool app!"
+    #     'About': "# A cool app"
     # }
     )
         
