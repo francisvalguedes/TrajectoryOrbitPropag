@@ -22,6 +22,19 @@ import tempfile
 cn = ConstantsNamespace()
 
 def main():
+    st.set_page_config(
+    page_title="Compare orbital elements trajectories",
+    page_icon="🌏", # "🤖",  # "🧊",
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # menu_items={
+    #     'Get Help': 'https://www.sitelink.com',
+    #     'Report a bug': "https://www.sitelink.com",
+    #     'About': "# This is a header. A extremely cool app!"
+    # }
+    )
+
     if "date_time" not in st.session_state:
         date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time

@@ -157,7 +157,7 @@ def main():
          visualization and data download. """  
 
     st.set_page_config(
-    page_title="Orbit Tracking",
+    page_title="Orbit propagation for Tracking",
     page_icon="🌏", # "🤖",  # "🧊",
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
