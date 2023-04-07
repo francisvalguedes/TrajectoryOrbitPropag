@@ -109,6 +109,7 @@ def get_orbital_element():
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
                 st.write('NORAD_CAT_ID file uploaded for update:')
                 # st.dataframe(df_norad_ids)
+                df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
                 st.session_state.df_norad_ids = df_norad_ids
                 st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
                       
@@ -123,10 +124,11 @@ def get_orbital_element():
                     st.write('NORAD_CAT_ID file loaded:')
                     file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
                     st.write('File details:')
-                    st.write(file_details)
+                    st.write(file_details)                    
                     df_norad_ids = pd.read_csv(data_norad)
                     st.write('NORAD_CAT_ID file uploaded for update:')
                     # st.dataframe(df_norad_ids)
+                    df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
                     st.session_state.df_norad_ids = df_norad_ids
                     
                     if len(df_norad_ids.index)<max_num_norad:
@@ -211,18 +213,20 @@ def main():
 
     get_orbital_element()    
 
-    if "df_norad_ids" in st.session_state:
-        
+    if "df_norad_ids" in st.session_state:        
         #st.info("Load orbital elements", icon=cn.INFO )
         if ("ss_elem_df" in st.session_state and st.session_state["choiceUpdate"] == MENU_UPDATE2):
-            col1, col2 = st.columns(2)
-            col1.info('Orbital elements requested from Space-Track', icon=cn.INFO)
-            # elem_df_res = st.session_state.ss_elem_df[['NORAD_CAT_ID', 'OBJECT_NAME']]
             df_norad_ids = st.session_state.df_norad_ids
-            col1.dataframe(df_norad_ids)
-            col2.warning('Orbital elements not found on Space-Track', icon=cn.WARNING)
             not_foud = df_norad_ids[~df_norad_ids['NORAD_CAT_ID'].isin(st.session_state.ss_elem_df['NORAD_CAT_ID'].tolist())]
+            elem_decay =  st.session_state.ss_elem_df[~st.session_state.ss_elem_df['DECAY_DATE'].isna()][['NORAD_CAT_ID']]
+
+            col1, col2, col3 = st.columns(3)
+            col1.info('Orbital elements requested from Space-Track: '+ str(df_norad_ids.shape[0]), icon=cn.INFO)
+            col1.dataframe(df_norad_ids)
+            col2.warning('Orbital elements not found on Space-Track (now-3days): '+ str(not_foud.shape[0]), icon=cn.WARNING)
             col2.dataframe(not_foud)
+            col3.warning('decayed object: '+ str(elem_decay.shape[0]), icon=cn.WARNING)
+            col3.dataframe(elem_decay)
 
     if "ss_elem_df" not in st.session_state:
         st.info("Load orbital elements", icon=cn.INFO )
