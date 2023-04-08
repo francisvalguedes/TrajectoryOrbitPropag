@@ -57,9 +57,6 @@ def main():
     st.title('Orbit trajetory compare')
     st.markdown('Use the orbital elements loaded on previous pages or update from space track')
 
-    MENU_UPDATE = "Space-Track Update orbital elements"
-    MENU_NUPDATE = "Space-Track Orbital elements already loaded"
-    menu_update = [ MENU_NUPDATE, MENU_UPDATE]
     help='Choice'
 
     st.selectbox("Choice of orbital elements dataset:",menu_update, key="choice_update_comp", help=help)
@@ -79,14 +76,8 @@ def main():
             fcol1, fcol2 = form.columns(2)
             submitted = fcol1.form_submit_button("Submit")
             if submitted:
-                stc = SpaceTrackClientInit(stc_log, stc_ss)
-                st.session_state.stc_loged = stc.ss()
-                st.session_state.stc = stc
-                # if st.session_state.stc_loged:          
-                #     #del st.session_state.ss_elem_df
-                #     st.write("ok")
-                # else: 
-                #     st.error('Error when logging', icon=cn.ERROR)
+                st.session_state.stc = SpaceTrackClientInit(stc_log, stc_ss)
+                st.session_state.stc_loged = st.session_state.stc.ss()
         
         if st.session_state.stc_loged:
             st.success('Space-Track logged', icon=cn.SUCCESS)
@@ -110,17 +101,8 @@ def main():
 
         update_compare_oe_bt = st.button("Orbital elements update to compare")
         if update_compare_oe_bt:
-            epoch_end = datetime.utcnow() + dt.timedelta(days=1)
-            epoch_start = datetime.utcnow() - dt.timedelta(days=3)
 
-            epoch_end = epoch_end.strftime('-%Y-%m-%d')
-            epoch_start = epoch_start.strftime('%Y-%m-%d-')
-
-            epoch = epoch_start + epoch_end
-
-            elements_csv = st.session_state.stc.gp_history( norad_cat_id=norad_comp_list,
-                                                            orderby='norad_cat_id desc',epoch=epoch,
-                                                            format='csv')
+            elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
             
             orbital_elem_all = pd.read_csv(StringIO(elements_csv), sep=",")
             st.dataframe(orbital_elem_all)
@@ -159,11 +141,10 @@ def main():
         # norad_comp_list = orbital_elem_all.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first').to_dict('list')['NORAD_CAT_ID']
     else:
         st.warning('Space-track orbital elements file do not exists, please update', icon=cn.WARNING)
+    
+    if min(orbital_elem_all.groupby(orbital_elem_all['NORAD_CAT_ID'],as_index=False).size()['size']) <2:
+        st.warning('it will not be possible to compare objects that have less than two sets of orbital elements', icon=cn.WARNING)
 
-        
-
-    limit=30
-    err_max = 3000 # m
     st.write('Perform propagation calculations and trajectory comparison:')
     compare_oe_bt = st.button("run trajectory comparison")
     if compare_oe_bt:
@@ -239,6 +220,12 @@ def main():
             file_name="all_orbital_elem" + st.session_state.date_time +".csv",
             mime="application/txt"
         )
+
+# Constants
+err_max = 3000 # m
+MENU_UPDATE = "Space-Track Update orbital elements"
+MENU_NUPDATE = "Space-Track Orbital elements already loaded"
+menu_update = [ MENU_NUPDATE, MENU_UPDATE]
 
 if __name__== '__main__':
     main()

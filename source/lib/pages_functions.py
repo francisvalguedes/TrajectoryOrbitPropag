@@ -46,7 +46,7 @@ class SpaceTrackClientInit(SpaceTrackClient):
     
     def get_by_norad(self,
                      norad_ids,
-                     epoch_start = datetime.utcnow() - dt.timedelta(days=3),
+                     epoch_start = datetime.utcnow() - dt.timedelta(days=4),
                      epoch_end = datetime.utcnow() + dt.timedelta(days=1) ):
         """get the orbital elements from NORAD_CAT_IDs.
 
