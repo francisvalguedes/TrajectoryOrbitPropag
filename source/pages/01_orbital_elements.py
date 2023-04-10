@@ -128,10 +128,10 @@ def get_orbital_element():
                     df_norad_ids = pd.read_csv(data_norad)
                     st.write('NORAD_CAT_ID file uploaded for update:')
                     # st.dataframe(df_norad_ids)
-                    df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
-                    st.session_state.df_norad_ids = df_norad_ids
+                    df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])                    
                     
                     if len(df_norad_ids.index)<max_num_norad:
+                        st.session_state.df_norad_ids = df_norad_ids
                         st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
                     else:
                         st.warning('max norad_cat_id = '+ str(max_num_norad), icon=cn.WARNING)
@@ -241,7 +241,7 @@ def main():
                 btn = st.download_button(
                     label="Download",
                     data=fp,
-                    file_name="all_orbital_elem_" + st.session_state.date_time +".csv",
+                    file_name="orbital_elem_all.csv",
                     mime="application/txt"
                 )
 
