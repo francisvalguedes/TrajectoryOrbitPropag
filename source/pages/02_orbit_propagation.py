@@ -295,24 +295,29 @@ def main():
     
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
-            st.info('Upload the orbital elements', icon=cn.INFO)   
-        elif len(st.session_state["ss_elem_df"].index)>max_num_obj:
-            st.warning('Maximum number of objects to propagate: ' + str(max_num_obj) +
-                        ', for time delta '+ str(final_datetime - initial_datetime) + ' days',
-                         icon=cn.WARNING)
+            st.info('Upload the orbital elements', icon=cn.INFO)
         elif 'MEAN_MOTION' not in st.session_state["ss_elem_df"].columns.to_list():
             st.error('Orbital elements do not match OMM format', icon=cn.ERROR)
-        else:
-            st.write('Number of objects: ', len(st.session_state["ss_elem_df"].index))
-
+        else:         
             elem_df = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.write('Number of objects: ', len(elem_df.index))
+
+            if len(elem_df.index)>max_num_obj:
+                st.warning('Maximum number of objects to propagate: ' + str(max_num_obj) +
+                        ', for time delta '+ str(final_datetime - initial_datetime) + ' days',
+                         icon=cn.WARNING)
+                st.stop()
+
             if 'PERIAPSIS' in elem_df.columns.tolist():
                 orbital_elem = elem_df[ elem_df['PERIAPSIS']<dmax]
                 orbital_elem_dell = elem_df[~elem_df['NORAD_CAT_ID'].isin(orbital_elem['NORAD_CAT_ID'].tolist())]
                 if orbital_elem_dell.shape[0]>0:
-                    st.warning(str(orbital_elem_dell.shape[0]) +
-                               ' objects excluded because they have periapsis greater than dmax: ' +
+                    st.warning(str(orbital_elem_dell.shape[0]) + ' objects excluded because they have periapsis greater than dmax: ' +
                                 str(dmax) + 'Km', icon=cn.WARNING )
+            else:
+                orbital_elem = elem_df
+
+            del elem_df
 
             orbital_elem = orbital_elem.to_dict('records')
             #orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
