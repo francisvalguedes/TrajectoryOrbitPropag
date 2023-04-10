@@ -210,14 +210,14 @@ def main():
         st.stop()
 
     st.dataframe(st.session_state.df_orb)
-    st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_compare.csv", index=False)
+    st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", index=False)
 
     st.write('Files can be downloaded:')
-    with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_compare.csv", "rb") as fp:
+    with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", "rb") as fp:
         btn = st.download_button(
             label="Download",
             data=fp,
-            file_name="all_orbital_elem" + st.session_state.date_time +".csv",
+            file_name="orbital_elem_compare.csv",
             mime="application/txt"
         )
 
