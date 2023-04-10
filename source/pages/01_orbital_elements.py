@@ -19,6 +19,17 @@ from io import StringIO
 from lib.pages_functions import  SpaceTrackClientInit
 from lib.constants import  ConstantsNamespace
 
+MENU_UPDATE1="Celestrak"
+MENU_UPDATE2="Space-Track"
+MENU_UPDATE3="Orbital Elements File"
+
+MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
+MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
+MENU_STC3 = "Personalized NORAD_CAT_ID file"
+
+MAX_NUM_NORAD = 640
+cn = ConstantsNamespace()
+
 def dell_elem_df():
     if 'ss_elem_df' in st.session_state:
         del st.session_state.ss_elem_df
@@ -130,11 +141,11 @@ def get_orbital_element():
                     # st.dataframe(df_norad_ids)
                     df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])                    
                     
-                    if len(df_norad_ids.index)<max_num_norad:
+                    if len(df_norad_ids.index)<MAX_NUM_NORAD:
                         st.session_state.df_norad_ids = df_norad_ids
                         st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
                     else:
-                        st.warning('max norad_cat_id = '+ str(max_num_norad), icon=cn.WARNING)
+                        st.warning('max norad_cat_id = '+ str(MAX_NUM_NORAD), icon=cn.WARNING)
                         st.stop()
                 else:
                     st.write("NORAD_CAT_ID file not loaded")
@@ -164,17 +175,6 @@ def get_orbital_element():
                 st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
             else:
                 st.warning('get orbital elements', icon= cn.WARNING)
-
-MENU_UPDATE1="Celestrak"
-MENU_UPDATE2="Space-Track"
-MENU_UPDATE3="Orbital Elements File"
-
-MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
-MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
-MENU_STC3 = "Personalized NORAD_CAT_ID file"
-
-max_num_norad = 650
-cn = ConstantsNamespace()
 
 def main(): 
 
