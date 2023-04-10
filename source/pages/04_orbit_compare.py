@@ -139,11 +139,12 @@ def main():
     if os.path.exists(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt"):
         orbital_elem_all = pd.read_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt")
         # norad_comp_list = orbital_elem_all.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first').to_dict('list')['NORAD_CAT_ID']
+        if min(orbital_elem_all.groupby(orbital_elem_all['NORAD_CAT_ID'],as_index=False).size()['size']) <2:
+            st.warning('it will not be possible to compare objects that have less than two sets of orbital elements', icon=cn.WARNING)
     else:
         st.warning('Space-track orbital elements file do not exists, please update', icon=cn.WARNING)
-    
-    if min(orbital_elem_all.groupby(orbital_elem_all['NORAD_CAT_ID'],as_index=False).size()['size']) <2:
-        st.warning('it will not be possible to compare objects that have less than two sets of orbital elements', icon=cn.WARNING)
+        st.stop()   
+
 
     st.write('Perform propagation calculations and trajectory comparison:')
     compare_oe_bt = st.button("run trajectory comparison")
