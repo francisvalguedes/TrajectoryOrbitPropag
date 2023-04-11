@@ -19,6 +19,12 @@ from datetime import datetime
 import streamlit as st
 import tempfile
 
+# Constants
+err_max = 3000 # m
+MENU_UPDATE = "Space-Track Update"
+MENU_NUPDATE = "Space-Track already loaded"
+menu_update = [ MENU_NUPDATE, MENU_UPDATE]
+
 cn = ConstantsNamespace()
 
 def main():
@@ -93,8 +99,11 @@ def main():
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file).drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
                 st.dataframe(st.session_state.ss_norad_comp)
 
-        if 'ss_norad_comp' not in st.session_state:
-            st.info('Load NORAD_CAT_ID file csv', icon=cn.INFO)
+        elif 'ss_result_df' in st.session_state:                
+            st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.info('Norad list loaded from last orbital propagation results', icon=cn.INFO)
+        else: 
+            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
             st.stop()
 
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
@@ -102,15 +111,12 @@ def main():
         update_compare_oe_bt = st.button("Orbital elements update to compare")
         if update_compare_oe_bt:
 
-            elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
+            # elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
             
-            orbital_elem_all = pd.read_csv(StringIO(elements_csv), sep=",")
-            st.dataframe(orbital_elem_all)
-            orbital_elem_all.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
-    
-# menu to configure the comparison based on the orbital elements propagated on the previous page
+            st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(norad_comp_list) #pd.read_csv(StringIO(elements_csv), sep=",")
+            st.dataframe(st.session_state.ss_elem_df)
+            st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)   
 
-    st.write('Use the list of NORAD resulting from the propagation page or upload norad list:')
 
     if st.session_state["choice_update_comp"] == MENU_NUPDATE: 
         norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT_ID",type=['csv'])
@@ -121,29 +127,33 @@ def main():
             if norad_file.type == "text/csv":
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file)
                 st.dataframe(st.session_state.ss_norad_comp)
-                st.info('manually loaded item', icon=cn.INFO)
+                st.info('Norad list loaded manually', icon=cn.INFO)
 
-        elif 'ss_elem_df' in st.session_state:                
+        elif 'ss_result_df' in st.session_state:                
             st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-            st.info('loaded from last orbital propagation results', icon=cn.INFO)
+            st.info('Norad list loaded from last orbital propagation results', icon=cn.INFO)
         else: 
             st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
             st.stop()
 
-        # if 'ss_norad_comp' not in st.session_state:
-        #     st.info('Load NORAD_CAT_ID file csv', icon=cn.INFO)
-        #     st.stop()
-
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
 
-    if os.path.exists(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt"):
-        orbital_elem_all = pd.read_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt")
-        # norad_comp_list = orbital_elem_all.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first').to_dict('list')['NORAD_CAT_ID']
-        if min(orbital_elem_all.groupby(orbital_elem_all['NORAD_CAT_ID'],as_index=False).size()['size']) <2:
-            st.warning('it will not be possible to compare objects that have less than two sets of orbital elements', icon=cn.WARNING)
-    else:
-        st.warning('Space-track orbital elements file do not exists, please update', icon=cn.WARNING)
-        st.stop()   
+    if "ss_elem_df" not in st.session_state:
+        st.info('Upload the orbital elements with two or more sets of orbital elements', icon=cn.INFO) 
+        st.stop()
+    else: 
+        df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(st.session_state.ss_norad_comp['NORAD_CAT_ID'].tolist())]       
+        df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
+        print(max(df_oe_group))
+        print(min(df_oe_group))
+        if max(df_oe_group) <2:
+            st.info('Insufficient orbital element data, download above by choosing option ' + MENU_UPDATE +\
+                    ' or from orbital elements page on this site by custom list from NORAD, or from\
+                    Space-Track site, by epoch: more than two days, so as to get more than two sets\
+                    of orbital elements per object', icon=cn.INFO)
+            st.stop()
+        elif min(df_oe_group) <2:
+            st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
 
 
     st.write('Perform propagation calculations and trajectory comparison:')
@@ -155,7 +165,7 @@ def main():
         st.write('Progress bar:')
         my_bar = st.progress(0)
         for idxi, norad in enumerate(norad_comp_list):
-            orbital_elem = orbital_elem_all.loc[orbital_elem_all['NORAD_CAT_ID'] == norad]
+            orbital_elem = st.session_state.ss_elem_df.loc[st.session_state.ss_elem_df['NORAD_CAT_ID'] == norad]
 
             orbital_elem = orbital_elem.reset_index(drop=True)
 
@@ -222,11 +232,6 @@ def main():
             mime="application/txt"
         )
 
-# Constants
-err_max = 3000 # m
-MENU_UPDATE = "Space-Track Update orbital elements"
-MENU_NUPDATE = "Space-Track Orbital elements already loaded"
-menu_update = [ MENU_NUPDATE, MENU_UPDATE]
 
 if __name__== '__main__':
     main()

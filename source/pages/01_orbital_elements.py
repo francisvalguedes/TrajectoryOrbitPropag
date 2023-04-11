@@ -27,7 +27,7 @@ MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
 MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
 MENU_STC3 = "Personalized NORAD_CAT_ID file"
 
-MAX_NUM_NORAD = 640
+MAX_NUM_NORAD = 650
 cn = ConstantsNamespace()
 
 def dell_elem_df():
@@ -223,7 +223,7 @@ def main():
             col1, col2, col3 = st.columns(3)
             col1.info('Orbital elements requested from Space-Track: '+ str(df_norad_ids.shape[0]), icon=cn.INFO)
             col1.dataframe(df_norad_ids)
-            col2.warning('Orbital elements not found on Space-Track (now-3days): '+ str(not_foud.shape[0]), icon=cn.WARNING)
+            col2.warning('Orbital elements not found on Space-Track (now-4days): '+ str(not_foud.shape[0]), icon=cn.WARNING)
             col2.dataframe(not_foud)
             col3.warning('decayed object: '+ str(elem_decay.shape[0]), icon=cn.WARNING)
             col3.dataframe(elem_decay)
