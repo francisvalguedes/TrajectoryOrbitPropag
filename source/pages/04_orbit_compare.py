@@ -127,11 +127,11 @@ def main():
             if norad_file.type == "text/csv":
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file)
                 st.dataframe(st.session_state.ss_norad_comp)
-                st.info('Norad list loaded manually', icon=cn.INFO)
+                st.success('Norad list loaded manually', icon=cn.SUCCESS)
 
         elif 'ss_result_df' in st.session_state:                
             st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-            st.info('Norad list loaded from last orbital propagation results', icon=cn.INFO)
+            st.success('Norad list loaded from last orbital propagation results', icon=cn.SUCCESS)
         else: 
             st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
             st.stop()
@@ -152,8 +152,10 @@ def main():
                     Space-Track site, by epoch: more than two days, so as to get more than two sets\
                     of orbital elements per object', icon=cn.INFO)
             st.stop()
-        elif min(df_oe_group) <2:
-            st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
+        else:
+            st.success('Enough orbital elements to perform comparison already loaded ', cn.SUCCESS)
+            if min(df_oe_group) <2:
+                st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
 
 
     st.write('Perform propagation calculations and trajectory comparison:')
