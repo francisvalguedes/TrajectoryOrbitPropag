@@ -23,6 +23,8 @@ MENU_UPDATE1="Celestrak"
 MENU_UPDATE2="Space-Track"
 MENU_UPDATE3="Orbital Elements File"
 
+menuUpdate = [MENU_UPDATE2, MENU_UPDATE1, MENU_UPDATE3]
+
 MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
 MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
 MENU_STC3 = "Personalized NORAD_CAT_ID file"
@@ -43,7 +45,6 @@ def get_orbital_element():
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
         'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')    
 
-    menuUpdate = [MENU_UPDATE1, MENU_UPDATE2,MENU_UPDATE3]
     # if "choiceUpdate" not in st.session_state:
     #     st.session_state.choiceUpdate = MENU_UPDATE1
     st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help, on_change=dell_elem_df)  
