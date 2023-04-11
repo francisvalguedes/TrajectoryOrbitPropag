@@ -153,7 +153,7 @@ def main():
                     of orbital elements per object', icon=cn.INFO)
             st.stop()
         else:
-            st.success('Enough orbital elements to perform comparison already loaded ', cn.SUCCESS)
+            st.success('Enough orbital elements to perform comparison already loaded ', icon= cn.SUCCESS)
             if min(df_oe_group) <2:
                 st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
 
