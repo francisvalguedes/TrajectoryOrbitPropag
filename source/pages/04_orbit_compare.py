@@ -144,8 +144,8 @@ def main():
     else: 
         df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(st.session_state.ss_norad_comp['NORAD_CAT_ID'].tolist())]       
         df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
-        print(max(df_oe_group))
-        print(min(df_oe_group))
+        # print(max(df_oe_group))
+        # print(min(df_oe_group))
         if max(df_oe_group) <2:
             st.info('Insufficient orbital element data, download above by choosing option ' + MENU_UPDATE +\
                     ' or from orbital elements page on this site by custom list from NORAD, or from\
