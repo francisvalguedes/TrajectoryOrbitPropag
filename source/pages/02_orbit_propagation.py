@@ -410,19 +410,17 @@ def main():
                 df_traj = df_traj.sort_values(by=['H0'], ascending=True)
                 df_traj = df_traj.reset_index(drop=True)
 
-                #Mudança feita por André para colorir a linha
-                st.session_state.ss_result_df = df_traj.style.apply(highlight_rows, axis=1) 
+                st.session_state.ss_result_df = df_traj
 
                 df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
-
-                df_traj = df_traj.style.apply(highlight_rows, axis=1)
+                
+                #Mudança feita por André para colorir a linha
+                df_traj = df_traj.style.apply(highlight_rows, axis=1) 
                 with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.xlsx") as writer:
                     df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
                     
-                st.write('Approaching the reference point: ', len(df_traj.index ))
-                #st.dataframe(df_traj)
-
-                st.session_state.ss_result_df = df_traj
+                st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index ))
+                st.dataframe(df_traj)
             else:
                 if "ss_result_df" in st.session_state:
                     del st.session_state.ss_result_df
