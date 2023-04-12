@@ -92,7 +92,7 @@ def get_orbital_element():
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
             if st.session_state.stc_loged:          
-                st.success('Space-track logued', icon=cn.SUCCESS)
+                st.success('Space-track logged', icon=cn.SUCCESS)
             else: 
                 st.error('Error when logging Space-Track', icon=cn.ERROR)
                 

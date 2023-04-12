@@ -4,3 +4,4 @@ pandas
 astropy
 sgp4
 pymap3d
+openpyxl
