@@ -136,7 +136,7 @@ def main():
     st.dataframe(df_traj)
 
     if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
-        st.write('Download File:')
+        st.write('Download highlight File:')
         with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
             btn = st.download_button(
                 label="Download",
@@ -144,7 +144,7 @@ def main():
                 file_name=FILE_NAME_XLSX,
                 mime="application/txt"
             )
-            
+
 # prints a map of the region with the trajectory
     files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')        
     files_m = []
