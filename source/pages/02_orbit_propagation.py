@@ -34,54 +34,6 @@ import re
 
 cn = ConstantsNamespace()
 
-# Analisa as possibilidades de rastreio
-def highlight_rows(row):
-    teste_rcs = row.loc['RCS']
-    teste_rcs_min = row.loc['RCS_MIN']
-    teste_range_pt = row.loc['MIN_RANGE_PT']
-    teste_range = row.loc['MIN_RANGE']
-    teste_decay = row.loc['DECAY_DATE']
-    color = '#FF4500'
-    amarelo = '#ffda6a'
-    verde = '#75b798'
-    vermelho = '#ea868f'
-    azul = '#6ea8fe'
-
-    #TESTA SE EXISTE A COLUNA RCS_SIZE
-    if 'RCS_SIZE' in row :
-        teste_rcs_size = row.loc['RCS_SIZE']
-    else :
-        teste_rcs_size = 'none'
-
-    if teste_rcs > 0:  #TESTA O TAMANHO DO RCS
-        if teste_rcs_min <= teste_rcs*1.16:
-            color = verde
-        else:
-            color = vermelho
-    else:              # TESTA A CLASSIFICAÇÃO DO RCS
-        if teste_rcs_size == 'MEDIUM':
-            if teste_range > 500: #422.88 é o valor mínimo teorico
-                color = vermelho
-            else:
-                color = amarelo
-        elif teste_rcs_size == 'LARGE':
-            color = azul
-        else:
-            if teste_range > 300: #237.8 é o valor mínimo teorico
-                color = vermelho
-            else:
-                color = verde
-    
-    if teste_range_pt < 90:  # TESTA O NÚMERO MÍNIMO DE PONTOS
-        color = vermelho
-
-    x=teste_decay  # TESTA SE O OBJETO JA SAIU DE ORBITA
-    s_nan = str(x)
-    if s_nan != "nan" : 
-        color = vermelho
-
-    return ['background-color: {}'.format(color) for r in row]
-
 def dellfiles(file):
     py_files = glob.glob(file)
     err = 0
@@ -313,13 +265,13 @@ def main():
     st.sidebar.write('Start and end time for H0 search TU:')
     col1, col2 = st.sidebar.columns(2)
     initial_date = col1.date_input("Start date")
-    initial_time = col2.time_input("Start time", time(11, 0))
+    initial_time = col2.time_input("Start time", time(10, 0))
     initial_datetime=Time(datetime.combine(initial_date, initial_time))
     initial_datetime.format = 'isot'
     st.write('Search start time: ', initial_datetime)
 
     final_date = col1.date_input("End date")
-    final_time = col2.time_input("End time", time(19, 0))
+    final_time = col2.time_input("End time", time(20, 0))
     final_datetime=Time(datetime.combine(final_date, final_time))
     final_datetime.format = 'isot'
     st.write('Search end time: ', final_datetime)   
@@ -412,15 +364,7 @@ def main():
 
                 st.session_state.ss_result_df = df_traj
 
-                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)
-                
-                #Mudança feita por André para colorir a linha
-                df_traj = df_traj.style.apply(highlight_rows, axis=1) 
-                with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.xlsx") as writer:
-                    df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
-                    
-                st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index ))
-                st.dataframe(df_traj)
+                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)                                  
             else:
                 if "ss_result_df" in st.session_state:
                     del st.session_state.ss_result_df
