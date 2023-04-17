@@ -117,7 +117,7 @@ def get_orbital_element():
             st.sidebar.markdown('Select the epoch range (less than 10 days)')
             oe_col1, oe_col2 = st.sidebar.columns(2)
             oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.utcnow() - dt.timedelta(days=4))
-            oe_epoch_end = oe_col2.date_input("Epoch end", value=datetime.utcnow() + dt.timedelta(days=1))
+            oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.utcnow() + dt.timedelta(days=1))
             if  (oe_epoch_end - oe_epoch_init) < dt.timedelta(days=0.01):
                 st.error('End must be after start date', icon=cn.ERROR)
                 st.stop()
