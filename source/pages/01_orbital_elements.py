@@ -9,6 +9,7 @@ import pandas as pd
 from datetime import datetime
 import datetime as dt
 
+
 import os
 import tempfile
 
@@ -113,6 +114,16 @@ def get_orbital_element():
             st.write("Personalized NORAD_CAT_ID file")
             help='Text file with .csv extension with a column with the header "NORAD_CAT_ID" and lines NORAD_CAT_ID numbers'
             data_norad = st.sidebar.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
+            st.sidebar.markdown('Select the epoch range (less than 10 days)')
+            oe_col1, oe_col2 = st.sidebar.columns(2)
+            oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.utcnow() - dt.timedelta(days=4))
+            oe_epoch_end = oe_col2.date_input("Epoch end", value=datetime.utcnow() + dt.timedelta(days=1))
+            if  (oe_epoch_end - oe_epoch_init) < dt.timedelta(days=0.01):
+                st.error('End must be after start date', icon=cn.ERROR)
+                st.stop()
+            elif  (oe_epoch_end - oe_epoch_init) > dt.timedelta(days=10):
+                st.error('Epoch interval must be less than 10 days', icon=cn.ERROR)
+                st.stop()
 
         get_oe_bt = st.sidebar.button("Get Orbital Elements")
         if get_oe_bt and st.session_state.stc_loged:
@@ -123,7 +134,7 @@ def get_orbital_element():
                 # st.dataframe(df_norad_ids)
                 df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
                 st.session_state.df_norad_ids = df_norad_ids
-                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
+                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"] )                 
                 st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
 
             if st.session_state["choice_stc"] == MENU_STC2:
@@ -145,7 +156,8 @@ def get_orbital_element():
                     
                     if len(df_norad_ids.index)<MAX_NUM_NORAD:
                         st.session_state.df_norad_ids = df_norad_ids
-                        st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
+                        st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],
+                                                                                               oe_epoch_init, oe_epoch_end)
                         st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
                     else:
                         st.warning('max norad_cat_id = '+ str(MAX_NUM_NORAD), icon=cn.WARNING)
@@ -153,10 +165,10 @@ def get_orbital_element():
                 else:
                     st.write("NORAD_CAT_ID file not loaded")
 
-            if 'ss_elem_df' in st.session_state:
-                st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
-            else:
-                st.warning('get orbital elements', icon=cn.WARNING)
+            # if 'ss_elem_df' in st.session_state:
+            #     st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
+            # else:
+            #     st.warning('get orbital elements', icon=cn.WARNING)
 
         elif  (get_oe_bt and not st.session_state.stc_loged):
             st.info('log in to Space-Track to continue', icon=cn.INFO)
@@ -174,10 +186,10 @@ def get_orbital_element():
                 elif data_elements.type == "text/csv":
                     st.session_state.ss_elem_df = pd.read_csv(data_elements)
 
-            if 'ss_elem_df' in st.session_state:
-                st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
-            else:
-                st.warning('get orbital elements', icon= cn.WARNING)
+            # if 'ss_elem_df' in st.session_state:
+            #     st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
+            # else:
+            #     st.warning('get orbital elements', icon= cn.WARNING)
 
 def main(): 
 
@@ -226,7 +238,7 @@ def main():
             col1, col2, col3 = st.columns(3)
             col1.info('Orbital elements requested from Space-Track: '+ str(df_norad_ids.shape[0]), icon=cn.INFO)
             col1.dataframe(df_norad_ids)
-            col2.warning('Orbital elements not found on Space-Track (now-4days): '+ str(not_foud.shape[0]), icon=cn.WARNING)
+            col2.warning('Orbital elements not found on Space-Track (in the epoch range): '+ str(not_foud.shape[0]), icon=cn.WARNING)
             col2.dataframe(not_foud)
             col3.warning('decayed object: '+ str(elem_decay.shape[0]), icon=cn.WARNING)
             col3.dataframe(elem_decay)
@@ -234,9 +246,11 @@ def main():
     if "ss_elem_df" not in st.session_state:
         st.info("Load orbital elements", icon=cn.INFO )
     else:
-        st.success("Orbital elements loaded", icon=cn.SUCCESS )        
+        st.success("Orbital elements loaded", icon=cn.SUCCESS )
+        st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )     
         elem_df = st.session_state["ss_elem_df"]
-        st.dataframe(elem_df)        
+        st.dataframe(elem_df)
+        st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)       
 
         if os.path.exists(st.session_state.ss_dir_name + "/"+ "orbital_elem_all.txt"):        
             st.write('Download Orbital Element Files:')
