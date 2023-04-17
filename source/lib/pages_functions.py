@@ -4,7 +4,11 @@ import datetime as dt
 import pandas as pd
 from io import StringIO
 import spacetrack.operators as op
+import streamlit as st
+import sys
 
+from lib.constants import  ConstantsNamespace
+cn = ConstantsNamespace()
 
 class Icons:
     def __init__(self):
@@ -63,7 +67,12 @@ class SpaceTrackClientInit(SpaceTrackClient):
                                                             format='csv')
 
         # elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
-        elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
+        try:
+            elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
+        except BaseException as e:
+            st.error('Space-Track csv read exception: ' + str(e), icon=cn.ERROR)
+            st.stop()
+
         return elem_df, epoch
     
     def get_select(self):
