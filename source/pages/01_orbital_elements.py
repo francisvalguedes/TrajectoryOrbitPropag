@@ -123,8 +123,9 @@ def get_orbital_element():
                 # st.dataframe(df_norad_ids)
                 df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
                 st.session_state.df_norad_ids = df_norad_ids
-                st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
-                      
+                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
+                st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
+
             if st.session_state["choice_stc"] == MENU_STC2:
                 st.write("App's selection +3000 LEO NORAD_CAT_ID")
                 link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C500/orderby/EPOCH%20desc/format/csv)'
@@ -144,7 +145,8 @@ def get_orbital_element():
                     
                     if len(df_norad_ids.index)<MAX_NUM_NORAD:
                         st.session_state.df_norad_ids = df_norad_ids
-                        st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
+                        st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
+                        st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
                     else:
                         st.warning('max norad_cat_id = '+ str(MAX_NUM_NORAD), icon=cn.WARNING)
                         st.stop()

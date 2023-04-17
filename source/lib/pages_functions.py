@@ -57,13 +57,14 @@ class SpaceTrackClientInit(SpaceTrackClient):
         pandas DataFrame: OMM format
         """
         epoch = epoch_start.strftime('%Y-%m-%d-') + epoch_end.strftime('-%Y-%m-%d')
+        # print('epoch '+ epoch)
         elements_csv = self.gp_history( norad_cat_id=norad_ids,
                                                             orderby='norad_cat_id desc',epoch=epoch,
                                                             format='csv')
 
         # elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
         elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
-        return elem_df
+        return elem_df, epoch
     
     def get_select(self):
         """get the orbital elements from specified filter.
