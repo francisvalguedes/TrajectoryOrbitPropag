@@ -238,10 +238,10 @@ def main():
             lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
             st.session_state["ss_lc"] = lc
 
-    st.write('Sensor location in the WGS84 Geodetic ')
-    st.write('Latitude: ', lc['lat'])
-    st.write('Longitude: ', lc['lon'] )
-    st.write('Height: ', lc['height'])
+    # st.write('Sensor location in the WGS84 Geodetic ')
+    # st.write('Latitude: ', lc['lat'])
+    # st.write('Longitude: ', lc['lon'] )
+    # st.write('Height: ', lc['height'])
 
     dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
         min_value = 400,
