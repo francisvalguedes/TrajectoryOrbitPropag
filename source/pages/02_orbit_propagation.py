@@ -238,7 +238,8 @@ def main():
             lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
             st.session_state["ss_lc"] = lc
 
-    # st.write('Sensor location in the WGS84 Geodetic ')
+    st.write('Sensor location in the WGS84 Geodetic ')
+    st.write('Name: ', lc['name'])
     # st.write('Latitude: ', lc['lat'])
     # st.write('Longitude: ', lc['lon'] )
     # st.write('Height: ', lc['height'])
