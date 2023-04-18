@@ -103,7 +103,7 @@ def get_orbital_element():
 
         menu_stc = [MENU_STC1, MENU_STC2, MENU_STC3]
         help_stc=(MENU_STC1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
-        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
+        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = >now-1, orderby= EPOCH desc \n'
         + MENU_STC3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
 
         # if "choice_stc" not in st.session_state:
