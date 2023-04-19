@@ -109,7 +109,7 @@ class SummarizeDataFiles:
             df_enu = pd.DataFrame(pos.enu[i])
             df_enu.to_csv(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn",
                             index=False, header=[str(len(df_enu.index)-1),'1000','1'],float_format="%.3f")
-            df_enu.to_csv(dir_name +"/" + "pobj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trj",
+            df_enu.to_csv(dir_name +"/" + "pobj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trj", sep=' ',
                             index=False, header=[ '1', str(len(df_enu.index)-1),'1'],float_format="%.3f")
 
             df_data = pd.DataFrame(np.concatenate((
