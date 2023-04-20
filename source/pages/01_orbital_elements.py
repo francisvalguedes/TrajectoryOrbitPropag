@@ -247,7 +247,8 @@ def main():
         st.info("Load orbital elements", icon=cn.INFO )
     else:
         st.success("Orbital elements loaded", icon=cn.SUCCESS )
-        st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )     
+        st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )
+        st.session_state.ss_elem_df = st.session_state.ss_elem_df.reset_index(drop=True)     
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df)
         st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)       
