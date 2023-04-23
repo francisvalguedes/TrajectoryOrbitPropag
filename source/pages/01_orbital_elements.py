@@ -7,6 +7,8 @@ import streamlit as st
 import pandas as pd
 
 from datetime import datetime
+import datetime as dt
+
 
 import os
 import tempfile
@@ -15,116 +17,66 @@ from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
 from io import StringIO
 
+from lib.pages_functions import  SpaceTrackClientInit
+from lib.constants import  ConstantsNamespace
 
-class SpaceTrackClientInit(SpaceTrackClient):
-    def __init__(self,identity,password):
-        """initialize the class.
+MENU_UPDATE1="Celestrak"
+MENU_UPDATE2="Space-Track"
+MENU_UPDATE3="Orbital Elements File"
 
-        Args:
-        https://www.space-track.org/auth/login
-        identity (str): login space-track.
-        password (str): password space-track.
+menuUpdate = [MENU_UPDATE2, MENU_UPDATE1, MENU_UPDATE3]
 
-        Returns:
+MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
+MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
+MENU_STC3 = "Personalized NORAD_CAT_ID file"
 
-        """
-        super().__init__(identity, password)
+MAX_NUM_NORAD = 650
+cn = ConstantsNamespace()
 
-    def ss(self):
-        """authenticate.
-
-        Returns: True or False
-        """
-        try:
-            self.authenticate()
-        except:
-            # print('space-track loguin error')
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">space-track loguin error</p>'
-            st.markdown(log_error, unsafe_allow_html=True)
-            return False
-        return  True
-    def get_by_norad(self, norad_ids):
-        """get the orbital elements from NORAD_CAT_IDs.
-
-        Args:
-        norad_ids (list of int): NORAD_CAT_IDs
-
-        Returns:         
-        pandas DataFrame: OMM format
-        """
-        elements_csv = self.gp(norad_cat_id=norad_ids, orderby='norad_cat_id', format='csv')
-        elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
-        st.write('Updated Orbital Element File:')
-        st.session_state.ss_elem_df = elem_df
-        return elem_df
-    def get_select(self):
-        """get the orbital elements from specified filter.
-
-           Selection of 3000+ objects by Space-Track API mean_motion>11.25 (LEO orbit),
-           decay_date = null-val (no reentry), rcs_size = Large (greater than 1m),
-           periapsis < 700km, epoch = >now-1 (updated until a day ago), orderby= EPOCH desc
-
-        Returns:         
-        pandas DataFrame: OMM format
-        """
-        elements_csv = self.gp(mean_motion = op.greater_than(11.25),
-                    decay_date = 'null-val',
-                    rcs_size = 'Large',
-                    periapsis = op.less_than(700),
-                    epoch = '>now-1', 
-                    orderby= 'EPOCH desc',
-                    format='csv')
-        elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
-        st.write('Updated Orbital Element File:')
-        st.session_state.ss_elem_df = elem_df
-        return elem_df
-    
+def dell_elem_df():
+    if 'ss_elem_df' in st.session_state:
+        del st.session_state.ss_elem_df
 
 def get_orbital_element():
     """Streamlite interface to choose a way to get the orbital elements """
     # Seleção do modo de atualização dos elementos orbitais  
     st.sidebar.subheader("Orbital elements:")
+    st.subheader("*Orbital elements:*")
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
-        'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')
-    
-    MENU_UPDATE1="Celestrak"
-    MENU_UPDATE2="Space-Track"
-    MENU_UPDATE3="Orbital Elements File"
-    menuUpdate = [MENU_UPDATE1, MENU_UPDATE2,MENU_UPDATE3]
+        'Orbital elements file: Load elements file manually in OMM .csv format (.csv or .json).')    
+
     # if "choiceUpdate" not in st.session_state:
     #     st.session_state.choiceUpdate = MENU_UPDATE1
-    st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help)  
+    st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help, on_change=dell_elem_df)  
 
     if st.session_state["choiceUpdate"] == MENU_UPDATE1:
         norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
 
         current_day = datetime.utcnow().strftime('%Y_%m_%d_')
         celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
+        if st.sidebar.button('Get orbital element'):
+            if not os.path.exists(celet_fil_n):                
+                urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
+                try:
+                    elem_df = pd.read_csv(urlCelestrak) 
+                    if 'MEAN_MOTION' in elem_df.columns.to_list():
+                        elem_df.to_csv(celet_fil_n, index=False)                     
+                    else:
+                        st.error('No orbital elements for this object in Celestrac', icon= cn.ERROR)
+                        st.stop()
+                        # elem_df = pd.read_csv('data/oe_celestrac.csv')
 
-        if os.path.exists(celet_fil_n) == False:
-            urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
-            try:
-                elem_df = pd.read_csv(urlCelestrak) 
-                if 'MEAN_MOTION' in elem_df.columns.to_list():
-                    elem_df.to_csv(celet_fil_n, index=False)                     
-                else:
-                    log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;"> No orbital elements for this object in Celestrat </p>'
-                    st.markdown(log_error, unsafe_allow_html=True)
-                    elem_df = pd.read_csv('data/oe_celestrac.csv')
+                except OSError as e:
+                    # print(f"Error acess Celestrac") 
+                    st.error('Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually', icon=cn.ERROR)
+                    # elem_df = pd.read_csv('data/oe_celestrac.csv')
+                    st.stop()
+            else:
+                elem_df = pd.read_csv(celet_fil_n)
+                st.write('Orbital elements obtained from Celestrak:')
 
-            except OSError as e:
-                # print(f"Error acess Celestrac") 
-                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually</p>'
-                st.markdown(log_error, unsafe_allow_html=True)
-                elem_df = pd.read_csv('data/oe_celestrac.csv')
-
-        else:
-            elem_df = pd.read_csv(celet_fil_n)
-            st.write('Orbital elements obtained from Celestrak:')
-
-        st.session_state.ss_elem_df = elem_df        
-        st.write('Updated Orbital Element File:')
+            st.session_state.ss_elem_df = elem_df        
 
     elif st.session_state["choiceUpdate"] == MENU_UPDATE2:   
          
@@ -141,21 +93,17 @@ def get_orbital_element():
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
             if st.session_state.stc_loged:          
-                #del st.session_state.ss_elem_df
-                st.write("ok")
+                st.success('Space-track logged', icon=cn.SUCCESS)
             else: 
-                log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Error when logging in</p>'
-                st.markdown(log_error, unsafe_allow_html=True)
+                st.error('Error when logging Space-Track', icon=cn.ERROR)
+                
         if st.session_state.stc_loged:
-            fcol2.write("Status: Logged")
-        else:  fcol2.write("Status: Unlogged")
+            fcol2.success("logged")
+        else:  fcol2.error("unlogged")
 
-        MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
-        MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
-        MENU_STC3 = "Personalized NORAD_CAT_ID file"
         menu_stc = [MENU_STC1, MENU_STC2, MENU_STC3]
         help_stc=(MENU_STC1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
-        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<700, epoch = >now-1, orderby= EPOCH desc \n'
+        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = >now-1, orderby= EPOCH desc \n'
         + MENU_STC3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
 
         # if "choice_stc" not in st.session_state:
@@ -166,6 +114,16 @@ def get_orbital_element():
             st.write("Personalized NORAD_CAT_ID file")
             help='Text file with .csv extension with a column with the header "NORAD_CAT_ID" and lines NORAD_CAT_ID numbers'
             data_norad = st.sidebar.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
+            st.sidebar.markdown('Select the epoch range (less than 10 days)')
+            oe_col1, oe_col2 = st.sidebar.columns(2)
+            oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.utcnow() - dt.timedelta(days=4))
+            oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.utcnow() + dt.timedelta(days=1))
+            if  (oe_epoch_end - oe_epoch_init) < dt.timedelta(days=0.01):
+                st.error('End must be after start date', icon=cn.ERROR)
+                st.stop()
+            elif  (oe_epoch_end - oe_epoch_init) > dt.timedelta(days=10):
+                st.error('Epoch interval must be less than 10 days', icon=cn.ERROR)
+                st.stop()
 
         get_oe_bt = st.sidebar.button("Get Orbital Elements")
         if get_oe_bt and st.session_state.stc_loged:
@@ -173,33 +131,47 @@ def get_orbital_element():
                 st.write("App's list +200 LEO NORAD_CAT_ID") 
                 df_norad_ids = pd.read_csv("data/norad_id.csv")
                 st.write('NORAD_CAT_ID file uploaded for update:')
-                st.dataframe(df_norad_ids)
-                st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])                 
-                      
+                # st.dataframe(df_norad_ids)
+                df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
+                st.session_state.df_norad_ids = df_norad_ids
+                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"] )                 
+                st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
+
             if st.session_state["choice_stc"] == MENU_STC2:
                 st.write("App's selection +3000 LEO NORAD_CAT_ID")
-                link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C700/orderby/EPOCH%20desc/format/csv)'
+                link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C500/orderby/EPOCH%20desc/format/csv)'
                 st.markdown(link, unsafe_allow_html=True)
-                st.session_state.stc.get_select()
+                st.session_state.ss_elem_df = st.session_state.stc.get_select()
 
             if st.session_state["choice_stc"] == MENU_STC3:            
                 if (data_norad is not None):
                     st.write('NORAD_CAT_ID file loaded:')
                     file_details = {"Filename":data_norad.name,"FileType":data_norad.type,"FileSize":data_norad.size}
                     st.write('File details:')
-                    st.write(file_details)
+                    st.write(file_details)                    
                     df_norad_ids = pd.read_csv(data_norad)
                     st.write('NORAD_CAT_ID file uploaded for update:')
-                    st.dataframe(df_norad_ids)
-
-                    max_num_norad = 650
-                    if len(df_norad_ids.index)<max_num_norad:
-                        st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"])
+                    # st.dataframe(df_norad_ids)
+                    df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])                    
+                    
+                    if len(df_norad_ids.index)<MAX_NUM_NORAD:
+                        st.session_state.df_norad_ids = df_norad_ids
+                        st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],
+                                                                                               oe_epoch_init, oe_epoch_end)
+                        st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
+                    else:
+                        st.warning('max norad_cat_id = '+ str(MAX_NUM_NORAD), icon=cn.WARNING)
+                        st.stop()
                 else:
                     st.write("NORAD_CAT_ID file not loaded")
-        elif  get_oe_bt and not st.session_state.stc_loged:
-            log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">log in to Space-Track</p>'
-            st.sidebar.markdown(log_error, unsafe_allow_html=True)           
+
+            # if 'ss_elem_df' in st.session_state:
+            #     st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
+            # else:
+            #     st.warning('get orbital elements', icon=cn.WARNING)
+
+        elif  (get_oe_bt and not st.session_state.stc_loged):
+            st.info('log in to Space-Track to continue', icon=cn.INFO)
 
     elif st.session_state["choiceUpdate"] == MENU_UPDATE3:
         data_elements = st.sidebar.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
@@ -214,38 +186,87 @@ def get_orbital_element():
                 elif data_elements.type == "text/csv":
                     st.session_state.ss_elem_df = pd.read_csv(data_elements)
 
-st.title("Get the orbital elements of the satellite")
-st.subheader('**Get satellite orbital elements from Celestrack website individually or Space-track allows multiple.**')
+            # if 'ss_elem_df' in st.session_state:
+            #     st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)
+            # else:
+            #     st.warning('get orbital elements', icon= cn.WARNING)
 
-if "date_time" not in st.session_state:
-    date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
-    st.session_state.date_time = date_time
+def main(): 
 
-if "ss_dir_name" not in st.session_state:
-    dir_name = tempfile.gettempdir()+"/top_tmp_"+ st.session_state.date_time
-    st.session_state.ss_dir_name = dir_name 
+    st.set_page_config(
+    page_title="Get orbital elements",
+    page_icon="🌏", # "🤖",  # "🧊",
+    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # menu_items={
+    #     'Get Help': 'https://www.sitelink.com',
+    #     'Report a bug': "https://www.sitelink.com",
+    #     'About': "# A cool app"
+    # }
+    )
 
-if os.path.exists(st.session_state.ss_dir_name) == False:
-    os.mkdir(st.session_state.ss_dir_name)
+    st.title("Get the orbital elements of the satellite")
+    st.subheader('**Get satellite orbital elements: Celestrack - individually, or Space-track - allows multiple.**')
 
-if "stc_loged" not in st.session_state:
-    st.session_state.stc_loged = False
+    if "date_time" not in st.session_state:
+        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        st.session_state.date_time = date_time
 
-get_orbital_element()
+    if "ss_dir_name" not in st.session_state:
+        dir_name = tempfile.gettempdir()+"/top_tmp_"+ st.session_state.date_time
+        st.session_state.ss_dir_name = dir_name 
 
-if "ss_elem_df" not in st.session_state:
-    log_error = '<p style="font-family:sans-serif; color:Red; font-size: 16px;">Upload the orbital elements</p>'
-    st.markdown(log_error, unsafe_allow_html=True)
-else:        
-    elem_df = st.session_state["ss_elem_df"]
-    st.dataframe(elem_df)
-    elem_df.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", index=False)
+    if os.path.exists(st.session_state.ss_dir_name) == False:
+        os.mkdir(st.session_state.ss_dir_name)
 
-    with open(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem_all.csv", "rb") as fp:
-        btn = st.download_button(
-            label="Download",
-            data=fp,
-            file_name="all_orbital_elem" + st.session_state.date_time +".csv",
-            mime="application/txt"
-        )
+    if "stc_loged" not in st.session_state:
+        st.session_state.stc_loged = False
+    else:
+        if st.session_state.stc_loged:   
+            st.success('Logged into spacetrack', icon=cn.SUCCESS)
 
+    get_orbital_element()    
+
+    if "df_norad_ids" in st.session_state:        
+        #st.info("Load orbital elements", icon=cn.INFO )
+        if ("ss_elem_df" in st.session_state and st.session_state["choiceUpdate"] == MENU_UPDATE2):
+            df_norad_ids = st.session_state.df_norad_ids
+            not_foud = df_norad_ids[~df_norad_ids['NORAD_CAT_ID'].isin(st.session_state.ss_elem_df['NORAD_CAT_ID'].tolist())]
+            elem_decay =  st.session_state.ss_elem_df[~st.session_state.ss_elem_df['DECAY_DATE'].isna()][['NORAD_CAT_ID']]
+
+            col1, col2, col3 = st.columns(3)
+            col1.info('Orbital elements requested from Space-Track: '+ str(df_norad_ids.shape[0]), icon=cn.INFO)
+            col1.dataframe(df_norad_ids)
+            col2.warning('Orbital elements not found on Space-Track (in the epoch range): '+ str(not_foud.shape[0]), icon=cn.WARNING)
+            col2.dataframe(not_foud)
+            col3.warning('decayed object: '+ str(elem_decay.shape[0]), icon=cn.WARNING)
+            col3.dataframe(elem_decay)
+
+    if "ss_elem_df" not in st.session_state:
+        st.info("Load orbital elements", icon=cn.INFO )
+    else:
+        st.success("Orbital elements loaded", icon=cn.SUCCESS )
+        st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )
+        st.session_state.ss_elem_df = st.session_state.ss_elem_df.reset_index(drop=True)     
+        elem_df = st.session_state["ss_elem_df"]
+        st.dataframe(elem_df)
+        st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)       
+
+        if os.path.exists(st.session_state.ss_dir_name + "/"+ "orbital_elem_all.txt"):        
+            st.write('Download Orbital Element Files:')
+            with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_all.txt", "rb") as fp:
+                btn = st.download_button(
+                    label="Download",
+                    data=fp,
+                    file_name="orbital_elem_all.csv",
+                    mime="application/txt"
+                )
+
+        # else:
+        #     st.warning('for download orbital elements use space-track',icon=cn.WARNING )
+        st.info('For trajectory generation go to the next page', icon=cn.INFO)
+    
+
+if __name__== '__main__':
+    main()
