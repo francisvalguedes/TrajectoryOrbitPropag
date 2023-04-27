@@ -27,8 +27,8 @@ MENU_UPDATE3="Orbital Elements File"
 menuUpdate = [MENU_UPDATE2, MENU_UPDATE1, MENU_UPDATE3]
 
 MENU_STC1 = "App's list 200+ NORAD_CAT_ID"
-MENU_STC2 = "App's selection 3000+ NORAD_CAT_ID"
-MENU_STC3 = "Personalized NORAD_CAT_ID file"
+MENU_STC2 = "App's selection 700 + LEO, Large NORAD_CAT_ID"
+MENU_STC3 = "Personalized list NORAD_CAT_ID"
 
 MAX_NUM_NORAD = 650
 cn = ConstantsNamespace()
@@ -101,9 +101,9 @@ def get_orbital_element():
             fcol2.success("logged")
         else:  fcol2.error("unlogged")
 
-        menu_stc = [MENU_STC1, MENU_STC2, MENU_STC3]
+        menu_stc = [MENU_STC1, MENU_STC3, MENU_STC2]
         help_stc=(MENU_STC1 + ': local list of 200+ selected LEO objects most with RCS value  \n' 
-        + MENU_STC2 + ': Selection of 3000+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = >now-1, orderby= EPOCH desc \n'
+        + MENU_STC2 + ': Selection of 700+ objects by Space-Track API mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = >now-1, orderby= EPOCH desc \n'
         + MENU_STC3 + ': Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects ')
 
         # if "choice_stc" not in st.session_state:
@@ -115,6 +115,8 @@ def get_orbital_element():
             help='Text file with .csv extension with a column with the header "NORAD_CAT_ID" and lines NORAD_CAT_ID numbers'
             data_norad = st.sidebar.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
             st.sidebar.markdown('Select the epoch range (less than 10 days)')
+
+        if (st.session_state["choice_stc"] == MENU_STC3) or (st.session_state["choice_stc"] == MENU_STC1): 
             oe_col1, oe_col2 = st.sidebar.columns(2)
             oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.utcnow() - dt.timedelta(days=4))
             oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.utcnow() + dt.timedelta(days=1))
@@ -134,11 +136,14 @@ def get_orbital_element():
                 # st.dataframe(df_norad_ids)
                 df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])
                 st.session_state.df_norad_ids = df_norad_ids
-                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"] )                 
+
+                st.session_state.ss_elem_df, epoch = st.session_state.stc.get_by_norad(df_norad_ids.to_dict('list')["NORAD_CAT_ID"],
+                                                                                        oe_epoch_init, oe_epoch_end)
                 st.info('Orbital elements epoch '+ epoch, icon= cn.INFO)
 
+
             if st.session_state["choice_stc"] == MENU_STC2:
-                st.write("App's selection +3000 LEO NORAD_CAT_ID")
+                st.write("App's selection +700 LEO, Large, PERIAPSIS < 500, NORAD_CAT_ID")
                 link = '[Link used to obtain the LEO orbital elements](https://www.space-track.org/basicspacedata/query/class/gp/MEAN_MOTION/%3E11.25/DECAY_DATE/null-val/RCS_SIZE/Large/PERIAPSIS/%3C500/orderby/EPOCH%20desc/format/csv)'
                 st.markdown(link, unsafe_allow_html=True)
                 st.session_state.ss_elem_df = st.session_state.stc.get_select()
