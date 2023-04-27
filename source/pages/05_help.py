@@ -7,8 +7,8 @@ Help
 import streamlit as st
 
 def main():
-    st.markdown("# Em construção ❄️")
-    st.sidebar.markdown("# Em construção ❄️")
+    st.markdown("# Under construction ❄️")
+    st.sidebar.markdown("# Under construction ❄️")
 
 if __name__== '__main__':
     main()
