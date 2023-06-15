@@ -208,7 +208,7 @@ def main():
     st.subheader("*Settings:*")
 
     # Select sample time
-    sample_time = st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
+    sample_time = 1.0 #st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Sampling rate (s): ', sample_time)
 
     # Select sensor location or record another location
