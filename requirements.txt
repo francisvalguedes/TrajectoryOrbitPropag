@@ -1,4 +1,5 @@
 streamlit
+streamlit-aggrid
 spacetrack
 pandas
 astropy
