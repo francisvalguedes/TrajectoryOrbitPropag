@@ -32,6 +32,11 @@ import glob
 import pymap3d as pm
 import re
 
+from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode
+from st_aggrid.grid_options_builder import GridOptionsBuilder
+
+
+
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
 
@@ -47,8 +52,8 @@ def save_trajectories(pos,dir_name,time_s):
         self
     """ 
     time_arr = pos.time_array[0]    
-    ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
-    buf = dir_name +"/100hz_" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn"
+    ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')    
+    buf = dir_name +"/trn100Hz/100Hz_" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn"
 
     np.savetxt(buf,pos.enu[0],fmt='%10.3f',delimiter=",", header=str(time_s), comments='')
 
@@ -80,15 +85,11 @@ def main():
     if os.path.exists(st.session_state.ss_dir_name) == False:
         os.mkdir(st.session_state.ss_dir_name)
 
-    st.subheader('Orbit propagation and search for approach trajectory to the sensor:')
-    st.subheader("*Orbital elements:*")
-
-    st.sidebar.subheader("*Settings:*")
-    st.subheader("*Settings:*")
+    st.subheader('Generate specific trajectories for the sensor:')
 
 
     # Select sensor location or record another location
-    help=('Select sensor location or record another location above') 
+    help=('Select sensor location or record another location in propagation') 
     lc_df = pd.read_csv('data/confLocalWGS84.csv')
      
     st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
@@ -103,55 +104,88 @@ def main():
     # st.write('Longitude: ', lc['lon'] )
     # st.write('Height: ', lc['height'])
 
-    st.sidebar.subheader("Calculate trajectories:")
-    st.subheader('*Outputs:*')    
+    # st.sidebar.subheader("Calculate trajectories:")
+    st.subheader('Trajectories:')    
 
-    summary_and_oe = st.file_uploader("Upload norad list with column name NORAD_CAT ID",type=['csv'])
-    #if st.button("Upload NORAD_CAT_ID file"):
-    if summary_and_oe is not None:
-        st.write("File details:")
-        file_details = {"Filename":summary_and_oe.name,"FileType":summary_and_oe.type,"FileSize":summary_and_oe.size}
-        st.write(file_details)
-        if summary_and_oe.type == "text/csv":   
-            summary_and_oe_df = pd.read_csv(summary_and_oe) 
-            
-            if len(summary_and_oe_df.index)>MAX_NUM_OBJ:
-                st.info('Maximum number of objects to propagate: ' + str(MAX_NUM_OBJ) ,icon=cn.INFO)
-                st.stop()
-            # dellfiles(st.session_state.ss_dir_name + os.sep +'*.trn')
+    if "ss_result_df" not in st.session_state:
+        st.info('Run propagation for trajectory generation',   icon=cn.INFO)
+        st.stop()
+
+
+    gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
+
+    # gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+    gb.configure_selection(selection_mode="multiple", use_checkbox=True)
+    gb.configure_column(st.session_state.ss_result_df.columns[0], headerCheckboxSelection=True)
+    # gb.configure_side_bar()
+
+    gridoptions = gb.build()
+
+    # grid_table = AgGrid(
+    #                     st.session_state.ss_result_df,
+    #                     height=200,
+    #                     gridOptions=gridoptions,
+    #                     enable_enterprise_modules=True,
+    #                     update_mode=GridUpdateMode.MODEL_CHANGED,
+    #                     data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+    #                     fit_columns_on_grid_load=False,
+    #                     header_checkbox_selection_filtered_only=True,
+    #                     use_checkbox=True)
+    grid_table = AgGrid(
+                      st.session_state.ss_result_df,
+                      height=250,
+                      gridOptions=gridoptions,
+                      update_mode=GridUpdateMode.SELECTION_CHANGED)
+    
+    st.subheader('Selected:') 
+    selected_row = grid_table["selected_rows"]
+    selected_row = pd.DataFrame(selected_row)
+    st.dataframe(selected_row)
+
  
-            ini = tm.time()    
+    if st.button('Calculate 100Hz trajectories'): 
 
-            st.write('Progress bar:')
-            my_bar = st.progress(0)
+        if len(selected_row.index)>MAX_NUM_OBJ:
+            st.info('Maximum number of objects to propagate: ' + str(MAX_NUM_OBJ) ,icon=cn.INFO)
+            st.stop()
+        elif len(selected_row.index)==0:
+            st.info('Select objects to propagate' ,icon=cn.INFO)
+            st.stop()
 
-            orbital_elem = summary_and_oe_df.to_dict('records')
-            sample_time = 0.01
+        os.mkdir(st.session_state.ss_dir_name +"/trn100Hz")
+        ini = tm.time()    
 
-            # automatico:                          
-            for index in range(len(orbital_elem)):
-                propag = PropagInit(orbital_elem[index], lc, 1) 
-                # print('teste')
-                # print(orbital_elem[index]['H0'])
-                # print(orbital_elem[index]['END_PT'])
-                pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT']/sample_time) )
-                save_trajectories(pos,st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
-                my_bar.progress((index+1)/len(orbital_elem))
+        st.write('Progress bar:')
+        my_bar = st.progress(0)
 
+        orbital_elem = selected_row.to_dict('records')
+        sample_time = 0.01
+
+        # automatico:                          
+        for index in range(len(orbital_elem)):
+            propag = PropagInit(orbital_elem[index], lc, 1) 
+            # print('teste')
+            # print(orbital_elem[index]['H0'])
+            # print(orbital_elem[index]['END_PT'])
+            pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT']/sample_time) )
+            save_trajectories(pos,st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
+            my_bar.progress((index+1)/len(orbital_elem))
             
-            fim = tm.time()
-            st.write("Processing time (s): ", fim - ini)
+        fim = tm.time()
+        st.write("Processing time (s): ", fim - ini)
         
-    st.subheader('*Files:*')     
-           
-    shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
-    with open(st.session_state.ss_dir_name + ".zip", "rb") as fp:
-        btn = st.download_button(
-            label="Download",
-            data=fp,
-            file_name="results_"+ lc['name'] + '_' + st.session_state.date_time +".zip",
-            mime="application/zip"
-        )
+    st.subheader('*Files:*')
+
+    dir_name = st.session_state.ss_dir_name + '/trn100Hz'
+    if os.path.exists(dir_name):       
+        shutil.make_archive(dir_name, 'zip', dir_name)
+        with open(dir_name + ".zip", "rb") as fp:
+            btn = st.download_button(
+                label="Download",
+                data=fp,
+                file_name="trn100Hz_"+ lc['name'] + '_' + st.session_state.date_time +".zip",
+                mime="application/zip"
+            )
 
     st.write('*.trn files - Trajectory from H0, in the ENU reference system in 100Hz')
 
