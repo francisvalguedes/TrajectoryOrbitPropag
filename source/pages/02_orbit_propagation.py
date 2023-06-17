@@ -107,9 +107,9 @@ class SummarizeDataFiles:
             ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')
 
             df_enu = pd.DataFrame(pos.enu[i])
-            df_enu.to_csv(dir_name +"/" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn",
+            df_enu.to_csv(dir_name +"/trn1Hz/obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn",
                             index=False, header=[str(len(df_enu.index)-1),'1000','1'],float_format="%.3f")
-            df_enu.to_csv(dir_name +"/" + "pobj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trj", sep=' ',
+            df_enu.to_csv(dir_name +"/trj1Hz/pobj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trj", sep=' ',
                             index=False, header=[ '1', str(len(df_enu.index)-1),'1'],float_format="%.3f")
 
             df_data = pd.DataFrame(np.concatenate((
@@ -117,7 +117,7 @@ class SummarizeDataFiles:
                             pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
                             'ENU_E','ENU_N','ENU_U', 'AZIMUTH','ELEVATION','RANGE',
                             'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','HEIGHT'])
-            df_data.to_csv(dir_name + "/" + "data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
+            df_data.to_csv(dir_name + "/csv1Hz/data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
             min_index = np.argmin(enu_d)
@@ -189,8 +189,13 @@ def main():
         dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
         st.session_state.ss_dir_name = dir_name  
 
-        # if os.path.exists(st.session_state.ss_dir_name) == False:
-        #     os.mkdir(st.session_state.ss_dir_name)     
+    if os.path.exists(st.session_state.ss_dir_name) == False:
+        os.mkdir(st.session_state.ss_dir_name)
+
+    if not os.path.exists(st.session_state.ss_dir_name + "/trn1Hz"):
+        os.mkdir(st.session_state.ss_dir_name +"/trn1Hz")
+        os.mkdir(st.session_state.ss_dir_name +"/trj1Hz")
+        os.mkdir(st.session_state.ss_dir_name +"/csv1Hz")         
 
     st.subheader('Orbit propagation and search for approach trajectory to the sensor:')
 
@@ -294,7 +299,10 @@ def main():
     st.info('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+  str(final_datetime - initial_datetime) + ' days',icon=cn.INFO)
 
     st.sidebar.subheader("Calculate trajectories:")
-    st.subheader('*Outputs:*')    
+    st.subheader('*Outputs:*')
+
+    summary_fn = lc['name']+ '_' + st.session_state.date_time[0:19] +"_traj_summary.csv"
+    summary_path = st.session_state.ss_dir_name + "/"+ summary_fn
     
     if st.sidebar.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
@@ -327,8 +335,9 @@ def main():
 
             rcs = pd.read_csv('data/RCS.csv').to_dict('list')        
 
-            dellfiles(st.session_state.ss_dir_name + os.sep +'*.csv')
-            dellfiles(st.session_state.ss_dir_name + os.sep +'*.trn')
+            dellfiles(st.session_state.ss_dir_name +"/trn1Hz/*.trn")
+            dellfiles(st.session_state.ss_dir_name +"/trj1Hz/*.trj")
+            dellfiles(st.session_state.ss_dir_name +"/csv1Hz/*.csv")  
  
             ini = tm.time()    
 
@@ -367,7 +376,7 @@ def main():
 
                 st.session_state.ss_result_df = df_traj
 
-                df_traj.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_traj_summary.csv", index=False)                                  
+                df_traj.to_csv(summary_path, index=False)                                  
             else:
                 if "ss_result_df" in st.session_state:
                     del st.session_state.ss_result_df
@@ -385,8 +394,19 @@ def main():
         
     st.subheader('*Files:*')     
     if "ss_result_df" not in st.session_state:
-        st.markdown('Run propagation for get files')
-    else:               
+        st.info('Run propagation for get files', icon=cn.INFO)
+    else:
+        if os.path.isfile(summary_path):
+            st.write('Download Summary File:')
+            with open(summary_path, "rb") as fp:
+                btn = st.download_button(
+                    label="Download",
+                    data=fp,
+                    file_name=summary_fn,
+                    mime="application/txt"
+                )
+
+        st.write('Download All Files:')
         shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
         with open(st.session_state.ss_dir_name + ".zip", "rb") as fp:
             btn = st.download_button(
@@ -400,9 +420,12 @@ def main():
 
     st.write('The resulting files contain:')
     st.write('orbital_elem.csv - Orbital elements of selected objects')
-    st.write('traj_data.csv - Relevant trajectory and object data')
-    st.write('*.trn files - Trajectory from H0, in the ENU reference system')
-    st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times')
+    st.write('orbital_elem_all.csv - All loaded orbital elements')
+    st.write('traj_summary.csv - Relevant trajectory and object data')
+    st.write('*.trn files - Trajectory from H0, in the ENU reference system 1Hz')
+    st.write('*.trj files - Trajectory from H0, in the ENU reference system 1Hz')
+
+    st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times 1Hz')
 
     st.info('To analyze the results, go to the next page.', icon=cn.INFO)
 
