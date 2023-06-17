@@ -34,7 +34,6 @@ import os.path
 
 
 cn = ConstantsNamespace()
-FILE_NAME_XLSX = "00_traj_summary.xlsx"
 
 # Analisa as possibilidades de rastreio
 def highlight_rows(row):
@@ -128,6 +127,8 @@ def main():
     st.write('The data summary:')                   
     st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
+    FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
+
     #Mudança feita por André para colorir a linha
     df_traj = st.session_state.ss_result_df.style.apply(highlight_rows, axis=1) 
     with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
@@ -146,14 +147,14 @@ def main():
             )
 
 # prints a map of the region with the trajectory
-    files_map = glob.glob(st.session_state.ss_dir_name + '/*TU.csv')        
+    files_map = glob.glob(st.session_state.ss_dir_name + '/csv1Hz/*TU.csv')        
     files_m = []
     for files in files_map:
         files_m.append(files.split('data-')[-1])
 
     choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
-    df_data = pd.read_csv(st.session_state.ss_dir_name + '/data-' + choice_file_map,
+    df_data = pd.read_csv(st.session_state.ss_dir_name + '/csv1Hz/data-' + choice_file_map,
                     usecols= ['lat', 'lon', 'ELEVATION'])
 
     dmax = st.session_state.d_max
