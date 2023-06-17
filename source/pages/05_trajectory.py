@@ -55,7 +55,17 @@ def save_trajectories(pos,dir_name,time_s):
     ttxt = time_arr[0].strftime('%Y_%m_%d-H0-%H_%M_%S')    
     buf = dir_name +"/trn100Hz/100Hz_" + "obj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trn"
 
-    np.savetxt(buf,pos.enu[0],fmt='%10.3f',delimiter=",", header=str(time_s), comments='')
+    np.savetxt(buf,pos.enu[0],fmt='%.3f',delimiter=",", header=str(time_s), comments='')
+
+def dellfiles(file):
+    py_files = glob.glob(file)
+    err = 0
+    for py_file in py_files:
+        try:
+            os.remove(py_file)
+        except OSError as e:
+            err = e.strerror
+    return err
 
 def main():
     """main function that provides the simplified interface for configuration,
@@ -82,22 +92,26 @@ def main():
         dir_name = tempfile.gettempdir()+"/top_tmp_"+ date_time
         st.session_state.ss_dir_name = dir_name
 
-    if os.path.exists(st.session_state.ss_dir_name) == False:
+    if not os.path.exists(st.session_state.ss_dir_name):
         os.mkdir(st.session_state.ss_dir_name)
+
+    if not os.path.exists(st.session_state.ss_dir_name +"/trn100Hz"):
+        os.mkdir(st.session_state.ss_dir_name +"/trn100Hz")
 
     st.subheader('Generate specific trajectories for the sensor:')
 
-
     # Select sensor location or record another location
-    help=('Select sensor location or record another location in propagation') 
-    lc_df = pd.read_csv('data/confLocalWGS84.csv')
-     
-    st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
-    for sel in lc_df['name']:
-        if sel==st.session_state["choice_lc"]:
-            lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
-            st.session_state["ss_lc"] = lc
 
+    # help=('Select sensor location or record another location in propagation') 
+    # lc_df = pd.read_csv('data/confLocalWGS84.csv')
+     
+    # st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
+    # for sel in lc_df['name']:
+    #     if sel==st.session_state["choice_lc"]:
+    #         lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
+    #         st.session_state["ss_lc"] = lc
+
+    lc = st.session_state["ss_lc"]
     st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Name: ', lc['name'])
     # st.write('Latitude: ', lc['lat'])
@@ -152,7 +166,8 @@ def main():
             st.info('Select objects to propagate' ,icon=cn.INFO)
             st.stop()
 
-        os.mkdir(st.session_state.ss_dir_name +"/trn100Hz")
+        dellfiles(st.session_state.ss_dir_name +"/trn100Hz/*.trn")
+
         ini = tm.time()    
 
         st.write('Progress bar:')
