@@ -111,9 +111,9 @@ def main():
     #         lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
     #         st.session_state["ss_lc"] = lc
 
-    lc = st.session_state["ss_lc"]
-    st.write('Sensor location in the WGS84 Geodetic ')
-    st.write('Name: ', lc['name'])
+    # lc = st.session_state["ss_lc"]
+    # st.write('Sensor location in the WGS84 Geodetic ')
+    # st.write('Name: ', lc['name'])
     # st.write('Latitude: ', lc['lat'])
     # st.write('Longitude: ', lc['lon'] )
     # st.write('Height: ', lc['height'])
@@ -125,6 +125,9 @@ def main():
         st.info('Run propagation for trajectory generation',   icon=cn.INFO)
         st.stop()
 
+    lc = st.session_state["ss_lc"]
+    st.write('Sensor location in the WGS84 Geodetic ')
+    st.write('Name: ', lc['name'])
 
     gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
 
