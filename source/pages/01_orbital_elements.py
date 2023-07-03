@@ -69,7 +69,7 @@ def get_orbital_element():
 
                 except OSError as e:
                     # print(f"Error acess Celestrac") 
-                    st.error('Too much access to Celestrak wait 2h or use Space-Track or load orbital elements manually', icon=cn.ERROR)
+                    st.error('Celestrak error, use Space-Track or load orbital elements manually', icon=cn.ERROR)
                     # elem_df = pd.read_csv('data/oe_celestrac.csv')
                     st.stop()
             else:
