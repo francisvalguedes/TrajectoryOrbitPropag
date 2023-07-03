@@ -181,7 +181,7 @@ def main():
 
         # automatico:                          
         for index in range(len(orbital_elem)):
-            propag = PropagInit(orbital_elem[index], lc, 1) 
+            propag = PropagInit(orbital_elem[index], lc, sample_time) 
             # print('teste')
             # print(orbital_elem[index]['H0'])
             # print(orbital_elem[index]['END_PT'])
