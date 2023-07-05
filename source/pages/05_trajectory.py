@@ -32,7 +32,7 @@ import glob
 import pymap3d as pm
 import re
 
-from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode
+from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 
@@ -129,6 +129,10 @@ def main():
     st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Name: ', lc['name'])
 
+    st.subheader('All:')
+    st.dataframe(st.session_state.ss_result_df.loc[:, st.session_state.ss_result_df.columns!= 'RCS_MIN'])
+
+    st.subheader('Selection:')
     gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
 
     # gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
@@ -149,15 +153,17 @@ def main():
     #                     header_checkbox_selection_filtered_only=True,
     #                     use_checkbox=True)
     grid_table = AgGrid(
-                      st.session_state.ss_result_df,
-                      height=250,
-                      gridOptions=gridoptions,
-                      update_mode=GridUpdateMode.SELECTION_CHANGED)
-    
+                        st.session_state.ss_result_df,
+                        # height=250,
+                        gridOptions=gridoptions,
+                        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
+                        update_mode=GridUpdateMode.SELECTION_CHANGED,
+                      )    
+   
     st.subheader('Selected:') 
     selected_row = grid_table["selected_rows"]
     selected_row = pd.DataFrame(selected_row)
-    st.dataframe(selected_row)
+    st.dataframe(selected_row.loc[:, selected_row.columns!= '_selectedRowNodeInfo'])
 
  
     if st.button('Calculate 100Hz trajectories'): 
