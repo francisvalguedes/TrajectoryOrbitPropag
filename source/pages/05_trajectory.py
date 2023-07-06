@@ -40,6 +40,54 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
 
+# Analisa as possibilidades de rastreio
+def highlight_rows(row):
+    teste_rcs = row.loc['RCS']
+    teste_rcs_min = row.loc['RCS_MIN']
+    teste_range_pt = row.loc['MIN_RANGE_PT']
+    teste_range = row.loc['MIN_RANGE']
+    teste_decay = row.loc['DECAY_DATE']
+    color = '#FF4500'
+    amarelo = '#ffda6a'
+    verde = '#75b798'
+    vermelho = '#ea868f'
+    azul = '#6ea8fe'
+
+    #TESTA SE EXISTE A COLUNA RCS_SIZE
+    if 'RCS_SIZE' in row :
+        teste_rcs_size = row.loc['RCS_SIZE']
+    else :
+        teste_rcs_size = 'none'
+
+    if teste_rcs > 0:  #TESTA O TAMANHO DO RCS
+        if teste_rcs_min <= teste_rcs*1.16:
+            color = verde
+        else:
+            color = vermelho
+    else:              # TESTA A CLASSIFICAÇÃO DO RCS
+        if teste_rcs_size == 'MEDIUM':
+            if teste_range > 500: #422.88 é o valor mínimo teorico
+                color = vermelho
+            else:
+                color = amarelo
+        elif teste_rcs_size == 'LARGE':
+            color = azul
+        else:
+            if teste_range > 300: #237.8 é o valor mínimo teorico
+                color = vermelho
+            else:
+                color = verde
+    
+    if teste_range_pt < 90:  # TESTA O NÚMERO MÍNIMO DE PONTOS
+        color = vermelho
+
+    x=teste_decay  # TESTA SE O OBJETO JA SAIU DE ORBITA
+    s_nan = str(x)
+    if s_nan != "nan" : 
+        color = vermelho
+
+    return ['background-color: {}'.format(color) for r in row]
+
 # ----------------------------------------------------------------------
 # Salva as trajetórias
 # ----------------------------------------------------------------------
@@ -100,72 +148,121 @@ def main():
 
     st.subheader('Generate specific trajectories for the sensor:')
 
-    # Select sensor location or record another location
-
-    # help=('Select sensor location or record another location in propagation') 
-    # lc_df = pd.read_csv('data/confLocalWGS84.csv')
-     
-    # st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
-    # for sel in lc_df['name']:
-    #     if sel==st.session_state["choice_lc"]:
-    #         lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
-    #         st.session_state["ss_lc"] = lc
-
-    # lc = st.session_state["ss_lc"]
-    # st.write('Sensor location in the WGS84 Geodetic ')
-    # st.write('Name: ', lc['name'])
-    # st.write('Latitude: ', lc['lat'])
-    # st.write('Longitude: ', lc['lon'] )
-    # st.write('Height: ', lc['height'])
-
-    # st.sidebar.subheader("Calculate trajectories:")
-    st.subheader('Trajectories:')    
-
     if "ss_result_df" not in st.session_state:
         st.info('Run propagation for trajectory generation',   icon=cn.INFO)
         st.stop()
 
     lc = st.session_state["ss_lc"]
-    st.write('Sensor location in the WGS84 Geodetic ')
-    st.write('Name: ', lc['name'])
+    st.write('Selected Sensor location: ', lc['name'])
 
-    st.subheader('All:')
-    st.dataframe(st.session_state.ss_result_df.loc[:, st.session_state.ss_result_df.columns!= 'RCS_MIN'])
+    # st.subheader('All:')
+    # st.dataframe(st.session_state.ss_result_df.loc[:, st.session_state.ss_result_df.columns!= 'RCS_MIN'])
+
+    st.subheader('Data summary:')                 
+    st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
+
+    # ************************************************************
+    # FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
+
+    # #Mudança feita por André para colorir a linha
+    # df_traj = st.session_state.ss_result_df.style.apply(highlight_rows, axis=1) 
+    # with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
+    #     df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
+
+    # st.dataframe(df_traj)
+
+    # if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
+    #     st.write('Download highlight File:')
+    #     with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
+    #         btn = st.download_button(
+    #             label="Download",
+    #             data=fp,
+    #             file_name=FILE_NAME_XLSX,
+    #             mime="application/txt"
+    #         )
+
+    # ************************************************************
 
     st.subheader('Selection:')
-    gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
 
-    # gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
-    gb.configure_selection(selection_mode="multiple", use_checkbox=True)
-    gb.configure_column(st.session_state.ss_result_df.columns[0], headerCheckboxSelection=True)
-    # gb.configure_side_bar()
-
-    gridoptions = gb.build()
+    # AgGrid
+    # ************************************************************
+    # gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
+    # # gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+    # gb.configure_selection(selection_mode="multiple", use_checkbox=True)
+    # gb.configure_column(st.session_state.ss_result_df.columns[0], headerCheckboxSelection=True)
+    # # gb.configure_side_bar()
+    # gridoptions = gb.build()
 
     # grid_table = AgGrid(
     #                     st.session_state.ss_result_df,
-    #                     height=200,
+    #                     # height=250,
     #                     gridOptions=gridoptions,
-    #                     enable_enterprise_modules=True,
-    #                     update_mode=GridUpdateMode.MODEL_CHANGED,
-    #                     data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
-    #                     fit_columns_on_grid_load=False,
-    #                     header_checkbox_selection_filtered_only=True,
-    #                     use_checkbox=True)
-    grid_table = AgGrid(
-                        st.session_state.ss_result_df,
-                        # height=250,
-                        gridOptions=gridoptions,
-                        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
-                        update_mode=GridUpdateMode.SELECTION_CHANGED,
-                      )    
+    #                     columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, # SELECTION_CHANGED, MANUAL
+    #                     # enable_enterprise_modules=True,
+    #                     update_mode=GridUpdateMode.GRID_CHANGED,
+    #                     theme='streamlit',
+    #                     editable=True,
+    #                     # data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+    #                     # fit_columns_on_grid_load=False,
+    #                     # header_checkbox_selection_filtered_only=True,
+    #                   )  
    
-    st.subheader('Selected:') 
-    selected_row = grid_table["selected_rows"]
-    selected_row = pd.DataFrame(selected_row)
-    st.dataframe(selected_row.loc[:, selected_row.columns!= '_selectedRowNodeInfo'])
+    # st.subheader('Selected:') 
 
- 
+    # selected_row = grid_table["selected_rows"]
+    # selected_row = pd.DataFrame(selected_row)
+    # st.write('selected lines')
+    # st.dataframe(selected_row.loc[:, selected_row.columns!= '_selectedRowNodeInfo'])
+
+    # ************************************************************
+    # Select Line st.data_editor
+    # ************************************************************
+    st.write('All objects')
+    st.session_state.ss_df_ed = st.session_state.ss_result_df.copy(deep=True)
+    CHEC_COL_NAME = "SELECTION"
+    if CHEC_COL_NAME not in st.session_state.ss_df_ed.columns:
+        st.session_state.ss_df_ed.insert(loc=0, column=CHEC_COL_NAME, value=st.session_state.ss_df_ed['NORAD_CAT_ID']>0)
+    
+    if len(st.session_state.ss_df_ed.index)>MAX_NUM_OBJ: 
+        st.session_state.ss_df_ed[CHEC_COL_NAME]= st.session_state.ss_df_ed['NORAD_CAT_ID']<0
+    else:
+        st.session_state.ss_df_ed[CHEC_COL_NAME]= st.session_state.ss_df_ed['NORAD_CAT_ID']>0
+
+
+    # edited_df = st.session_state.ss_df_ed
+    # tr_col1, tr_col2 = st.columns(2)
+
+    # if tr_col1.button('Clear All'):
+    #     st.session_state.ss_df_ed[CHEC_COL_NAME]= st.session_state.ss_df_ed['NORAD_CAT_ID']<0        
+    # if tr_col2.button('Select All'):
+    #     st.session_state.ss_df_ed[CHEC_COL_NAME]= st.session_state.ss_df_ed['NORAD_CAT_ID']>0
+    # edited_df[CHEC_COL_NAME]=st.session_state.ss_df_ed[CHEC_COL_NAME]
+
+    df_col = st.session_state.ss_df_ed.columns.tolist()
+    df_col.remove(CHEC_COL_NAME)
+
+    edited_df = st.data_editor(
+                    st.session_state.ss_df_ed,
+                    column_config={
+                        CHEC_COL_NAME: st.column_config.CheckboxColumn(
+                            CHEC_COL_NAME,
+                            help="Select trajetories",
+                            disabled=False, 
+                            default=False,
+                        )
+                        },
+                    disabled=df_col,
+                    hide_index=False,
+                    )
+    
+    # st.write('Selected objects')
+    selected_row=st.session_state.ss_df_ed[edited_df[CHEC_COL_NAME]]
+
+    selected_row=selected_row.loc[:,selected_row.columns!= CHEC_COL_NAME]
+    # st.dataframe(selected_row)
+    # ************************************************************
+    st.write('Calculate trajectories of selected objects:')
     if st.button('Calculate 100Hz trajectories'): 
 
         if len(selected_row.index)>MAX_NUM_OBJ:
@@ -198,7 +295,7 @@ def main():
         fim = tm.time()
         st.write("Processing time (s): ", fim - ini)
         
-    st.subheader('*Files:*')
+    st.write('Download trajetory files *.trn - from H0, in the ENU:')
 
     dir_name = st.session_state.ss_dir_name + '/trn100Hz'
     if os.path.exists(dir_name):       
@@ -211,7 +308,37 @@ def main():
                 mime="application/zip"
             )
 
-    st.write('*.trn files - Trajectory from H0, in the ENU reference system in 100Hz')
+    st.subheader('Data summary column selection:')
+    # Select Colunm
+    # ************************************************************
+    df = selected_row.copy(deep=True)
+
+    columns = st.multiselect("Column:",df.columns)
+    filter = st.radio("Choose by:", ("exclusion", "inclusion"))
+
+    if filter == "exclusion":
+        columns = [col for col in df.columns if col not in columns]
+
+    st.write('selected colunm')
+    st.dataframe(df[columns])
+
+    FILE_NAME_SEL_CSV = 'selected.csv'
+
+    st.write('Save dataframe with selected columns:')
+    if st.button('Save Selection'): 
+        df[columns].to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
+                            index=False, float_format="%.3f")
+
+    if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV):
+        st.write('Download selected File:')
+        with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV, "rb") as fp:
+            btn = st.download_button(
+                label="Download",
+                data=fp,
+                file_name=FILE_NAME_SEL_CSV,
+                mime="application/txt"
+            )
+    # ************************************************************
 
 if __name__== '__main__':
     main()
