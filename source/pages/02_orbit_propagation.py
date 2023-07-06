@@ -87,7 +87,7 @@ class SummarizeDataFiles:
     def __init__(self):
         """initialize the class"""        
         self.sel_orbital_elem = []
-        self.sel_resume = {"RCS":[], "H0":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
+        self.sel_resume = {"RCS":[], "H0":[],"H0_H":[], "RANGE_H0":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
                     "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[] }
 
     def save_trajectories(self,pos,orbital_elem,dir_name,rcs):
@@ -129,6 +129,7 @@ class SummarizeDataFiles:
             else:
                 self.sel_resume["RCS"].append(0.0)
             self.sel_resume["H0"].append(time_arr[0].value)
+            self.sel_resume["H0_H"].append(time_arr[0].strftime('%H:%M:%S.%f'))
             self.sel_resume["RANGE_H0"].append(enu_d[0])
             self.sel_resume["MIN_RANGE_H"].append(time_arr[min_index].strftime('%H:%M:%S.%f'))
             self.sel_resume["MIN_RANGE_PT"].append(min_index)
