@@ -39,6 +39,7 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
+FILE_NAME_SEL_CSV = 'selected.csv'
 
 # Analisa as possibilidades de rastreio
 def highlight_rows(row):
@@ -257,7 +258,7 @@ def main():
                     )
     
     # st.write('Selected objects')
-    selected_row=st.session_state.ss_df_ed[edited_df[CHEC_COL_NAME]]
+    selected_row=edited_df[edited_df[CHEC_COL_NAME]]
 
     selected_row=selected_row.loc[:,selected_row.columns!= CHEC_COL_NAME]
     # st.dataframe(selected_row)
@@ -284,10 +285,7 @@ def main():
 
         # automatico:                          
         for index in range(len(orbital_elem)):
-            propag = PropagInit(orbital_elem[index], lc, sample_time) 
-            # print('teste')
-            # print(orbital_elem[index]['H0'])
-            # print(orbital_elem[index]['END_PT'])
+            propag = PropagInit(orbital_elem[index], lc, sample_time)
             pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT']/sample_time) )
             save_trajectories(pos,st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
             my_bar.progress((index+1)/len(orbital_elem))
@@ -308,26 +306,55 @@ def main():
                 mime="application/zip"
             )
 
-    st.subheader('Data summary column selection:')
     # Select Colunm
     # ************************************************************
-    df = selected_row.copy(deep=True)
+    st.subheader('Data summary format and column selection:')
 
-    columns = st.multiselect("Column:",df.columns)
-    filter = st.radio("Choose by:", ("exclusion", "inclusion"))
+    col1s, col2s = st.columns(2)
+
+    columns = col1s.multiselect("Manual selection of desired columns:",selected_row.columns)
+    filter = col1s.radio("Choose by:", ("exclusion", "inclusion"))
 
     if filter == "exclusion":
-        columns = [col for col in df.columns if col not in columns]
+        columns = [col for col in selected_row.columns if col not in columns]
 
-    st.write('selected colunm')
-    st.dataframe(df[columns])
+    selected_row_col = selected_row[columns]
+    col_no_comma = 'NORAD_CAT_ID'
 
-    FILE_NAME_SEL_CSV = 'selected.csv'
+    mask_file = col2s.file_uploader('Column selection by config file upload:',type=['csv'])
+    if mask_file is not None:
+        col2s.write("File details:")
+        file_details = {"Filename":mask_file.name,"FileType":mask_file.type,"FileSize":mask_file.size}
+        col2s.write(file_details)
+        if mask_file.type == "text/csv":
+            mask_df = pd.read_csv(mask_file)
+            col2s.dataframe(mask_df)
+            col_mask_list = mask_df.columns.tolist()
+            for col in col_mask_list:
+                if col not in selected_row.columns:
+                    st.error('Error: dataframe does not have column:' + col, icon=cn.ERROR )
+                    st.stop()
 
-    st.write('Save dataframe with selected columns:')
+            mask_dic = mask_df.to_dict('records')
+            df_sel1 = selected_row[col_mask_list]            
+            selected_row_col = df_sel1.rename(columns=mask_dic[0], inplace=False)
+            col_no_comma = mask_dic[0]['NORAD_CAT_ID']
+
+    st.write('Selected columns and rows from the data summary:')
+    # selected_row_col.loc[:, "NORAD_CAT_ID"] = selected_row_col["NORAD_CAT_ID"].map('{:d}'.format)
+    st.dataframe(selected_row_col,
+                 column_config={
+                     col_no_comma:st.column_config.NumberColumn(
+                                        col_no_comma,
+                                         format='%d',
+                                         )
+                 }                 
+                 )
+
+    st.write('Save dataframe with selected columns and rows:')
     if st.button('Save Selection'): 
-        df[columns].to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
-                            index=False, float_format="%.3f")
+        selected_row[columns].to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
+                            index=False)
 
     if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV):
         st.write('Download selected File:')
