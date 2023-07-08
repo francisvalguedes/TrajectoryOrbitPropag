@@ -227,7 +227,7 @@ def main():
 
     lc_df = st.session_state["lc_df"]  
 
-    if lc_expander.button("Gravar nova localização"):
+    if lc_expander.button("Record new location"):
         lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [heigth] }
         if lc_name not in lc_df['name'].to_list():
             if (lc_add['name'][0]) and (bool(re.match('^[A-Za-z0-9_-]*$',lc_add['name'][0]))==True):
@@ -367,15 +367,17 @@ def main():
                 df_traj = pd.DataFrame(sdf.sel_resume)
                 df_traj = df_traj.join(df_orb)
 
-                df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
+                # df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
 
-                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_MIN', 'RCS_SIZE']
+                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_SIZE']
                 df_traj = columns_first(df_traj, col_first )
 
                 df_traj = df_traj.sort_values(by=['H0'], ascending=True)
                 df_traj = df_traj.reset_index(drop=True)
 
                 st.session_state.ss_result_df = df_traj
+
+                st.session_state.traj_flag = True
 
                 df_traj.to_csv(summary_path, index=False)                                  
             else:

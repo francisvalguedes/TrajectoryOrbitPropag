@@ -116,7 +116,7 @@ def main():
     # }
     )
         
-    st.subheader('Data visualization:')
+    st.subheader('View of the selected trajectory on the map:')
 
     if "ss_result_df" not in st.session_state:
         st.info('Run propagation for visualization',   icon=cn.INFO)
@@ -124,27 +124,27 @@ def main():
     # elif "ss_lc" not in st.session_state:
     #     st.info('Load geodetic wgs84 location',   icon=cn.INFO)
       
-    st.write('The data summary:')                   
+    # st.write('The data summary:')                   
     st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
-    FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
+    # FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
 
-    #Mudança feita por André para colorir a linha
-    df_traj = st.session_state.ss_result_df.style.apply(highlight_rows, axis=1) 
-    with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
-        df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
+    # #Mudança feita por André para colorir a linha
+    # df_traj = st.session_state.ss_result_df.style.apply(highlight_rows, axis=1) 
+    # with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
+    #     df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
 
-    st.dataframe(df_traj)
+    # st.dataframe(df_traj)
 
-    if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
-        st.write('Download highlight File:')
-        with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
-            btn = st.download_button(
-                label="Download",
-                data=fp,
-                file_name=FILE_NAME_XLSX,
-                mime="application/txt"
-            )
+    # if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
+    #     st.write('Download highlight File:')
+    #     with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
+    #         btn = st.download_button(
+    #             label="Download",
+    #             data=fp,
+    #             file_name=FILE_NAME_XLSX,
+    #             mime="application/txt"
+    #         )
 
 # prints a map of the region with the trajectory
     files_map = glob.glob(st.session_state.ss_dir_name + '/csv1Hz/*TU.csv')        
