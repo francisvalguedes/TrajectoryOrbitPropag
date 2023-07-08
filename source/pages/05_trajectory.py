@@ -43,6 +43,12 @@ FILE_NAME_SEL_CSV = 'selected.csv'
 def df_atrib(df):
     return df.copy(deep=True)
 
+def save_selected_data(sel_data):
+    sel_data = sel_data.round({'RCS':3, 'RCS_MIN':3, 'RANGE_H0':3, 'MIN_RANGE':3,'END_RANGE':3})
+    sel_data.to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
+                                index=False)
+
+
 def columns_first(df, col_first):
     col_list = df.columns.to_list()
     for line in col_first:
@@ -197,13 +203,13 @@ def main():
     sensor_exp = st.sidebar.expander("Add new radar sensor", expanded=False)
     sensor_name = sensor_exp.text_input('Radar Name',"my radar")
 
-    pt = sensor_exp.number_input('radar power (db)',0.0, 100.0, 59.6, format="%.1f")    
+    pt = sensor_exp.number_input('radar power (db)',0.0, 100.0, 60.0, format="%.1f")    
     gt = sensor_exp.number_input('radar transmit gain (db)',0.0, 100.0, 42.0, format="%.1f")
     gr = sensor_exp.number_input('radar receive gain (db)',0.0, 100.0, 42.0, format="%.1f")
     lt = sensor_exp.number_input('radar transmit loss (db)',0.0, 50.0, 1.5, format="%.1f")
     lr = sensor_exp.number_input('radar receive loss (db)',0.0, 50.0, 1.5, format="%.1f")
-    fhz = sensor_exp.number_input('radar frequence (MHz)',500.0,10000.0, 5700.0, format="%.1f")
-    sr = sensor_exp.number_input('radar receiver sensitivity (db)',-300.0,-1.0, -143.0, format="%.1f")
+    fhz = sensor_exp.number_input('radar frequence (MHz)',500.0,10000.0, 5400.0, format="%.1f")
+    sr = sensor_exp.number_input('radar receiver sensitivity (db)',-300.0,-1.0, -142.0, format="%.1f")
     snr = sensor_exp.number_input('radar signal noise ratio (db)',0.0,20.0, 0.0, format="%.1f")
     sample_time = sensor_exp.number_input('sample time (s)',0.01,1.0, 0.01, format="%.2f")
 
@@ -236,7 +242,7 @@ def main():
         st.stop()      
         
     lc = st.session_state["ss_lc"]
-    st.write('Selected Sensor location - propagation page: ', lc['name'])
+    st.info('Selected Sensor location - propagation page: '+ lc['name'], icon=cn.INFO)
                
     st.write('Propagation result, approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
@@ -280,7 +286,7 @@ def main():
         st.info('Rum propagation im orbit propagation page', icon= cn.INFO)
         st.stop()  
 
-    st.write('Selected radar setting:', radar_sel['name'])
+    st.info('Selected radar setting: ' + radar_sel['name'], icon=cn.INFO)
     st.write('Reload propagation results and calculate RCS_MIN with sidebar selected radar settings:')
     if st.button('Reload data and Calc RCS_MIN',key='bt_RCS_MIN'):
         st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
@@ -314,7 +320,7 @@ def main():
                     )   
      
 
-    if col1s.button('Save state',key='bt_save'):
+    if col1s.button('Save selection',key='bt_save'):
         st.session_state.ss_df_ed = selected_row.style.apply(highlight_rows, axis=1)
 
 
@@ -362,7 +368,7 @@ def main():
 
     st.subheader('Specific ENU Trajectories:')
     # ************************************************************
-    st.write('Radarar sensor settings - sample time: ' + str(st.session_state.ss_radar_sel['spt']) + 's')
+    st.info('Radarar sensor settings - sample time: ' + str(st.session_state.ss_radar_sel['spt']) + 's', icon=cn.INFO)
     st.write('Calculate trajectories of selected objects:')
     if st.button('Calculate trajectories'): 
 
@@ -405,7 +411,7 @@ def main():
                 btn = st.download_button(
                     label="Download .trn files",
                     data=fp,
-                    file_name="trn100Hz_"+ lc['name'] + '_' + st.session_state.date_time +".zip",
+                    file_name="trn_" + str(sample_time) + 's_' + lc['name'] + '_' + st.session_state.date_time +".zip",
                     mime="application/zip"
                 )
 
@@ -455,9 +461,9 @@ def main():
                  )
 
     st.write('Save dataframe with selected columns and rows:')
-    if st.button('Save Selection'): 
-        selected_row[columns].to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
-                            index=False)
+    if st.button('Save Selection'):
+        save_selected_data(selected_row[columns])
+
 
     if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV):
         st.write('Download selected File:')
