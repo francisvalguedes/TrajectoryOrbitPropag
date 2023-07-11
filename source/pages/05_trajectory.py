@@ -44,7 +44,7 @@ def df_atrib(df):
     return df.copy(deep=True)
 
 def save_selected_data(sel_data):
-    sel_data = sel_data.round({'RCS':3, 'RCS_MIN':3, 'RANGE_H0':3, 'MIN_RANGE':3,'END_RANGE':3})
+    sel_data = sel_data.round({'RCS':3, 'RCS_MIN':3, 'H0_RANGE':3, 'MIN_RANGE':3,'END_RANGE':3})
     sel_data.to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
                                 index=False)
 
