@@ -32,8 +32,9 @@ import glob
 import pymap3d as pm
 import re
 
-from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
-from st_aggrid.grid_options_builder import GridOptionsBuilder
+# from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
+# from st_aggrid.grid_options_builder import GridOptionsBuilder
+
 
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
@@ -44,7 +45,19 @@ def df_atrib(df):
     return df.copy(deep=True)
 
 def save_selected_data(sel_data):
-    sel_data = sel_data.round({'RCS':3, 'RCS_MIN':3, 'H0_RANGE':3, 'MIN_RANGE':3,'END_RANGE':3})
+    
+    # to_tound = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE','END_RANGE']
+    # for col in to_tound:        
+    #     if not isinstance(mask,int):
+    #         if mask[col] in sel_data.columns:                     
+    #             sel_data = sel_data.round({mask[col]:3}) #, mask['RCS_MIN']:3, mask['H0_RANGE']:3, mask['MIN_RANGE']:3,mask['END_RANGE']:3})
+    #     else:
+    #         if col in sel_data.columns:
+    #             sel_data = sel_data.round({col:3}) #{'RCS':3, 'RCS_MIN':3, 'H0_RANGE':3, 'MIN_RANGE':3,'END_RANGE':3})
+
+    # if 'EPOCH' in sel_data.columns:
+    #     sel_data.loc[:,'EPOCH'] = sel_data.loc[:,'EPOCH'].str.slice(8,16)
+
     sel_data.to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
                                 index=False)
 
@@ -415,10 +428,19 @@ def main():
                     mime="application/zip"
                 )
 
-    # Select Colunm
+    # Format Colunm to print
     # ************************************************************
     st.subheader('Data summary format and column selection:')
 
+    to_tound = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE','END_RANGE']
+    for col in to_tound:
+        if col in selected_row.columns:
+            selected_row = selected_row.round({col:3})
+    jd_time = Time(selected_row['EPOCH'].values.tolist(), format='isot', scale='utc')
+    selected_row['EPOCH_D'] = jd_time.strftime('%d-%H:%M:%S')
+
+    # Select Colunm
+    # ************************************************************
     col1s, col2s = st.columns(2)
 
     columns = col1s.multiselect("Manual selection of desired columns:",selected_row.columns)
@@ -428,7 +450,7 @@ def main():
         columns = [col for col in selected_row.columns if col not in columns]
 
     selected_row_col = selected_row[columns]
-    col_no_comma = 'NORAD_CAT_ID'
+    decimal_col = 'NORAD_CAT_ID'
 
     mask_file = col2s.file_uploader('Column selection by config file upload:',type=['csv'])
     if mask_file is not None:
@@ -445,24 +467,22 @@ def main():
                     st.stop()
 
             mask_dic = mask_df.to_dict('records')
+            mask_dic = mask_dic[0]
             df_sel1 = selected_row[col_mask_list]            
-            selected_row_col = df_sel1.rename(columns=mask_dic[0], inplace=False)
-            col_no_comma = mask_dic[0]['NORAD_CAT_ID']
+            selected_row_col = df_sel1.rename(columns=mask_dic, inplace=False)
 
     st.write('Selected columns and rows from the data summary:')
     # selected_row_col.loc[:, "NORAD_CAT_ID"] = selected_row_col["NORAD_CAT_ID"].map('{:d}'.format)
-    st.dataframe(selected_row_col,
-                 column_config={
-                     col_no_comma:st.column_config.NumberColumn(
-                                        col_no_comma,
-                                         format='%d',
-                                         )
-                 }                 
-                 )
+    st.dataframe(selected_row_col, column_config={
+                    decimal_col:st.column_config.NumberColumn(
+                                    decimal_col,
+                                    format='%d',
+                                    ) } )
 
     st.write('Save dataframe with selected columns and rows:')
+
     if st.button('Save Selection'):
-        save_selected_data(selected_row[columns])
+        save_selected_data(selected_row_col)
 
 
     if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV):
