@@ -365,6 +365,12 @@ def main():
                 df_orb = columns_first(df_orb, col_first )
 
                 df_traj = pd.DataFrame(sdf.sel_resume)
+
+                common = set(df_traj.columns.tolist()).intersection(df_orb.columns.tolist())
+                if len(common) > 0:
+                    st.error('Column naming conflict: load file with only orbital elements', icon=cn.ERROR)
+                    st.stop()
+
                 df_traj = df_traj.join(df_orb)
 
                 # df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
