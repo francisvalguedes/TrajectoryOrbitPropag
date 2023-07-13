@@ -155,6 +155,9 @@ def get_orbital_element():
                     st.write('File details:')
                     st.write(file_details)                    
                     df_norad_ids = pd.read_csv(data_norad)
+                    if 'NORAD_CAT_ID' not in df_norad_ids.columns:
+                        st.error('load csv file with a column named NORAD_CAT_ID', icon=cn.ERROR)
+                        st.stop()
                     st.write('NORAD_CAT_ID file uploaded for update:')
                     # st.dataframe(df_norad_ids)
                     df_norad_ids=df_norad_ids.drop_duplicates(subset=['NORAD_CAT_ID'])                    
