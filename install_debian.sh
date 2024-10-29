@@ -1,8 +1,12 @@
 #!/bin/bash
-# sudo apt install -y python3.9
-# sudo apt install -y python3-pip
+
+# Instala o virtualenv, caso não esteja instalado
 pip install virtualenv
-pip install --upgrade pip
+# Cria um novo ambiente virtual chamado 'env'
 virtualenv env
+# Ativa o ambiente virtual
 source env/bin/activate
+# Atualiza o pip para a versão mais recente
+pip install --upgrade pip
+# Instala as dependências do arquivo requirements.txt
 pip install -r requirements.txt
