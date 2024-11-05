@@ -245,11 +245,11 @@ def main():
 
             col1, col2, col3 = st.columns(3)
             col1.info('Orbital elements requested from Space-Track: '+ str(df_norad_ids.shape[0]), icon=cn.INFO)
-            col1.dataframe(df_norad_ids)
+            col1.dataframe(df_norad_ids.style.format(thousands=""))
             col2.warning('Orbital elements not found on Space-Track (in the epoch range): '+ str(not_foud.shape[0]), icon=cn.WARNING)
-            col2.dataframe(not_foud)
+            col2.dataframe(not_foud.style.format(thousands=""))
             col3.warning('decayed object: '+ str(elem_decay.shape[0]), icon=cn.WARNING)
-            col3.dataframe(elem_decay)
+            col3.dataframe(elem_decay.style.format(thousands=""))
 
     if "ss_elem_df" not in st.session_state:
         st.info("Load orbital elements", icon=cn.INFO )
@@ -258,7 +258,7 @@ def main():
         st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )
         st.session_state.ss_elem_df = st.session_state.ss_elem_df.reset_index(drop=True)     
         elem_df = st.session_state["ss_elem_df"]
-        st.dataframe(elem_df)
+        st.dataframe(elem_df.style.format(thousands=""))
         st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)       
 
         if os.path.exists(st.session_state.ss_dir_name + "/"+ "orbital_elem_all.txt"):        

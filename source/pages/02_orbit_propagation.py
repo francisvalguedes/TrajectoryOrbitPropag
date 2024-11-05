@@ -399,7 +399,7 @@ def main():
     if "ss_result_df" in st.session_state: 
         st.success('trajectories calculated successfully', icon=cn.SUCCESS)                      
         st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
-        st.dataframe(st.session_state.ss_result_df)
+        st.dataframe(st.session_state.ss_result_df.style.format(thousands=""))
         
     st.subheader('*Files:*')     
     if "ss_result_df" not in st.session_state:

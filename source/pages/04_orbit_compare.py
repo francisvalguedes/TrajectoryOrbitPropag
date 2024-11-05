@@ -97,7 +97,7 @@ def main():
             st.write(file_details)
             if norad_file.type == "text/csv":
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file).drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-                st.dataframe(st.session_state.ss_norad_comp)
+                st.dataframe(st.session_state.ss_norad_comp.style.format(thousands=""))
 
         elif 'ss_result_df' in st.session_state:                
             st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
@@ -114,7 +114,7 @@ def main():
             # elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
             
             st.session_state.ss_elem_df = st.session_state.stc.get_by_norad(norad_comp_list) #pd.read_csv(StringIO(elements_csv), sep=",")
-            st.dataframe(st.session_state.ss_elem_df)
+            st.dataframe(st.session_state.ss_elem_df.style.format(thousands=""))
             st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)   
 
 
@@ -126,7 +126,7 @@ def main():
             st.write(file_details)
             if norad_file.type == "text/csv":
                 st.session_state.ss_norad_comp = pd.read_csv(norad_file)
-                st.dataframe(st.session_state.ss_norad_comp)
+                st.dataframe(st.session_state.ss_norad_comp.style.format(thousands=""))
                 st.success('Norad list loaded manually', icon=cn.SUCCESS)
 
         elif 'ss_result_df' in st.session_state:                
@@ -222,7 +222,7 @@ def main():
         st.info('run compare', icon=cn.INFO)
         st.stop()
 
-    st.dataframe(st.session_state.df_orb)
+    st.dataframe(st.session_state.df_orb.style.format(thousands=""))
     st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", index=False)
 
     st.write('Files can be downloaded:')
