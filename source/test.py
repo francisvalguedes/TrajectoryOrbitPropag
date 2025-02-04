@@ -40,7 +40,7 @@ def main():
          visualization and data download. """  
 
     st.write('## Antes')
-    df =pd.read_csv('data/space_track/oe_data_spacetrack.csv')
+    df =pd.read_csv('data/confLocalWGS84.csv')
 
     gb = GridOptionsBuilder.from_dataframe(df)
 
