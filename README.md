@@ -29,7 +29,7 @@ Activate env and run streamlit app
 ./run.sh
 ~~~
 
-# If necessary redirect port 80 to 8080
+### If necessary redirect port 80 to 8080
 
 Test if the web server works on port 8080: my_ip_address:8080
 
