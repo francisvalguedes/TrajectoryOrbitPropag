@@ -22,14 +22,14 @@ For debian/ubuntu: clone repository then without sudo:
 
 the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
 
-## Run App streamlit server:
+## Run the streamlit application on a server:
 
 Activate env and run streamlit app
 ~~~ 
 ./run.sh
 ~~~
 
-## If necessary redirect port 80 to 8080
+# If necessary redirect port 80 to 8080
 
 Test if the web server works on port 8080: my_ip_address:8080
 
