@@ -14,7 +14,7 @@ from lib.pages_functions import  SpaceTrackClientInit
 from lib.constants import  ConstantsNamespace
 
 import datetime as dt
-from datetime import datetime
+from datetime import datetime, timezone
 
 import streamlit as st
 import tempfile
@@ -42,7 +42,7 @@ def main():
     )
 
     if "date_time" not in st.session_state:
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time
 
     if "ss_dir_name" not in st.session_state:

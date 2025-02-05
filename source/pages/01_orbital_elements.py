@@ -6,7 +6,8 @@ Date: 2021
 import streamlit as st
 import pandas as pd
 
-from datetime import datetime
+from datetime import datetime, timezone
+
 import datetime as dt
 
 
@@ -53,7 +54,7 @@ def get_orbital_element():
     if st.session_state["choiceUpdate"] == MENU_UPDATE1:
         norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
 
-        current_day = datetime.utcnow().strftime('%Y_%m_%d_')
+        current_day = datetime.now(timezone.utc).strftime('%Y_%m_%d_')
         celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
         if st.sidebar.button('Get orbital element'):
             if not os.path.exists(celet_fil_n):                
@@ -118,8 +119,8 @@ def get_orbital_element():
 
         if (st.session_state["choice_stc"] == MENU_STC3) or (st.session_state["choice_stc"] == MENU_STC1): 
             oe_col1, oe_col2 = st.sidebar.columns(2)
-            oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.utcnow() - dt.timedelta(days=4))
-            oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.utcnow() + dt.timedelta(days=1))
+            oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.now(timezone.utc) - dt.timedelta(days=4))
+            oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.now(timezone.utc) + dt.timedelta(days=1))
             if  (oe_epoch_end - oe_epoch_init) < dt.timedelta(days=0.01):
                 st.error('End must be after start date', icon=cn.ERROR)
                 st.stop()
@@ -218,7 +219,7 @@ def main():
     st.subheader('**Get satellite orbital elements: Celestrack - individually, or Space-track - allows multiple.**')
 
     if "date_time" not in st.session_state:
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time
 
     if "ss_dir_name" not in st.session_state:

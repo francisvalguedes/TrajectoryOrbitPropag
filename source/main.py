@@ -5,7 +5,7 @@ Date: 2021
 
 import streamlit as st
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import shutil
 
@@ -43,7 +43,7 @@ def main():
     files_count = len(txt_files)
 
     if "date_time" not in st.session_state:
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time
 
     if "ss_dir_name" not in st.session_state:
