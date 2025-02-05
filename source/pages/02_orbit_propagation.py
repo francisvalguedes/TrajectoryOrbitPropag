@@ -7,7 +7,7 @@ import streamlit as st
 import pandas as pd
 
 import datetime as dt
-from datetime import datetime
+from datetime import datetime, timezone
 from datetime import time
 import time as tm
 
@@ -22,6 +22,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
+from lib.pages_functions import sensor_registration
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -43,33 +44,6 @@ def dellfiles(file):
         except OSError as e:
             err = e.strerror
     return err
-
-def rcs_min(r_min, pt=59.6, gt=42, gr=42, lt=1.5, lr=1.5, f=5700, sr = -143, snr=0 ):
-    """Function that returns the minimum Radar cross section (RCS) for radar detection
-    Creators: Francisval Guedes Soares, Marcos Leal
-    Date: 2023
-    
-    Args:
-    r_min (array[n] - numpy): minimum object-to-radar distance.
-    pt (float in db): radar power
-    gt and gr (float in db): radar transmit and receive gain
-    lt and lr (float in db): radar transmit and receive loss
-    f (float): radar frequency
-    sr (float in db): receiver sensitivity
-    snr (float in db): signal noise ratio
-    Returns:
-    rcs (array[n] - numpy) : Radar cross section (RCS) 
-    """
-    pt_lin = 10**(pt/10)
-    gt_lin = 10**(gt/10)
-    gr_lin = 10**(gr/10)
-    lt_lin = 10**(lt/10)
-    lr_lin = 10**(lr/10)
-    sr_lin = 10**(sr/10)
-    snr_lin = 10**(snr/10)
-    lamb =  (3*10**8)/(f * 10**6)
-    rcs = (((4*np.pi)**3) * sr_lin * lt_lin * lr_lin * np.power(r_min, 4) * snr_lin )/ (pt_lin * gt_lin * gr_lin * lamb**2)
-    return rcs
 
 def columns_first(df, col_first):
     col_list = df.columns.to_list()
@@ -183,7 +157,7 @@ def main():
     files_count = len(txt_files)
 
     if "date_time" not in st.session_state:
-        date_time = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
+        date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time
 
     if "ss_dir_name" not in st.session_state:
@@ -219,31 +193,12 @@ def main():
 
     # Select sensor location or record another location
     help=('Select sensor location or record another location above') 
-    lc_expander = st.sidebar.expander("Add new sensor location in the WGS84", expanded=False)
-    lc_name = lc_expander.text_input('Name',"my location")
-    latitude = lc_expander.number_input('Latitude',-90.0, 90.0, 0.0, format="%.6f")
-    longitude = lc_expander.number_input('longitude', -180.0, 80.0, 0.0, format="%.6f")
-    heigth = lc_expander.number_input('heigth (m)',-1000.0, 2000.0, 0.0, format="%.6f")
-
-    lc_df = st.session_state["lc_df"]  
-
-    if lc_expander.button("Record new location"):
-        lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [heigth] }
-        if lc_name not in lc_df['name'].to_list():
-            if (lc_add['name'][0]) and (bool(re.match('^[A-Za-z0-9_-]*$',lc_add['name'][0]))==True):
-                lc_df = pd.concat([lc_df, pd.DataFrame(lc_add)], axis=0)
-                lc_df.to_csv('data/confLocalWGS84.csv', index=False)
-                st.session_state["lc_df"]=lc_df
-                lc_expander.write('Recorded location')
-            else:
-                lc_expander.write('write a name without special characters')
-        else:
-            lc_expander.write('location already exists')
+    sensor_registration()
     
-    st.sidebar.selectbox("Sensor location in the WGS84:",lc_df['name'], key="choice_lc", help=help)
-    for sel in lc_df['name']:
+    st.sidebar.selectbox("Sensor location in the WGS84:",st.session_state.lc_df['name'], key="choice_lc", help=help)
+    for sel in st.session_state.lc_df['name']:
         if sel==st.session_state["choice_lc"]:
-            lc = lc_df.loc[lc_df['name'] == sel].to_dict('records')[0]
+            lc = st.session_state.lc_df.loc[st.session_state.lc_df['name'] == sel].to_dict('records')[0]
             st.session_state["ss_lc"] = lc
 
     st.write('Sensor location in the WGS84 Geodetic ')
