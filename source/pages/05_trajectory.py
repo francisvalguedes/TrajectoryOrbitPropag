@@ -22,6 +22,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
+from lib.pages_functions import  page_links
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -252,6 +253,7 @@ def main():
     
     if "traj_flag" not in st.session_state:
         st.info('Run propagation for trajectory generation',   icon=cn.INFO)
+        page_links()
         st.stop()      
         
     lc = st.session_state["ss_lc"]
@@ -494,7 +496,10 @@ def main():
                 file_name=FILE_NAME_SEL_CSV,
                 mime="application/txt"
             )
-    # ************************************************************
+    
+    page_links()
+
+
 if __name__== '__main__':
     main()
 

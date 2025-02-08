@@ -21,6 +21,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
+from lib.pages_functions import  page_links
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -118,39 +119,27 @@ def main():
         
     st.subheader('View of the selected trajectory on the map:')
 
+    if "ss_dir_name" not in st.session_state:
+        st.info('Run propagation for visualization',   icon=cn.INFO)
+        st.stop() 
+
     if "ss_result_df" not in st.session_state:
         st.info('Run propagation for visualization',   icon=cn.INFO)
-        st.stop()
-    # elif "ss_lc" not in st.session_state:
-    #     st.info('Load geodetic wgs84 location',   icon=cn.INFO)
-      
-    # st.write('The data summary:')                   
-    st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
-
-    # FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
-
-    # #Mudança feita por André para colorir a linha
-    # df_traj = st.session_state.ss_result_df.style.apply(highlight_rows, axis=1) 
-    # with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
-    #     df_traj.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
-
-    # st.dataframe(df_traj)
-
-    # if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
-    #     st.write('Download highlight File:')
-    #     with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
-    #         btn = st.download_button(
-    #             label="Download",
-    #             data=fp,
-    #             file_name=FILE_NAME_XLSX,
-    #             mime="application/txt"
-    #         )
+        page_links()
+        st.stop()   
 
 # prints a map of the region with the trajectory
     files_map = glob.glob(st.session_state.ss_dir_name + '/csv1Hz/*TU.csv')        
     files_m = []
     for files in files_map:
         files_m.append(files.split('data-')[-1])
+    
+    if len(files_m) == 0:
+        st.warning('no file map', icon=cn.WARNING)
+        page_links()
+        st.stop()
+
+    st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
     choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
@@ -182,6 +171,9 @@ def main():
     st.sidebar.markdown('Thanks')
 
     st.info('To compare the orbital elements trajectories, go to the next page.', icon=cn.INFO)
+
+    page_links()
+
 
 if __name__== '__main__':
     main()

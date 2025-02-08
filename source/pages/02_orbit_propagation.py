@@ -22,7 +22,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
-from lib.pages_functions import sensor_registration
+from lib.pages_functions import sensor_registration, page_links
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -392,6 +392,9 @@ def main():
     st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times 1Hz')
 
     st.info('To analyze the results, go to the next page.', icon=cn.INFO)
+
+    page_links()
+    
 
 if __name__== '__main__':
     main()

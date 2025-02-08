@@ -6,6 +6,7 @@ Date: 2021
 import streamlit as st
 
 from datetime import datetime, timezone
+from lib.pages_functions import  page_links
 
 import shutil
 
@@ -64,18 +65,17 @@ def main():
 
             path_files = tempfile.gettempdir() + '/top_tmp*'
             txt_files = glob.glob(path_files)
-            files_count = len(txt_files) 
-
-        # if os.path.exists(st.session_state.ss_dir_name) == False:
-        #     os.mkdir(st.session_state.ss_dir_name)     
+            files_count = len(txt_files)    
 
     st.title("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO")
     st.subheader('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**')
     st.markdown('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system')
     st.markdown('by: Francisval Guedes Soares, Email: francisvalg@gmail.com')
+    st.markdown('Contributions/suggestions: Felipe Longo, André Henrique, Hareton, Marcos Leal, Leilson')
     
-    # st.write('dir name: ',st.session_state.ss_dir_name)
-    st.write('tmp folder count: ', files_count)
+    page_links()
+    
+    # st.write('tmp folder count: ', files_count)
     # for line in txt_files:
     #     st.markdown(line)    
 

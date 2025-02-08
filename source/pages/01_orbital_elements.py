@@ -18,7 +18,7 @@ from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
 from io import StringIO
 
-from lib.pages_functions import  SpaceTrackClientInit
+from lib.pages_functions import  SpaceTrackClientInit, page_links
 from lib.constants import  ConstantsNamespace
 
 MENU_UPDATE1="Celestrak"
@@ -275,6 +275,8 @@ def main():
         # else:
         #     st.warning('for download orbital elements use space-track',icon=cn.WARNING )
         st.info('For trajectory generation go to the next page', icon=cn.INFO)
+    
+    page_links()
     
 
 if __name__== '__main__':
