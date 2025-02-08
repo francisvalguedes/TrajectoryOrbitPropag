@@ -22,7 +22,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
-from lib.pages_functions import  page_links
+from lib.pages_functions import  *
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -253,8 +253,7 @@ def main():
     
     if "traj_flag" not in st.session_state:
         st.info('Run propagation for trajectory generation',   icon=cn.INFO)
-        page_links()
-        st.stop()      
+        page_stop()      
         
     lc = st.session_state["ss_lc"]
     st.info('Selected Sensor location - propagation page: '+ lc['name'], icon=cn.INFO)
@@ -299,7 +298,7 @@ def main():
 
     if 'ss_df_ed' not in st.session_state:
         st.info('Rum propagation im orbit propagation page', icon= cn.INFO)
-        st.stop()  
+        page_stop()  
 
     st.info('Selected radar setting: ' + radar_sel['name'], icon=cn.INFO)
     st.write('Reload propagation results and calculate RCS_MIN with sidebar selected radar settings:')
@@ -389,10 +388,10 @@ def main():
 
         if len(selected_row.index)>MAX_NUM_OBJ:
             st.info('Maximum number of objects to propagate: ' + str(MAX_NUM_OBJ) ,icon=cn.INFO)
-            st.stop()
+            page_stop()
         elif len(selected_row.index)==0:
             st.info('Select objects to propagate' ,icon=cn.INFO)
-            st.stop()
+            page_stop()
 
         dellfiles(st.session_state.ss_dir_name +"/trn100Hz/*.trn")
 
@@ -466,7 +465,7 @@ def main():
             for col in col_mask_list:
                 if col not in selected_row.columns:
                     st.error('Error: dataframe does not have column:' + col, icon=cn.ERROR )
-                    st.stop()
+                    page_stop()
 
             mask_dic = mask_df.to_dict('records')
             mask_dic = mask_dic[0]
@@ -502,34 +501,3 @@ def main():
 
 if __name__== '__main__':
     main()
-
-
-    # AgGrid
-    # ************************************************************
-    # gb = GridOptionsBuilder.from_dataframe(st.session_state.ss_result_df)
-    # # gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
-    # gb.configure_selection(selection_mode="multiple", use_checkbox=True)
-    # gb.configure_column(st.session_state.ss_result_df.columns[0], headerCheckboxSelection=True)
-    # # gb.configure_side_bar()
-    # gridoptions = gb.build()
-
-    # grid_table = AgGrid(
-    #                     st.session_state.ss_result_df,
-    #                     # height=250,
-    #                     gridOptions=gridoptions,
-    #                     columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS, # SELECTION_CHANGED, MANUAL
-    #                     # enable_enterprise_modules=True,
-    #                     update_mode=GridUpdateMode.GRID_CHANGED,
-    #                     theme='streamlit',
-    #                     editable=True,
-    #                     # data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
-    #                     # fit_columns_on_grid_load=False,
-    #                     # header_checkbox_selection_filtered_only=True,
-    #                   )  
-   
-    # st.subheader('Selected:') 
-
-    # selected_row = grid_table["selected_rows"]
-    # selected_row = pd.DataFrame(selected_row)
-    # st.write('selected lines')
-    # st.dataframe(selected_row.loc[:, selected_row.columns!= '_selectedRowNodeInfo'])

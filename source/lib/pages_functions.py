@@ -124,6 +124,10 @@ def page_links():
                  label="PT-BR: Página simplificada com boa parte das funções do APP", icon= "0️⃣")
     st.page_link("pages/01_orbital_elements.py", label="Obtaining orbital elements of the space object", icon= "1️⃣")
     st.page_link("pages/02_orbit_propagation.py", label="Orbit propagation and trajectory generation", icon= "2️⃣")
-    st.page_link("pages/03_results.py", label="Map view page", icon= "3️⃣")
+    st.page_link("pages/03_map.py", label="Map view page", icon= "3️⃣")
     st.page_link("pages/04_orbit_compare.py", label="Analysis of object orbital change/maneuver", icon= "4️⃣")
     st.page_link("pages/05_trajectory.py", label="Generation of specific trajectories", icon= "5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()

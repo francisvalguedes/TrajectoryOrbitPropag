@@ -10,7 +10,7 @@ import os
 from astropy import units as u
 
 from lib.orbit_functions import  PropagInit
-from lib.pages_functions import  SpaceTrackClientInit, page_links
+from lib.pages_functions import  *
 from lib.constants import  ConstantsNamespace
 
 import datetime as dt
@@ -104,8 +104,7 @@ def main():
             st.info('Norad list loaded from last orbital propagation results', icon=cn.INFO)
         else: 
             st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
-            page_links()
-            st.stop()
+            page_stop()
 
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
 
@@ -134,16 +133,14 @@ def main():
             st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
             st.success('Norad list loaded from last orbital propagation results', icon=cn.SUCCESS)
         else: 
-            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
-            page_links()
-            st.stop()
+            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)            
+            page_stop()
 
         norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
 
     if "ss_elem_df" not in st.session_state:
-        st.info('Upload the orbital elements with two or more sets of orbital elements', icon=cn.INFO) 
-        page_links()
-        st.stop()
+        st.info('Upload the orbital elements with two or more sets of orbital elements', icon=cn.INFO)         
+        page_stop()
     else: 
         df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(st.session_state.ss_norad_comp['NORAD_CAT_ID'].tolist())]       
         df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
@@ -153,9 +150,8 @@ def main():
             st.info('Insufficient orbital element data, download above by choosing option ' + MENU_UPDATE +\
                     ' or from orbital elements page on this site by custom list from NORAD, or from\
                     Space-Track site, by epoch: more than two days, so as to get more than two sets\
-                    of orbital elements per object', icon=cn.INFO)
-            page_links()
-            st.stop()
+                    of orbital elements per object', icon=cn.INFO)            
+            page_stop()
         else:
             st.success('Enough orbital elements to perform comparison already loaded ', icon= cn.SUCCESS)
             if min(df_oe_group) <2:
@@ -224,7 +220,7 @@ def main():
 
     if "df_orb" not in st.session_state:
         st.info('run compare', icon=cn.INFO)
-        st.stop()
+        page_stop()
 
     st.dataframe(st.session_state.df_orb.style.format(thousands=""))
     st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", index=False)
