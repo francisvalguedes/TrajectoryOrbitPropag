@@ -21,7 +21,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
-from lib.pages_functions import  page_links
+from lib.pages_functions import *
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -120,13 +120,12 @@ def main():
     st.subheader('View of the selected trajectory on the map:')
 
     if "ss_dir_name" not in st.session_state:
-        st.info('Run propagation for visualization',   icon=cn.INFO)
-        st.stop() 
+        st.warning('Run propagation for visualization',   icon=cn.WARNING)
+        page_stop() 
 
     if "ss_result_df" not in st.session_state:
-        st.info('Run propagation for visualization',   icon=cn.INFO)
-        page_links()
-        st.stop()   
+        st.warning('Run propagation for visualization',   icon=cn.WARNING)
+        page_stop()
 
 # prints a map of the region with the trajectory
     files_map = glob.glob(st.session_state.ss_dir_name + '/csv1Hz/*TU.csv')        
@@ -136,8 +135,7 @@ def main():
     
     if len(files_m) == 0:
         st.warning('no file map', icon=cn.WARNING)
-        page_links()
-        st.stop()
+        page_stop()
 
     st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
