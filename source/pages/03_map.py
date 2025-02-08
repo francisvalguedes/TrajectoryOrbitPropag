@@ -110,11 +110,7 @@ def main():
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
     initial_sidebar_state="expanded",
-    # menu_items={
-    #     'Get Help': 'https://www.sitelink.com',
-    #     'Report a bug': "https://www.sitelink.com",
-    #     'About': "# A cool app"
-    # }
+    menu_items = menu_itens()
     )
         
     st.subheader('View of the selected trajectory on the map:')
@@ -142,7 +138,8 @@ def main():
     choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
     df_data = pd.read_csv(st.session_state.ss_dir_name + '/csv1Hz/data-' + choice_file_map,
-                    usecols= ['lat', 'lon', 'ELEVATION'])
+                    #usecols= ['lat', 'lon', 'ELEVATION']
+                    )
 
     dmax = st.session_state.d_max
     # idx = np.arange(0, len(df_data.index), +2)
@@ -163,8 +160,12 @@ def main():
                         st.session_state["ss_lc"]['height'])
     df = pd.concat([df, dfn], axis=0) 
         
-    st.write('The map:') 
+    st.write('Streamlit map:') 
     st.map(df)
+
+    st.write('Folium map:') 
+    plot_map(df_data, st.session_state["ss_lc"])
+
     st.sidebar.markdown('The map can be seen on the right')
     st.sidebar.markdown('Thanks')
 

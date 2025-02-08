@@ -22,7 +22,7 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
-from lib.pages_functions import sensor_registration, page_links
+from lib.pages_functions import *
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -86,11 +86,15 @@ class SummarizeDataFiles:
             df_enu.to_csv(dir_name +"/trj1Hz/pobj-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.trj", sep=' ',
                             index=False, header=[ '1', str(len(df_enu.index)-1),'1'],float_format="%.3f")
 
-            df_data = pd.DataFrame(np.concatenate((
-                            time_arr.value.reshape(len(time_arr),1), pos.enu[i], pos.az_el_r[i],
-                            pos.itrs[i], pos.geodetic[i]), axis=1), columns=[ 'Time',
-                            'ENU_E','ENU_N','ENU_U', 'AZIMUTH','ELEVATION','RANGE',
-                            'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','HEIGHT'])
+            df_data = pd.DataFrame(time_arr.value.reshape(len(time_arr),1), columns=['Time'])
+
+            df_data = pd.concat([df_data, pd.DataFrame(np.concatenate((
+                            pos.az_el_r[i], pos.enu[i], 
+                            pos.itrs[i], pos.geodetic[i]), axis=1),
+                            columns=[ 'AZIMUTH','ELEVATION','RANGE',
+                            'ENU_E','ENU_N','ENU_U', 
+                            'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','height'])], axis=1)
+            
             df_data.to_csv(dir_name + "/csv1Hz/data-" + str(pos.satellite.satnum) + "-" + ttxt + "TU.csv", index=False)
 
             enu_d = 0.001*pos.az_el_r[i][:,2]
@@ -139,11 +143,7 @@ def main():
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
     initial_sidebar_state="expanded",
-    # menu_items={
-    #     'Get Help': 'https://www.sitelink.com',
-    #     'Report a bug': "https://www.sitelink.com",
-    #     'About': "# A cool app"
-    # }
+    menu_items = menu_itens()
     )
 
     if "stc_loged" not in st.session_state:
@@ -177,7 +177,7 @@ def main():
     st.subheader("*Orbital elements:*")
 
     if "ss_elem_df" not in st.session_state:
-        st.info('Upload the orbital elements in previos page', icon=cn.INFO)        
+        st.warning('Upload the orbital elements in previos page', icon=cn.WARNING)        
     else:
         st.success('Orbital Elements loaded!', icon=cn.SUCCESS )
 
@@ -203,9 +203,6 @@ def main():
 
     st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Name: ', lc['name'])
-    # st.write('Latitude: ', lc['lat'])
-    # st.write('Longitude: ', lc['lon'] )
-    # st.write('Height: ', lc['height'])
 
     dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
         min_value = 400,
@@ -287,7 +284,6 @@ def main():
             del elem_df
 
             orbital_elem = orbital_elem.to_dict('records')
-            #orbital_elem = st.session_state["ss_elem_df"].to_dict('records')
 
             rcs = pd.read_csv('data/RCS.csv').to_dict('list')        
 
@@ -327,8 +323,6 @@ def main():
                     st.stop()
 
                 df_traj = df_traj.join(df_orb)
-
-                # df_traj['RCS_MIN'] = rcs_min(1000*df_traj['MIN_RANGE'])
 
                 col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_SIZE']
                 df_traj = columns_first(df_traj, col_first )

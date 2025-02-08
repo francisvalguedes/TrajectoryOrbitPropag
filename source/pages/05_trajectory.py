@@ -45,19 +45,7 @@ FILE_NAME_SEL_CSV = 'selected.csv'
 def df_atrib(df):
     return df.copy(deep=True)
 
-def save_selected_data(sel_data):
-    
-    # to_tound = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE','END_RANGE']
-    # for col in to_tound:        
-    #     if not isinstance(mask,int):
-    #         if mask[col] in sel_data.columns:                     
-    #             sel_data = sel_data.round({mask[col]:3}) #, mask['RCS_MIN']:3, mask['H0_RANGE']:3, mask['MIN_RANGE']:3,mask['END_RANGE']:3})
-    #     else:
-    #         if col in sel_data.columns:
-    #             sel_data = sel_data.round({col:3}) #{'RCS':3, 'RCS_MIN':3, 'H0_RANGE':3, 'MIN_RANGE':3,'END_RANGE':3})
-
-    # if 'EPOCH' in sel_data.columns:
-    #     sel_data.loc[:,'EPOCH'] = sel_data.loc[:,'EPOCH'].str.slice(8,16)
+def save_selected_data(sel_data):   
 
     sel_data.to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV,
                                 index=False)
@@ -184,11 +172,7 @@ def main():
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
     initial_sidebar_state="expanded",
-    # menu_items={
-    #     'Get Help': 'https://www.sitelink.com',
-    #     'Report a bug': "https://www.sitelink.com",
-    #     'About': "# A cool app"
-    # }
+    menu_items = menu_itens()
     )
 
     if "date_time" not in st.session_state:

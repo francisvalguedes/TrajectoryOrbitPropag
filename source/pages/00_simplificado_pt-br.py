@@ -18,111 +18,14 @@ import numpy as np
 
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
-from lib.pages_functions import  page_links
+from lib.pages_functions import *
 
 from streamlit_geolocation import streamlit_geolocation
 
 import pymap3d as pm
 
-cn = ConstantsNamespace()
-
-import pandas as pd
-import folium
-
-from folium import plugins
-import streamlit as st
-from lib.constants import  ConstantsNamespace
 
 cn = ConstantsNamespace()
-
-def data_map_concat(df_p , df_s, df_s1 = pd.DataFrame()):
-    if 'name' in df_p.columns: # Forçar a coluna 'name' a ser do tipo string         
-        df_p['name'] = df_p['name'].astype(str)
-
-    # Defina o tamanho máximo de pontos para a plotagem
-    max_points = 20
-    interval = max(len(df_p) // max_points, 1)
-
-    # Se o número de pontos for maior que o limite, reamostrar
-    if len(df_p) > max_points:
-        # Sempre incluir o primeiro e o último ponto 
-        first_point = df_p.iloc[0] 
-        last_point = df_p.iloc[-1]
-        df_p = df_p.iloc[::interval]
-        df_p = pd.concat([pd.DataFrame([first_point]), df_p, pd.DataFrame([last_point])])
-        #st.info('Muitos dados para o mapa, selecionados o primeiro, o ultimo e mais ' + str(max_points) + ' pontos intermediários da série de dados', icon=cn.WARNING )
-
-    df_s['sensor'] = 1
-    if len(df_s1.index>0):
-        df_s1['sensor'] = 1
-    df = pd.concat([df_p, df_s, df_s1], axis=0).reset_index(drop=True)
-    return df
-
-# https://bikeshbade.com.np/tutorials/Detail/?title=Beginner+guide+to+python+Folium+module+to+integrate+google+earth+engine&code=8
-def create_map2(df):
-    mapa = folium.Map(location=[df['lat'].mean(), df['lon'].mean()], zoom_start=6)
-    # https://leaflet-extras.github.io/leaflet-providers/preview/
-    # https://maps.stamen.com/terrain/#10/-5.92375/-35.16127
-    # ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'lightblue', 'gray', 'black', 'lightgray']
-
-    # Adiciona marcadores como um grupo de camada
-    camada_marcadores = folium.FeatureGroup(name="Marcadores", show=True)
-
-    for  _, row in df.iterrows():
-        #icon = folium.Icon( color=row.get('color', "red") ) 
-        if row['tipo']==0: icon_path = icon_sensor 
-        elif row['tipo']==1: icon_path = icon_sat_tj 
-        elif row['tipo']==2: icon_path = icon_sat_end
-
-        icon = folium.features.CustomIcon(icon_path, icon_size=(20, 20))
-        popup = folium.Popup(row.get('name', ''), show=False, sticky=True)  # , sticky=True Popup exibido automaticamente
-        folium.Marker(
-            location=[row['lat'], row['lon']],
-            popup=popup,
-            tooltip=f"Azimute: {row['AZIMUTH']:.3f}°, Elevação: {row['ELEVATION']:.3f}°, Distância: {row['RANGE']:.3f} m",
-            #tooltip=f"lat: {row['lat']:.5f}°, lon: {row['lon']:.5f}°, h: {row['height']:.2f} m",
-            #'AZIMUTH','ELEVATION','RANGE'
-            icon=icon,
-        ).add_to(camada_marcadores)
-
-    camada_marcadores.add_to(mapa)
-
-    # Adiciona uma linha como um grupo de camada
-    camada_linhas = folium.FeatureGroup(name="Linhas", show=True)
-
-    df2 = df[df['sensor']!=1]
-    linha = df2[['lat', 'lon']].values.tolist()
-
-    folium.PolyLine(linha, color="blue", weight=2.5, opacity=1).add_to(camada_linhas)
-    camada_linhas.add_to(mapa)
-
-    # Adiciona controle de camadas
-    folium.LayerControl().add_to(mapa)
-
-    #mouse position
-    fmtr = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
-    plugins.MousePosition(position='bottomright',
-                        separator=' | ',
-                        prefix="Mouse:",
-                        lat_formatter=fmtr,
-                        lng_formatter=fmtr).add_to(mapa)
-
-    #Add measure tool
-    mapa.add_child(plugins.MeasureControl(position='bottomright',
-                                        primary_length_unit='meters',
-                                        secondary_length_unit='miles',
-                                        primary_area_unit='sqmeters',
-                                        secondary_area_unit='acres').add_to(mapa))
-
-    #fullscreen
-    plugins.Fullscreen().add_to(mapa)
-
-    #GPS
-    plugins.LocateControl().add_to(mapa)
-
-    #Add the draw 
-    plugins.Draw(export=True, filename='data.geojson', position='topleft', draw_options=None, edit_options=None).add_to(mapa)  
-    return mapa
 
 
 def columns_first(df, col_first):
@@ -137,7 +40,7 @@ def columns_first(df, col_first):
 # ----------------------------------------------------------------------
 # Salva as trajetórias
 # ----------------------------------------------------------------------
-class SummarizeDataFiles:
+class Summarize2DataFiles:
     def __init__(self):
         """initialize the class"""     
         self.tr_data = []   
@@ -259,41 +162,24 @@ def data_input_geodesicas():
     height = col3.number_input('Altitude (m)', -1000000.0, 50000000.0, h, format="%.2f", key='Altura')
     return pd.DataFrame({"name": ['Manual'], "lat": [latitude], "lon": [longitude], "height": [height]})
           
-def plot_map(df, lc):
-    lcdf = pd.DataFrame.from_dict([lc])    
-    lcdf['tipo'] = 0
-    lcdf['name'] = 'Meu Local'
-    df['tipo'] = 1
-    df.at[df.index[-1], 'tipo'] = 2
-    df['name'] = df['Time']
-
-    df_map  = data_map_concat(df, lcdf )
-    mapa = create_map2(df_map)
-    st.components.v1.html(folium.Figure().add_child(mapa).render(), height=600)
 
 # constantes
 Celestrak="Celestrak"
 oe_file ="Arquivo de elementos orbitais"
 menuUpdate = [Celestrak, oe_file]
 
-sample_time = 1.0 # tempo de amostragem da trajetória    
+sample_time = 5.0 # tempo de amostragem da trajetória    
 dmax = 900 # distancia de aproximação para busca    
 dmin = 800 # distancia de aproximação para salvar a trajetória
 max_num_obj = 1000 # numero máximo de objetos
-
-# https://iconscout.com/icons/satellite
-icon_sat_tj = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite.svg"
-# https://iconduck.com/icons/271693/satellite#
-icon_sat_end = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite_duck.svg"
-#https://iconduck.com/icons/9737/satellite-radar#
-icon_sensor = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite-radar.svg"
 
 
 def main():
     """main function that provides the simplified interface for configuration,
          visualization and data download. """  
 
-    st.set_page_config(page_title="Configuração simplificada para propagação de órbita", page_icon="🌏", layout="wide" )
+    st.set_page_config(page_title="Configuração simplificada para propagação de órbita",
+                       page_icon="🌏", layout="wide", menu_items = menu_itens() )
 
     st.subheader('Configuração simplificada para propagação de órbita e obtensão de trajetória de aproximação ao ponto de referência (sensor):')
     
@@ -344,7 +230,7 @@ def main():
         st.write('Barra de progresso:')
         my_bar = st.progress(0)
 
-        sdf = SummarizeDataFiles()
+        sdf = Summarize2DataFiles()
 
         # automatico:                          
         for index in range(len(orbital_elem)):

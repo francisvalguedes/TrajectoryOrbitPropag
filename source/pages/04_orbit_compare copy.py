@@ -18,7 +18,6 @@ from datetime import datetime, timezone
 
 import streamlit as st
 import tempfile
-import plotly.express as px
 
 # Constants
 err_max = 3000 # m
@@ -27,23 +26,6 @@ MENU_NUPDATE = "Space-Track already loaded in orbital elements page"
 menu_update = [ MENU_NUPDATE, MENU_UPDATE]
 
 cn = ConstantsNamespace()
-
-
-def plot_compare(df):
-    # Seleção de NORAD_CAT_ID
-    selected_norad = st.selectbox("Select the NORAD_CAT_ID", df["NORAD_CAT_ID"].unique())
-    # Filtrando os dados
-    filtered_df = df[df["NORAD_CAT_ID"] == selected_norad]
-    # Criando o eixo x como um array de índices negativos
-    filtered_df = filtered_df.sort_values(by="EPOCH")
-    n = len(filtered_df)
-    filtered_df["x_axis"] = np.arange(-n + 1, 1)
-
-    # Criando o gráfico
-    fig = px.line(filtered_df, x="x_axis", y="D_ERR_MAX", title=f"Error over last orbital elements for NORAD_CAT_ID {selected_norad}",
-                markers=True, labels={"D_ERR_MAX": "Erro Máximo(m)", "x_axis": "Índice relativo"})
-
-    st.plotly_chart(fig)
 
 def main():
     st.set_page_config(
@@ -77,24 +59,92 @@ def main():
     st.title('Orbit trajetory compare')
     st.markdown('Use the orbital elements loaded on previous pages or update from space track')
 
-# #################################################################
-    if 'ss_result_df' in st.session_state:                
-        norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-        st.success('Norads loaded from last orbital propagation results', icon=cn.SUCCESS)
-    else:
-        st.info('Run Orbit propagation', icon=cn.INFO)            
-        page_stop()
+    help='Choice'
 
-    norad_comp_list =norad_comp.to_dict('list')['NORAD_CAT_ID']
+    st.selectbox("Choice of orbital elements dataset:",menu_update, key="choice_update_comp", help=help)
+
+# menu to configure and update orbital elements based on a loaded list of NORAD_CAT_ID
+
+    if st.session_state["choice_update_comp"] == MENU_UPDATE:
+        if not st.session_state.stc_loged:
+            st.info('Necessary login Space-Track',   icon= cn.INFO)
+            
+            link = '[See the link of Space-Track API](https://www.space-track.org/documentation#/api)'
+            st.markdown(link, unsafe_allow_html=True)
+            # Form to Space-Track loguin 
+            form = st.form("my_form")
+            stc_log = form.text_input('User name Space-Track:')    
+            stc_ss = form.text_input('Space-Track password:',type="password") 
+            fcol1, fcol2 = form.columns(2)
+            submitted = fcol1.form_submit_button("Submit")
+            if submitted:
+                st.session_state.stc = SpaceTrackClientInit(stc_log, stc_ss)
+                st.session_state.stc_loged = st.session_state.stc.ss()
+        
+        if st.session_state.stc_loged:
+            st.success('Space-Track logged', icon=cn.SUCCESS)
+        else: st.warning("Status: Space-Track Unlogged",icon=cn.WARNING)
+
+        norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT ID",type=['csv'])
+        #if st.button("Upload NORAD_CAT_ID file"):
+        if norad_file is not None:
+            st.write("File details:")
+            file_details = {"Filename":norad_file.name,"FileType":norad_file.type,"FileSize":norad_file.size}
+            st.write(file_details)
+            if norad_file.type == "text/csv":
+                st.session_state.ss_norad_comp = pd.read_csv(norad_file).drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+                st.dataframe(st.session_state.ss_norad_comp)
+
+        elif 'ss_result_df' in st.session_state:                
+            st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.info('Norad list loaded from last orbital propagation results', icon=cn.INFO)
+        else: 
+            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)
+            page_stop()
+
+        norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
+
+        update_compare_oe_bt = st.button("Orbital elements update to compare")
+        if update_compare_oe_bt:
+
+            # elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
+            
+            st.session_state.ss_elem_df,_ = st.session_state.stc.get_by_norad(norad_comp_list) #pd.read_csv(StringIO(elements_csv), sep=",")
+            print('type(st.session_state.ss_elem_df)')
+            print(type(st.session_state.ss_elem_df))
+            st.dataframe(st.session_state.ss_elem_df)
+            st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)   
+
+
+    if st.session_state["choice_update_comp"] == MENU_NUPDATE: 
+        norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT_ID",type=['csv'])
+        if norad_file is not None:
+            st.write("File details:")
+            file_details = {"Filename":norad_file.name,"FileType":norad_file.type,"FileSize":norad_file.size}
+            st.write(file_details)
+            if norad_file.type == "text/csv":
+                st.session_state.ss_norad_comp = pd.read_csv(norad_file)
+                st.dataframe(st.session_state.ss_norad_comp)
+                st.success('Norad list loaded manually', icon=cn.SUCCESS)
+
+        elif 'ss_result_df' in st.session_state:                
+            st.session_state.ss_norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.success('Norad list loaded from last orbital propagation results', icon=cn.SUCCESS)
+        else: 
+            st.info('Load NORAD_CAT_ID file csv or run propagation', icon=cn.INFO)            
+            page_stop()
+
+        norad_comp_list = st.session_state.ss_norad_comp.to_dict('list')['NORAD_CAT_ID']
 
     if "ss_elem_df" not in st.session_state:
-        st.info('Upload the orbital elements with two or more sets of orbital elements na página específica', icon=cn.INFO)         
+        st.info('Upload the orbital elements with two or more sets of orbital elements', icon=cn.INFO)         
         page_stop()
     else: 
-        df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(norad_comp['NORAD_CAT_ID'].tolist())]       
+        df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(st.session_state.ss_norad_comp['NORAD_CAT_ID'].tolist())]       
         df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
         # print(max(df_oe_group))
-
+        print('pane')
+        print(df_oe_group)
         if max(df_oe_group) <2:
             st.info('Insufficient orbital element data, download above by choosing option ' + MENU_UPDATE +\
                     ' or from orbital elements page on this site by custom list from NORAD, or from\
@@ -171,22 +221,18 @@ def main():
         st.info('run compare', icon=cn.INFO)
         page_stop()
 
-    st.dataframe(st.session_state.df_orb)    
-
+    st.dataframe(st.session_state.df_orb)
     st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", index=False)
 
-    # st.write('Files can be downloaded:')
-    # with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", "rb") as fp:
-    #     btn = st.download_button(
-    #         label="Download",
-    #         data=fp,
-    #         file_name="orbital_elem_compare.csv",
-    #         mime="application/txt"
-    #     )
+    st.write('Files can be downloaded:')
+    with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", "rb") as fp:
+        btn = st.download_button(
+            label="Download",
+            data=fp,
+            file_name="orbital_elem_compare.csv",
+            mime="application/txt"
+        )
 
-    st.markdown("Data visualization:")
-
-    plot_compare(st.session_state.df_orb)
 
     page_links()
 
