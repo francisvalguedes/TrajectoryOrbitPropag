@@ -41,7 +41,7 @@ def dell_elem_df():
 def get_orbital_element():
     """Streamlite interface to choose a way to get the orbital elements """
     # Seleção do modo de atualização dos elementos orbitais  
-    st.sidebar.subheader("Orbital elements:")
+    st.subheader("Orbital elements:")
     st.subheader("*Orbital elements:*")
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
@@ -49,14 +49,14 @@ def get_orbital_element():
 
     # if "choiceUpdate" not in st.session_state:
     #     st.session_state.choiceUpdate = celestrak
-    st.sidebar.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help, on_change=dell_elem_df)  
+    st.selectbox("Source of orbital elements:",menuUpdate, key="choiceUpdate", help=help, on_change=dell_elem_df)  
 
     if st.session_state["choiceUpdate"] == celestrak:
-        norad_id = st.sidebar.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
+        norad_id = st.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
 
         current_day = datetime.now(timezone.utc).strftime('%Y_%m_%d_')
         celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
-        if st.sidebar.button('Get orbital element'):
+        if st.button('Get orbital element'):
             if not os.path.exists(celet_fil_n):                
                 urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
                 try:
@@ -84,7 +84,7 @@ def get_orbital_element():
         link = '[See the link of Space-Track API](https://www.space-track.org/documentation#/api)'
         st.markdown(link, unsafe_allow_html=True)
         # Form to Space-Track loguin 
-        form = st.sidebar.form("my_form")
+        form = st.form("my_form")
         form.write("Não utilize a mesma senha do Space-Track API em outros serviços online, o APP carece de uma análise de segurança da informação. Utilize por sua conta e risco.")
         form.write("Do not use the same Space-Track API password in other online services, the APP still requires an information security analysis. Use at your own risk.")
         stc_log = form.text_input('User name Space-Track:')    
@@ -111,16 +111,16 @@ def get_orbital_element():
 
         # if "choice_stc" not in st.session_state:
         #     st.session_state.choice_stc = local_norad_list
-        st.sidebar.selectbox("Choice of orbital elements dataset:",menu_stc, key="choice_stc", help=help_stc)
+        st.selectbox("Choice of orbital elements dataset:",menu_stc, key="choice_stc", help=help_stc)
                 
         if st.session_state["choice_stc"] == upload_norad_list:            
             st.write("Personalized NORAD_CAT_ID file")
             help='Text file with .csv extension with a column with the header "NORAD_CAT_ID" and lines NORAD_CAT_ID numbers'
-            data_norad = st.sidebar.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
-            st.sidebar.markdown('Select the epoch range (less than 10 days)')
+            data_norad = st.file_uploader("Upload personalized NORAD_CAT_ID list file:", type=['csv'], help=help)
+            st.markdown('Select the epoch range (less than 10 days)')
 
         if (st.session_state["choice_stc"] == upload_norad_list) or (st.session_state["choice_stc"] == local_norad_list): 
-            oe_col1, oe_col2 = st.sidebar.columns(2)
+            oe_col1, oe_col2 = st.columns(2)
             oe_epoch_init = oe_col1.date_input("Epoch start",value=datetime.now(timezone.utc) - dt.timedelta(days=4))
             oe_epoch_end = oe_col2.date_input("Epoch end (now+1day)", value=datetime.now(timezone.utc) + dt.timedelta(days=1))
             if  (oe_epoch_end - oe_epoch_init) < dt.timedelta(days=0.01):
@@ -130,7 +130,7 @@ def get_orbital_element():
                 st.error('Epoch interval must be less than 10 days', icon=cn.ERROR)
                 st.stop()
 
-        get_oe_bt = st.sidebar.button("Get Orbital Elements")
+        get_oe_bt = st.button("Get Orbital Elements")
         if get_oe_bt and st.session_state.stc_loged:
             if st.session_state["choice_stc"] == local_norad_list:
                 st.write("App's list +200 LEO NORAD_CAT_ID") 
@@ -182,8 +182,8 @@ def get_orbital_element():
             st.info('log in to Space-Track to continue', icon=cn.INFO)
 
     elif st.session_state["choiceUpdate"] == upload_oe_file:
-        data_elements = st.sidebar.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
-        if st.sidebar.button("Upload orbital elements"):
+        data_elements = st.file_uploader("Upload orbital elements Json/csv",type=['csv','json'])
+        if st.button("Upload orbital elements"):
             if data_elements is not None:
                 st.write("File details:")
                 file_details = {"Filename":data_elements.name,"FileType":data_elements.type,"FileSize":data_elements.size}
