@@ -112,6 +112,8 @@ def main():
     initial_sidebar_state="expanded",
     menu_items = menu_itens()
     )
+
+    page_links(insidebar=True)
         
     st.subheader('View of the selected trajectory on the map:')
 

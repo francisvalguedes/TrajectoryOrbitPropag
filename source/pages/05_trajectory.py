@@ -175,6 +175,9 @@ def main():
     menu_items = menu_itens()
     )
 
+    page_links(insidebar=True)
+
+
     if "date_time" not in st.session_state:
         date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         st.session_state.date_time = date_time

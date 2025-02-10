@@ -184,6 +184,9 @@ def main():
                        initial_sidebar_state="auto",
                        menu_items = menu_itens() 
                        )
+    
+    
+    page_links(insidebar=True)
 
     st.subheader('Configuração simplificada para propagação de órbita e obtensão de trajetória de aproximação ao ponto de referência (sensor):')
     

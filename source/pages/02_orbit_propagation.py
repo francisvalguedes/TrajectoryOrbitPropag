@@ -146,6 +146,8 @@ def main():
     menu_items = menu_itens()
     )
 
+    page_links(insidebar=True)
+
     if "stc_loged" not in st.session_state:
         st.session_state.stc_loged = False
     
