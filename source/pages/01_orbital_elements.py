@@ -207,8 +207,10 @@ def main():
     menu_items = menu_itens()
     )
 
-    st.title("Get the orbital elements of the satellite")
-    st.subheader('**Get satellite orbital elements: Celestrack - individually, or Space-track - allows multiple.**')
+    page_links(insidebar=True)
+
+    st.subheader(_("Get the orbital elements of the satellite"))
+    st.markdown(_('Get satellite orbital elements: Celestrack - individually, or Space-track - allows multiple.'))
 
     if "date_time" not in st.session_state:
         date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
