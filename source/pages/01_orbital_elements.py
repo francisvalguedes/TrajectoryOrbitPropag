@@ -202,7 +202,8 @@ def main():
     page_icon="🌏", # "🤖",  # "🧊",
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
-    initial_sidebar_state="expanded",
+    #initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
     menu_items = menu_itens()
     )
 
