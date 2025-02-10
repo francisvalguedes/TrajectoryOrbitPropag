@@ -179,7 +179,11 @@ def main():
          visualization and data download. """  
 
     st.set_page_config(page_title="Configuração simplificada para propagação de órbita",
-                       page_icon="🌏", layout="wide", menu_items = menu_itens() )
+                       page_icon="🌏",
+                       layout="wide",
+                       initial_sidebar_state="auto",
+                       menu_items = menu_itens() 
+                       )
 
     st.subheader('Configuração simplificada para propagação de órbita e obtensão de trajetória de aproximação ao ponto de referência (sensor):')
     
@@ -201,7 +205,7 @@ def main():
     # Período para busca de trajetórias
     initial_datetime, final_datetime = get_date_time()
      
-    st.subheader("Obter dados de aproximação e Calcular trajetórias:")
+    st.subheader("*Obter dados de aproximação e Calcular trajetórias:")
     
     if st.button("Executar propagação"):
         if "ss_elem_df" not in st.session_state:

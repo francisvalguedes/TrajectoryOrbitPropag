@@ -134,17 +134,19 @@ def sensor_registration():
 
 
 
-def page_links():
-    st.markdown("Page with simplified configuration - Português:")
-    st.page_link("pages/00_simplificado_pt-br.py",
-                 label="PT-BR: Configuração simplificada com parte das funções do APP", icon= "0️⃣")
-    
-    st.markdown("Page with specific settings - English):")
-    st.page_link("pages/01_orbital_elements.py", label="Obtaining orbital elements of the space object", icon= "1️⃣")
-    st.page_link("pages/02_orbit_propagation.py", label="Orbit propagation and trajectory generation", icon= "2️⃣")
-    st.page_link("pages/03_map.py", label="Map view page", icon= "3️⃣")
-    st.page_link("pages/04_orbit_compare.py", label="Analysis of object orbital change/maneuver", icon= "4️⃣")
-    st.page_link("pages/05_trajectory.py", label="Generation of specific trajectories", icon= "5️⃣")
+def page_links(insidebar=False):
+    if insidebar: stlocal = st.sidebar
+    else: stlocal = st
+    stlocal.markdown("Pages:")
+    stlocal.page_link("main.py", label="Home page", icon="🏠")
+    # stlocalmarkdown("Simplified Page:")
+    stlocal.page_link("pages/00_Simplified.py", label="Simplified setup with some of the APP functions", icon= "0️⃣")
+    stlocal.markdown("Pages with specific settings:")
+    stlocal.page_link("pages/01_orbital_elements.py", label="Obtaining orbital elements of the space object", icon= "1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label="Orbit propagation and trajectory generation", icon= "2️⃣")
+    stlocal.page_link("pages/03_map.py", label="Map view page", icon= "3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label="Analysis of object orbital change/maneuver", icon= "4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label="Generation of specific trajectories", icon= "5️⃣")
 
 def page_stop():
     page_links()
