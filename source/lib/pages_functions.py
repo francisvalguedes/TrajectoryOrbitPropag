@@ -208,6 +208,23 @@ def create_map2(df):
     # https://leaflet-extras.github.io/leaflet-providers/preview/
     # https://maps.stamen.com/terrain/#10/-5.92375/-35.16127
     # ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'darkred', 'lightred', 'beige', 'darkblue', 'darkgreen', 'cadetblue', 'lightblue', 'gray', 'black', 'lightgray']
+    
+    # Adiciona camadas de terreno com atribuições (usando `attr`)
+
+    # folium.TileLayer(
+    #         tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    #         attr = 'Esri',
+    #         name = 'Esri Satellite',
+    #         # overlay = True,
+    #         # control = True,
+    #         max_zoom=20,
+    #     ).add_to(mapa)
+
+    # folium.TileLayer(
+    #     tiles="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    #     name="OpenStreetMap",
+    #     attr="&copy; OpenStreetMap contributors"
+    # ).add_to(mapa) 
 
     # Adiciona marcadores como um grupo de camada
     camada_marcadores = folium.FeatureGroup(name="Marcadores", show=True)
