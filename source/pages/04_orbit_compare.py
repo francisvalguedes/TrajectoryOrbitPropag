@@ -29,11 +29,44 @@ menu_update = [ MENU_NUPDATE, MENU_UPDATE]
 cn = ConstantsNamespace()
 
 
+
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
+    
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()
+
+def menu_itens():
+    menu_items={
+        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
+        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
+    }
+    return menu_items
+
+
 def plot_compare(df):
     # Seleção de NORAD_CAT_ID
-    selected_norad = st.selectbox("Select the NORAD_CAT_ID", df["NORAD_CAT_ID"].unique())
+    col1, col2 = st.columns(2)
+    selected_norad = col1.selectbox("Select the NORAD_CAT_ID", df["NORAD_CAT_ID"].unique())
     # Filtrando os dados
     filtered_df = df[df["NORAD_CAT_ID"] == selected_norad]
+
+    col2.dataframe(filtered_df.get(["NORAD_CAT_ID", "OBJECT_NAME"], default=None).head(1))
     # Criando o eixo x como um array de índices negativos
     filtered_df = filtered_df.sort_values(by="EPOCH")
     n = len(filtered_df)
@@ -76,15 +109,25 @@ def main():
         lc = lc_df.iloc[0].to_dict()
         st.session_state["ss_lc"] = lc
 
-    st.title('Orbit trajetory compare')
-    st.markdown('Use the orbital elements loaded on previous pages or update from space track')
+    st.subheader('Orbit Trajetory Compare')
+    st.markdown('Use the orbital elements loaded on page 01 - Orbital Elements')
+
+    url = 'https://www.space-track.org/basicspacedata/query/class/gp_history/NORAD_CAT_ID/25544,53323/EPOCH/2024-07-02--2024-07-09/orderby/NORAD_CAT_ID%20desc/format/csv'
+    st.write('Obtain the orbital elements from the Space-Track\
+            website or API more than two sets of orbital elements per\
+            object and upload to page 01 - Orbital Elements, which also\
+            has a tool for accessing the API.')
+    
+    st.write("Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)" % url)
+
 
 # #################################################################
     if 'ss_result_df' in st.session_state:                
-        norad_comp  = st.session_state.ss_result_df[['NORAD_CAT_ID', 'OBJECT_NAME']].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+        norad_comp  = st.session_state.ss_result_df.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
         st.success('Norads loaded from last orbital propagation results', icon=cn.SUCCESS)
     else:
-        st.info('Run Orbit propagation', icon=cn.INFO)            
+        st.info('Run Orbit propagation',icon=cn.INFO) 
+        st.write('é isso')           
         page_stop()
 
     norad_comp_list =norad_comp.to_dict('list')['NORAD_CAT_ID']
@@ -92,22 +135,25 @@ def main():
     if "ss_elem_df" not in st.session_state:
         st.info('Upload the orbital elements with two or more sets of orbital elements na página específica', icon=cn.INFO)         
         page_stop()
-    else: 
+    else:
         df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(norad_comp['NORAD_CAT_ID'].tolist())]       
         df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
-        # print(max(df_oe_group))
 
-        if max(df_oe_group) <2:
-            st.info('Insufficient orbital element data, download above by choosing option ' + MENU_UPDATE +\
-                    ' or from orbital elements page on this site by custom list from NORAD, or from\
-                    Space-Track site, by epoch: more than two days, so as to get more than two sets\
-                    of orbital elements per object', icon=cn.INFO)            
-            page_stop()
+        if len(df_oe_group) > 0:
+            if max(df_oe_group) < 2:
+                st.info('Insufficient orbital elements, obtain from the Space-Track'
+                        ' website or API more than two sets of orbital elements per'
+                        ' object and upload to page 01 - Orbital Elements, which also'
+                        ' has a tool for accessing the API.', icon=cn.INFO)
+                st.write("Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)" % url)
+                page_stop()
+            else:
+                st.success('Enough orbital elements to perform comparison already loaded ', icon= cn.SUCCESS)
+                if min(df_oe_group) <2:
+                    st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
         else:
-            st.success('Enough orbital elements to perform comparison already loaded ', icon= cn.SUCCESS)
-            if min(df_oe_group) <2:
-                st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
-
+            st.warning('There are no orbital elements for comparison', icon=cn.WARNING)
+            
 
     st.write('Perform propagation calculations and trajectory comparison:')
     compare_oe_bt = st.button("run trajectory comparison")

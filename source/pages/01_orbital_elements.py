@@ -34,6 +34,28 @@ upload_norad_list = "Personalized list NORAD_CAT_ID"
 MAX_NUM_NORAD = 650
 cn = ConstantsNamespace()
 
+
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
+    
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()
+
 def dell_elem_df():
     if 'ss_elem_df' in st.session_state:
         del st.session_state.ss_elem_df
@@ -41,7 +63,6 @@ def dell_elem_df():
 def get_orbital_element():
     """Streamlite interface to choose a way to get the orbital elements """
     # Seleção do modo de atualização dos elementos orbitais  
-    st.subheader("Orbital elements:")
     st.subheader("*Orbital elements:*")
     help=('Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informed  \n'
         'Space-Track: Gets several orbital elements .csv format, automatically from Space-Track (requires registration)  \n'
@@ -85,7 +106,6 @@ def get_orbital_element():
         st.markdown(link, unsafe_allow_html=True)
         # Form to Space-Track loguin 
         form = st.form("my_form")
-        form.write("Não utilize a mesma senha do Space-Track API em outros serviços online, o APP carece de uma análise de segurança da informação. Utilize por sua conta e risco.")
         form.write("Do not use the same Space-Track API password in other online services, the APP still requires an information security analysis. Use at your own risk.")
         stc_log = form.text_input('User name Space-Track:')    
         stc_ss = form.text_input('Space-Track password:',type="password") 
@@ -199,7 +219,7 @@ def main():
 
     st.set_page_config(
     page_title="Get orbital elements",
-    page_icon="🌏", # "🤖",  # "🧊",
+    page_icon="🌏", 
     # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
     layout="wide",
     #initial_sidebar_state="expanded",

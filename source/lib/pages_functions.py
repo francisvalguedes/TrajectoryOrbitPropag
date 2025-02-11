@@ -1,23 +1,44 @@
+import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
+
 from spacetrack import SpaceTrackClient
-from datetime import datetime, timezone
+import spacetrack.operators as op
+
+from datetime import datetime, timedelta, timezone, time
 import datetime as dt
 import pandas as pd
 from io import StringIO
-import spacetrack.operators as op
-import streamlit as st
 import re
 import os
 import shutil
 import glob
 import tempfile
+import numpy as np
+
+from astropy.time import Time
+from astropy.time import TimeDelta
+from astropy import units as u
 
 import folium
 from folium import plugins
+
+import gettext
 
 from lib.constants import  ConstantsNamespace
 
 # constants
 cn = ConstantsNamespace()
+
+
+# _ = gettext.gettext
+# filename = os.path.basename(__file__)
+# try:
+#     localizator = gettext.translation(filename.split('.')[0], localedir='locales', languages=[st.session_state.language])
+#     localizator.install()
+#     _ = localizator.gettext 
+# except:        
+#     pass
+
 
 # https://iconscout.com/icons/satellite
 icon_sat_tj = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite.svg"
@@ -111,53 +132,6 @@ class SpaceTrackClientInit(SpaceTrackClient):
                     format='csv')
         elem_df = pd.read_csv(StringIO(elements_csv), sep=",")
         return elem_df     
-
-def sensor_registration():
-    # adicionar novo ponto de referência (sensor)
-    lc_expander = st.sidebar.expander("Adicionar novo ponto de referência no WGS84", expanded=False)
-    lc_name = lc_expander.text_input('Nome', "minha localização")
-    latitude = lc_expander.number_input('Latitude', -90.0, 90.0, 0.0, format="%.6f")
-    longitude = lc_expander.number_input('Longitude', -180.0, 180.0, 0.0, format="%.6f")
-    height = lc_expander.number_input('Altura (m)', -1000.0, 2000.0, 0.0, format="%.6f")
-    color = lc_expander.text_input('Cor', "red")
-    if lc_expander.button("Registrar nova localização"):
-        lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [height], 'color': [color]}
-        if lc_name not in st.session_state.lc_df['name'].to_list():
-            if re.match('^[A-Za-z0-9_-]*$', lc_add['name'][0]):
-                st.session_state.lc_df = pd.concat([st.session_state.lc_df, pd.DataFrame(lc_add)], axis=0)
-                st.session_state.lc_df.to_csv('data/confLocalWGS84.csv', index=False)
-                lc_expander.write('Localização registrada')
-            else:
-                lc_expander.write('Escreva um nome sem caracteres especiais')
-        else:
-            lc_expander.write('Localização já existe')
-
-
-
-def page_links(insidebar=False):
-    if insidebar: stlocal = st.sidebar
-    else: stlocal = st
-    stlocal.markdown("Pages:")
-    stlocal.page_link("main.py", label="Home page", icon="🏠")
-    # stlocalmarkdown("Simplified Page:")
-    stlocal.page_link("pages/00_Simplified.py", label="Simplified setup with some of the APP functions", icon= "0️⃣")
-    stlocal.markdown("Pages with specific settings:")
-    stlocal.page_link("pages/01_orbital_elements.py", label="Obtaining orbital elements of the space object", icon= "1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label="Orbit propagation and trajectory generation", icon= "2️⃣")
-    stlocal.page_link("pages/03_map.py", label="Map view page", icon= "3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label="Analysis of object orbital change/maneuver", icon= "4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label="Generation of specific trajectories", icon= "5️⃣")
-
-def page_stop():
-    page_links()
-    st.stop()
-
-def menu_itens():
-    menu_items={
-        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
-        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
-    }
-    return menu_items
 
 
 def delete_old_items(max_folders=100):
@@ -297,3 +271,116 @@ def plot_map(df, lc):
     df_map  = data_map_concat(df, lcdf )
     mapa = create_map2(df_map)
     st.components.v1.html(folium.Figure().add_child(mapa).render(), height=600)
+
+
+def translate_page(page='base'):
+    # https://medium.com/dev-genius/how-to-build-a-multi-language-dashboard-with-streamlit-9bc087dd4243    languages = {"English": "en", "Português": "pt"}
+    languages = {"English": "en", "Português": "pt"}
+    language = st.radio("Language",
+                        options=languages,
+                        horizontal=True,
+                        label_visibility='hidden',# 'collapsed',
+                        #on_change=set_language,
+                        #key="selected_language",
+                        )
+    language = languages[language]
+    
+    try:
+        localizator = gettext.translation(page, localedir='locales', languages=[language])
+        localizator.install()
+        _ = localizator.gettext 
+    except:
+        pass
+
+
+# #######################################################
+
+
+def columns_first(df, col_first):
+    col_list = df.columns.to_list()
+    for line in col_first:
+        if line in col_list: col_list.remove(line)
+        else: col_first.remove(line)
+    col_first.extend(col_list)
+    df = df.reindex(columns=col_first)
+    return df
+
+# ----------------------------------------------------------------------
+# Salva as trajetórias
+# ----------------------------------------------------------------------
+class Summarize2DataFiles:
+    def __init__(self):
+        """initialize the class"""     
+        self.tr_data = []   
+        self.sel_orbital_elem = []
+        self.sel_resume = {"RCS":[], "H0":[],"H0_H":[], "H0_RANGE":[],"MIN_RANGE_H":[],"MIN_RANGE_PT":[],
+                    "MIN_RANGE":[],"END_H":[], "END_PT":[], "END_RANGE":[] }
+
+    def save_trajectories(self,pos,orbital_elem,rcs):
+        """saves trajectories and summarizes important data for tracking analysis.
+        Args:
+            pos (PropagInit obj): all calculated trajectories of an sattelite (orbital_elem) 
+            orbital_elem (OMM dict): orbital element of sattelite
+        Returns:
+            self
+        """
+        for i in range(0, len(pos.time_array)):
+            time_arr = pos.time_array[i]
+            df_data = pd.DataFrame(time_arr.value.reshape(len(time_arr),1), columns=['Time'])
+
+            df_data = pd.concat([df_data, pd.DataFrame(np.concatenate((
+                            pos.az_el_r[i], pos.enu[i], 
+                            pos.itrs[i], pos.geodetic[i]), axis=1),
+                            columns=[ 'AZIMUTH','ELEVATION','RANGE',
+                            'ENU_E','ENU_N','ENU_U', 
+                            'ITRS_X','ITRS_Y','ITRS_Z','lat','lon','height'])], axis=1)
+
+            enu_d = 0.001*pos.az_el_r[i][:,2]
+            min_index = np.argmin(enu_d)
+            min_d = enu_d[min_index]
+
+            self.tr_data.append(df_data) 
+            self.sel_orbital_elem.append(orbital_elem) 
+            if pos.satellite.satnum in rcs['NORAD_CAT_ID']:
+                self.sel_resume["RCS"].append(rcs['RCS'][rcs['NORAD_CAT_ID'].index(pos.satellite.satnum)])
+            else:
+                self.sel_resume["RCS"].append(0.0)
+            self.sel_resume["H0"].append(time_arr[0].value)
+            self.sel_resume["H0_H"].append(time_arr[0].strftime('%H:%M:%S.%f'))
+            self.sel_resume["H0_RANGE"].append(enu_d[0])
+            self.sel_resume["MIN_RANGE_H"].append(time_arr[min_index].strftime('%H:%M:%S.%f'))
+            self.sel_resume["MIN_RANGE_PT"].append(min_index)
+            self.sel_resume["MIN_RANGE"].append(min_d)
+            self.sel_resume["END_H"].append(time_arr[-1].strftime('%H:%M:%S.%f'))
+            self.sel_resume["END_PT"].append(len(enu_d) - 1)
+            self.sel_resume["END_RANGE"].append(enu_d[-1]) 
+
+def menu_itens():
+    menu_items={
+        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
+        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
+    }
+    return menu_items
+
+
+def gettext_translate(domain_name):   
+    languages = {"English": "en", "Português-BR": "pt-BR"}
+    language = st.radio("Language",
+                        options=languages,
+                        horizontal=True,
+                        label_visibility='hidden',# 'collapsed',
+                        #on_change=set_language,
+                        key="selected_language",
+                        )
+    language = languages[language]
+
+    st.session_state.language = language
+    _ = gettext.gettext
+
+    try:
+        localizator = gettext.translation(domain_name, localedir='locales', languages=[language])
+        localizator.install()
+        _ = localizator.gettext 
+    except:        
+        pass
+    return _

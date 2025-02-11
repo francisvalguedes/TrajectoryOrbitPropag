@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/main.py:82
+msgid "**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**"
+msgstr "**Propagação de órbita de satélite e geração de trajetória, para rastreamento óptico e de radar de objetos espaciais (detritos, corpos de foguetes, satélites...), especialmente para objetos em órbita terrestre baixa (LEO).**"
+
+#: source/main.py:37
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/main.py:45
+msgid "Analysis of object orbital change/maneuver"
+msgstr "Análise da mudança/manobra orbital do objeto"
+
+#: source/main.py:81
+msgid "Contributions/suggestions: Felipe Longo, André Henrique, Hareton, Marcos Leal, Leilson"
+msgstr "Contribuições/sugestões: Felipe Longo, André Henrique, Hareton, Marcos Leal, Leilson"
+
+#: source/main.py:46
+msgid "Generation of specific trajectories"
+msgstr "Geração de trajetórias específicas"
+
+#: source/main.py:38
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/main.py:44
+msgid "Map view page"
+msgstr "Página de visualização do mapa"
+
+#: source/main.py:42
+msgid "Obtaining orbital elements of the space object"
+msgstr "Obtenção de elementos orbitais do objeto espacial"
+
+#: source/main.py:79
+msgid "Orbit Propagator for Tracking Earth's Artificial Satellites in LEO"
+msgstr "Propagador de órbita para rastreamento de satélites artificiais da Terra em LEO"
+
+#: source/main.py:43
+msgid "Orbit propagation and trajectory generation"
+msgstr "Propagação de órbita e geração de trajetória"
+
+#: source/main.py:41
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/main.py:40
+msgid "Simplified setup with some of the APP functions"
+msgstr "Configuração simplificada com algumas das funções do APP"
+
+#: source/main.py:84
+msgid "This APP use Orbit Mean-Elements Message (OMM) format, it contain orbital elements for satellites in a standard format. OMM files are part of the Orbit Data Messages (ODM) Recommended Standard"
+msgstr "Este APP usa o formato Orbit Mean-Elements Message (OMM), ele contém elementos orbitais para satélites em um formato padrão. Os arquivos OMM são parte do Orbit Data Messages (ODM) Recommended Standard"
+
+#: source/main.py:83
+msgid "Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system"
+msgstr "Usando o SGP4, este aplicativo busca um ponto de aproximação de um objeto espacial na órbita da Terra e traça um intervalo de trajetória em: referência de plano local (ENU), AltAzRange, ITRS e Geodésico, para ser usado como um alvo para sistema de rastreamento óptico ou de radar."
+
+#: source/main.py:87
+msgid "block diagram of Orbit Propagation"
+msgstr "diagrama de blocos da propagação de órbita"
+
+#: source/main.py:80
+msgid "by: Francisval Guedes Soares, Email: francisvalg@gmail.com"
+msgstr "por: Francisval Guedes Soares, Email: francisvalg@gmail.com"

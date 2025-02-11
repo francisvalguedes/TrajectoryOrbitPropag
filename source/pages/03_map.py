@@ -36,53 +36,46 @@ import os.path
 
 cn = ConstantsNamespace()
 
-# Analisa as possibilidades de rastreio
-def highlight_rows(row):
-    teste_rcs = row.loc['RCS']
-    teste_rcs_min = row.loc['RCS_MIN']
-    teste_range_pt = row.loc['MIN_RANGE_PT']
-    teste_range = row.loc['MIN_RANGE']
-    teste_decay = row.loc['DECAY_DATE']
-    color = '#FF4500'
-    amarelo = '#ffda6a'
-    verde = '#75b798'
-    vermelho = '#ea868f'
-    azul = '#6ea8fe'
 
-    #TESTA SE EXISTE A COLUNA RCS_SIZE
-    if 'RCS_SIZE' in row :
-        teste_rcs_size = row.loc['RCS_SIZE']
-    else :
-        teste_rcs_size = 'none'
-
-    if teste_rcs > 0:  #TESTA O TAMANHO DO RCS
-        if teste_rcs_min <= teste_rcs*1.16:
-            color = verde
-        else:
-            color = vermelho
-    else:              # TESTA A CLASSIFICAÇÃO DO RCS
-        if teste_rcs_size == 'MEDIUM':
-            if teste_range > 500: #422.88 é o valor mínimo teorico
-                color = vermelho
-            else:
-                color = amarelo
-        elif teste_rcs_size == 'LARGE':
-            color = azul
-        else:
-            if teste_range > 300: #237.8 é o valor mínimo teorico
-                color = vermelho
-            else:
-                color = verde
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
     
-    if teste_range_pt < 90:  # TESTA O NÚMERO MÍNIMO DE PONTOS
-        color = vermelho
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
 
-    x=teste_decay  # TESTA SE O OBJETO JA SAIU DE ORBITA
-    s_nan = str(x)
-    if s_nan != "nan" : 
-        color = vermelho
+def page_stop():
+    page_links()
+    st.stop()
 
-    return ['background-color: {}'.format(color) for r in row]
+
+def st_data_map(df_data, lc, dmax):
+    dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
+    df = pd.concat([df_data, dfn], axis=0)    
+    dfn = geodetic_circ(4,lc['lat'],
+                        lc['lon'],
+                        lc['height'])  
+    df = pd.concat([df, dfn], axis=0)  
+    dfn = geodetic_circ(dmax * np.cos(np.radians(df_data.iloc[-1]['ELEVATION'])),
+                        lc['lat'],
+                        lc['lon'],
+                        lc['height'])
+    df = pd.concat([df, dfn], axis=0) 
+    dfn = geodetic_circ(dmax ,lc['lat'],
+                        lc['lon'],
+                        lc['height'])
+    df = pd.concat([df, dfn], axis=0)
+    return df
 
 def geodetic_circ(r,center_lat,center_lon, center_h):
     """calculates a circle in the geodetic system.
@@ -137,39 +130,28 @@ def main():
 
     st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
-    choice_file_map = st.sidebar.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
+    choice_file_map = st.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
 
     df_data = pd.read_csv(st.session_state.ss_dir_name + '/csv1Hz/data-' + choice_file_map,
                     #usecols= ['lat', 'lon', 'ELEVATION']
                     )
 
     dmax = st.session_state.d_max
-    # idx = np.arange(0, len(df_data.index), +2)
-    # df_data = df_data.loc[idx]
-    dfn = geodetic_circ(6,df_data.iloc[-1].lat ,df_data.iloc[-1].lon, 0 )  
-    df = pd.concat([df_data, dfn], axis=0)    
-    dfn = geodetic_circ(4,st.session_state["ss_lc"]['lat'],
-                        st.session_state["ss_lc"]['lon'],
-                        st.session_state["ss_lc"]['height'])  
-    df = pd.concat([df, dfn], axis=0)  
-    dfn = geodetic_circ(dmax * np.cos(np.radians(df_data.iloc[-1]['ELEVATION'])),
-                        st.session_state["ss_lc"]['lat'],
-                        st.session_state["ss_lc"]['lon'],
-                        st.session_state["ss_lc"]['height'])
-    df = pd.concat([df, dfn], axis=0) 
-    dfn = geodetic_circ(dmax ,st.session_state["ss_lc"]['lat'],
-                        st.session_state["ss_lc"]['lon'],
-                        st.session_state["ss_lc"]['height'])
-    df = pd.concat([df, dfn], axis=0) 
-        
-    st.write('Streamlit map:') 
-    st.map(df)
 
-    st.write('Folium map:') 
-    plot_map(df_data, st.session_state["ss_lc"])
+    tab1, tab2 = st.tabs(['Folium Map','Streamlit Map'])
+    with tab1:
+        plot_map(df_data, st.session_state["ss_lc"])        
+    with tab2:        
+        st.map(st_data_map(df_data, st.session_state["ss_lc"], dmax))
 
-    st.sidebar.markdown('The map can be seen on the right')
-    st.sidebar.markdown('Thanks')
+    # st.write('Streamlit map:') 
+    # st.map(st_data_map(df_data, st.session_state["ss_lc"], dmax))
+
+    # st.write('Folium map:') 
+    # plot_map(df_data, st.session_state["ss_lc"])
+
+    # st.markdown('The map can be seen below')
+    st.markdown('Thanks')
 
     st.info('To compare the orbital elements trajectories, go to the next page.', icon=cn.INFO)
 

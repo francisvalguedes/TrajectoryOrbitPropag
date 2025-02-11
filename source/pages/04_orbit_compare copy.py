@@ -27,6 +27,37 @@ menu_update = [ MENU_NUPDATE, MENU_UPDATE]
 
 cn = ConstantsNamespace()
 
+
+
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
+    
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()
+
+def menu_itens():
+    menu_items={
+        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
+        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
+    }
+    return menu_items
+
+
 def main():
     st.set_page_config(
     page_title="Compare orbital elements trajectories",
@@ -109,15 +140,10 @@ def main():
 
         update_compare_oe_bt = st.button("Orbital elements update to compare")
         if update_compare_oe_bt:
-
-            # elements_csv = st.session_state.stc.get_by_norad(norad_comp_list) 
-            
+           
             st.session_state.ss_elem_df,_ = st.session_state.stc.get_by_norad(norad_comp_list) #pd.read_csv(StringIO(elements_csv), sep=",")
-            print('type(st.session_state.ss_elem_df)')
-            print(type(st.session_state.ss_elem_df))
             st.dataframe(st.session_state.ss_elem_df)
             st.session_state.ss_elem_df.to_csv(st.session_state.ss_dir_name + "/" + "orbital_elem_all.txt", index=False)   
-
 
     if st.session_state["choice_update_comp"] == MENU_NUPDATE: 
         norad_file = st.file_uploader("Upload norad list with column name NORAD_CAT_ID",type=['csv'])

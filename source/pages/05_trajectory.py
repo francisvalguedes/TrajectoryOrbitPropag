@@ -36,10 +36,38 @@ import re
 # from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
 # from st_aggrid.grid_options_builder import GridOptionsBuilder
 
-
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
 FILE_NAME_SEL_CSV = 'selected.csv'
+
+
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
+    
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()
+
+def menu_itens():
+    menu_items={
+        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
+        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
+    }
+    return menu_items
 
 @st.cache_data
 def df_atrib(df):
@@ -195,7 +223,12 @@ def main():
     if "radar_df" not in st.session_state:
         st.session_state["radar_df"] = pd.read_csv('data/confRadar.csv')
 
-    st.subheader('Generate specific trajectories for the sensor:')
+    st.subheader('Generate Sensor-Specific Trajectories')
+
+    st.markdown('This page generates sensor specific trajectories and estimates\
+                 the possibility of tracking space objects by C-band trajectory\
+                 radar, it uses the radar range equation and RCS (radar cross\
+                 section) of the space objects.')
 
     
     # **********************************************************
@@ -248,7 +281,7 @@ def main():
     st.write('Propagation result, approaching the reference point: ', len(st.session_state.ss_result_df.index))
 
 
-    st.subheader('Data analysis: RCS_MIN and table coloring:') 
+    st.subheader('*Data analysis: RCS_MIN and table coloring:*') 
 
 
     result_df_ch = st.session_state.ss_result_df.copy(deep=True)
@@ -293,7 +326,10 @@ def main():
         st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
         st.success('Orbit propagation data reloaded', icon=cn.SUCCESS)
 
-    st.subheader('Object Selection:')
+    st.subheader('*Object Selection:*')
+
+    st.write('Green: high chance of tracking, Blue: undefined, Yellow:\
+              sensitivity limit and Red: low chance of tracking.')
 
     st.write('Select the trajetories:')
     col1s, col2s, col3s, col4s, col5s = st.columns(5)
@@ -367,7 +403,7 @@ def main():
     selected_row=selected_row[selected_row[CHEC_COL_NAME]]
     selected_row=selected_row.loc[:,selected_row.columns!= CHEC_COL_NAME]
 
-    st.subheader('Specific ENU Trajectories:')
+    st.subheader('*Specific ENU Trajectories:*')
     # ************************************************************
     st.info('Radarar sensor settings - sample time: ' + str(st.session_state.ss_radar_sel['spt']) + 's', icon=cn.INFO)
     st.write('Calculate trajectories of selected objects:')
@@ -418,7 +454,7 @@ def main():
 
     # Format Colunm to print
     # ************************************************************
-    st.subheader('Data summary format and column selection:')
+    st.subheader('*Data summary format and column selection:*')
 
     to_tound = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE','END_RANGE']
     for col in to_tound:

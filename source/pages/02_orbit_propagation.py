@@ -35,6 +35,60 @@ import re
 
 cn = ConstantsNamespace()
 
+
+def page_links(insidebar=False):
+    if insidebar:
+        stlocal = st.sidebar
+    else:
+        stlocal = st
+    
+    stlocal.subheader(_("*Pages:*"))
+    stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
+    # stlocal.markdown(_("Simplified Page:"))
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.markdown(_("Pages with specific settings:"))
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+
+def page_stop():
+    page_links()
+    st.stop()
+
+def menu_itens():
+    menu_items={
+        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
+        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
+    }
+    return menu_items
+
+
+def sensor_registration():
+    # Add new reference point (sensor)
+    lc_expander = st.sidebar.expander(_("Add new reference point in WGS84"), expanded=False)
+    lc_name = lc_expander.text_input(_('Name'), "my location")
+    latitude = lc_expander.number_input(_('Latitude'), -90.0, 90.0, 0.0, format="%.6f")
+    longitude = lc_expander.number_input(_('Longitude'), -180.0, 180.0, 0.0, format="%.6f")
+    height = lc_expander.number_input(_('Height (m)'), -1000.0, 2000.0, 0.0, format="%.6f")
+    color = lc_expander.text_input(_('Color'), "red")
+    
+    if lc_expander.button(_("Register new location")):
+        lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [height], 'color': [color]}
+        
+        if lc_name not in st.session_state.lc_df['name'].to_list():
+            if re.match('^[A-Za-z0-9_-]*$', lc_add['name'][0]):
+                st.session_state.lc_df = pd.concat([st.session_state.lc_df, pd.DataFrame(lc_add)], axis=0)
+                st.session_state.lc_df.to_csv('data/confLocalWGS84.csv', index=False)
+                lc_expander.write(_('Location registered'))
+            else:
+                lc_expander.write(_('Enter a name without special characters'))
+        else:
+            lc_expander.write(_('Location already exists'))
+
+
+
 def dellfiles(file):
     py_files = glob.glob(file)
     err = 0
@@ -186,18 +240,17 @@ def main():
     if "lc_df" not in st.session_state:
         st.session_state["lc_df"] = pd.read_csv('data/confLocalWGS84.csv')
 
-    st.sidebar.subheader("*Settings:*")
     st.subheader("*Settings:*")
 
     # Select sample time
-    sample_time = 1.0 #st.sidebar.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
+    sample_time = 1.0 #st.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
     st.write('Sampling rate (s): ', sample_time)
 
     # Select sensor location or record another location
-    help=('Select sensor location or record another location above') 
+    help=('Select sensor location or record another location in the sidebar') 
     sensor_registration()
     
-    st.sidebar.selectbox("Sensor location in the WGS84:",st.session_state.lc_df['name'], key="choice_lc", help=help)
+    st.selectbox("Sensor location in the WGS84 (a new one can be registered in the sidebar) :",st.session_state.lc_df['name'], key="choice_lc", help=help)
     for sel in st.session_state.lc_df['name']:
         if sel==st.session_state["choice_lc"]:
             lc = st.session_state.lc_df.loc[st.session_state.lc_df['name'] == sel].to_dict('records')[0]
@@ -206,27 +259,24 @@ def main():
     st.write('Sensor location in the WGS84 Geodetic ')
     st.write('Name: ', lc['name'])
 
-    dmax = st.sidebar.number_input('Maximum distance to trajectory limits (Km)',
+    dmax = st.number_input('Maximum distance to trajectory limits (Km)',
         min_value = 400,
         max_value = 10000,
         value = 1100,
         step = 50)
     st.session_state.d_max = dmax
 
-    st.write('Maximum distance to trajectory limits (Km): ', dmax)
-
-    dmin = st.sidebar.number_input('The minimum distance that the trajectory must reach in order to be accepted (Km)',
+    dmin = st.number_input('The minimum distance that the trajectory must reach in order to be accepted (Km)',
         min_value = 200,
         max_value = 5000,
         value = 1000,
         step = 50)
 
-    st.write('The minimum trajectory distance point from which the trajectory is saved (Km): ', dmin)
     if not dmax>1.05*dmin:
         st.error('The maximum distance must be greater than the minimum distance in 1.05x', icon=cn.ERROR)
 
-    st.sidebar.write('Start and end time for H0 search TU:')
-    col1, col2 = st.sidebar.columns(2)
+    st.write('Start and end time for H0 search TU:')
+    col1, col2 = st.columns(2)
     initial_date = col1.date_input("Start date")
     initial_time = col2.time_input("Start time", time(10, 0))
     initial_datetime=Time(datetime.combine(initial_date, initial_time))
@@ -251,15 +301,14 @@ def main():
         
     time_norm = (max_time - (final_datetime - initial_datetime))/max_time
     max_num_obj = np.round(1 + max_num_obj*time_norm)
-    st.info('Maximum number of objects to propagate: ' + str(max_num_obj) + ', for time delta '+  str(final_datetime - initial_datetime) + ' days',icon=cn.INFO)
+    st.info('Maximum number of objects to propagate: {}, for time delta {:.2f} days'.format(max_num_obj, (final_datetime - initial_datetime).to_value('jd', 'decimal')),icon=cn.INFO)
 
-    st.sidebar.subheader("Calculate trajectories:")
-    st.subheader('*Outputs:*')
+    st.subheader("*Calculate trajectories:*")
 
     summary_fn = lc['name']+ '_' + st.session_state.date_time[0:19] +"_traj_summary.csv"
     summary_path = st.session_state.ss_dir_name + "/"+ summary_fn
     
-    if st.sidebar.button("Run propagation"):
+    if st.button("Run propagation"):
         if "ss_elem_df" not in st.session_state:
             st.info('Upload the orbital elements', icon=cn.INFO)
         elif 'MEAN_MOTION' not in st.session_state["ss_elem_df"].columns.to_list():
@@ -346,6 +395,7 @@ def main():
             fim = tm.time()
             st.write("Processing time (s): ", fim - ini)
 
+    st.subheader('*Outputs:*')
     st.write('The data summary:')  
     if "ss_result_df" in st.session_state: 
         st.success('trajectories calculated successfully', icon=cn.SUCCESS)                      
@@ -376,7 +426,7 @@ def main():
                 mime="application/zip"
             )
 
-    st.sidebar.write('Files can be downloaded on the right side')
+    st.write('Files can be downloaded on the right side')
 
     st.write('The resulting files contain:')
     st.write('orbital_elem.csv - Orbital elements of selected objects')
