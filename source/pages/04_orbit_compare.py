@@ -19,12 +19,22 @@ from datetime import datetime, timezone
 import streamlit as st
 import tempfile
 import plotly.express as px
+import time as tm
+
+# https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+st.set_page_config(page_title="Compare orbital elements trajectories",
+                    page_icon="🌏", layout="wide", initial_sidebar_state="auto",
+                    menu_items=menu_itens())
+
+
+# apenas para tradução
+domain_name = os.path.basename(__file__).split('.')[0]
+_ = gettext_translate(domain_name)
+
 
 # Constants
 err_max = 3000 # m
-MENU_UPDATE = "Space-Track Update"
-MENU_NUPDATE = "Space-Track already loaded in orbital elements page"
-menu_update = [ MENU_NUPDATE, MENU_UPDATE]
+max_process_time = 60*2 # 2 min
 
 cn = ConstantsNamespace()
 
@@ -34,29 +44,21 @@ def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
     else:
-        stlocal = st
-    
+        stlocal = st.expander("", expanded=True)
     stlocal.subheader(_("*Pages:*"))
     stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
-    # stlocal.markdown(_("Simplified Page:"))
-    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified Setup - APP Basic Functions"), icon="0️⃣")
     stlocal.markdown(_("Pages with specific settings:"))
-    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
-    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Get Orbital Elements"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit Propagation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map View Page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
+
 
 def page_stop():
     page_links()
     st.stop()
-
-def menu_itens():
-    menu_items={
-        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
-        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
-    }
-    return menu_items
 
 
 def plot_compare(df):
@@ -78,15 +80,8 @@ def plot_compare(df):
 
     st.plotly_chart(fig)
 
+
 def main():
-    st.set_page_config(
-    page_title="Compare orbital elements trajectories",
-    page_icon="🌏", # "🤖",  # "🧊",
-    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items = menu_itens()
-    )
 
     page_links(insidebar=True)
 
@@ -109,59 +104,55 @@ def main():
         lc = lc_df.iloc[0].to_dict()
         st.session_state["ss_lc"] = lc
 
-    st.subheader('Orbit Trajetory Compare')
-    st.markdown('Use the orbital elements loaded on page 01 - Orbital Elements')
+    st.subheader(_('Orbit Trajectory Compare'))
+    st.markdown(_('Use the orbital elements loaded on page 01 - Orbital Elements'))
 
     url = 'https://www.space-track.org/basicspacedata/query/class/gp_history/NORAD_CAT_ID/25544,53323/EPOCH/2024-07-02--2024-07-09/orderby/NORAD_CAT_ID%20desc/format/csv'
-    st.write('Obtain the orbital elements from the Space-Track\
-            website or API more than two sets of orbital elements per\
-            object and upload to page 01 - Orbital Elements, which also\
-            has a tool for accessing the API.')
-    
-    st.write("Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)" % url)
 
+    st.write(_('Obtain the orbital elements from the Space-Track website or API more than two sets of'
+               'orbital elements per object and upload to page 01 - Orbital Elements, which also has'
+               'a tool for accessing the API.'))
 
-# #################################################################
+    st.write(_('Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)') % url)
+
     if 'ss_result_df' in st.session_state:                
         norad_comp  = st.session_state.ss_result_df.drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-        st.success('Norads loaded from last orbital propagation results', icon=cn.SUCCESS)
+        st.success(_('Norads loaded from last orbital propagation results'), icon=cn.SUCCESS)
     else:
-        st.info('Run Orbit propagation',icon=cn.INFO) 
-        st.write('é isso')           
+        st.info(_('Run Orbit propagation'), icon=cn.INFO) 
+        st.write(_('That is it'))           
         page_stop()
 
-    norad_comp_list =norad_comp.to_dict('list')['NORAD_CAT_ID']
+    norad_comp_list = norad_comp.to_dict('list')['NORAD_CAT_ID']
 
     if "ss_elem_df" not in st.session_state:
-        st.info('Upload the orbital elements with two or more sets of orbital elements na página específica', icon=cn.INFO)         
+        st.info(_('Upload the orbital elements with two or more sets of orbital elements on the specific page'), icon=cn.INFO)         
         page_stop()
     else:
         df_selected = st.session_state.ss_elem_df[st.session_state.ss_elem_df['NORAD_CAT_ID'].isin(norad_comp['NORAD_CAT_ID'].tolist())]       
-        df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'],as_index=False).size()['size']
+        df_oe_group = df_selected.groupby(df_selected['NORAD_CAT_ID'], as_index=False).size()['size']
 
         if len(df_oe_group) > 0:
             if max(df_oe_group) < 2:
-                st.info('Insufficient orbital elements, obtain from the Space-Track'
-                        ' website or API more than two sets of orbital elements per'
-                        ' object and upload to page 01 - Orbital Elements, which also'
-                        ' has a tool for accessing the API.', icon=cn.INFO)
-                st.write("Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)" % url)
+                st.info(_('Insufficient orbital elements, obtain from the Space-Track website or API more than two sets of orbital'
+                          'elements per object and upload to page 01 - Orbital Elements, which also has a tool for accessing the API.'), icon=cn.INFO)
+                st.write(_('Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)') % url)
                 page_stop()
             else:
-                st.success('Enough orbital elements to perform comparison already loaded ', icon= cn.SUCCESS)
-                if min(df_oe_group) <2:
-                    st.warning('there are objects with less than two sets of orbital elements, it will not be possible to compare them', icon=cn.WARNING)
+                st.success(_('Enough orbital elements to perform comparison already loaded'), icon=cn.SUCCESS)
+                if min(df_oe_group) < 2:
+                    st.warning(_('There are objects with less than two sets of orbital elements, it will not be possible to compare them'), icon=cn.WARNING)
         else:
-            st.warning('There are no orbital elements for comparison', icon=cn.WARNING)
-            
+            st.warning(_('There are no orbital elements for comparison'), icon=cn.WARNING)
 
-    st.write('Perform propagation calculations and trajectory comparison:')
-    compare_oe_bt = st.button("run trajectory comparison")
+    st.write(_('Perform propagation calculations and trajectory comparison:'))
+    compare_oe_bt = st.button(_('Run trajectory comparison'))
     if compare_oe_bt:
         sel_resume = {  "NORAD_CAT_ID":[], "OBJECT_NAME":[], "EPOCH":[],"EPOCH_1":[], "D_ERR_MEAN":[],"D_ERR_MAX":[],
                         "TRACK":[], "RCS_SIZE":[], "X_ERR_MEAN":[], "Y_ERR_MEAN":[],"Z_ERR_MEAN":[],"PERIAPSIS":[],
                         "ECCENTRICITY":[], "MEAN_MOTION":[], "DECAY_DATE":[] }
-        st.write('Progress bar:')
+        st.write(_('Progress bar:'))
+        ini = tm.time()
         my_bar = st.progress(0)
         for idxi, norad in enumerate(norad_comp_list):
             orbital_elem = st.session_state.ss_elem_df.loc[st.session_state.ss_elem_df['NORAD_CAT_ID'] == norad]
@@ -205,34 +196,35 @@ def main():
                     sel_resume["PERIAPSIS"].append( orbital_elem_row['PERIAPSIS'])
                     sel_resume["ECCENTRICITY"].append( orbital_elem_row['ECCENTRICITY'])
                     sel_resume["MEAN_MOTION"].append( orbital_elem_row['MEAN_MOTION'])
-                    sel_resume["DECAY_DATE"].append( orbital_elem_row['DECAY_DATE'])           
-
+                    sel_resume["DECAY_DATE"].append( orbital_elem_row['DECAY_DATE'])
+                    if (tm.time() - ini) > max_process_time:
+                        st.warning("Exceeded maximum processing time, limit the number of orbital elements", cn.WARNING)
+                        break
                 orbital_elem_row = prev_orbital_elem_row
             my_bar.progress((idxi+1)/len(norad_comp_list))
-
         df_orb = pd.DataFrame(sel_resume)
         df_orb= df_orb[df_orb['D_ERR_MEAN'] != 0]
-
+        st.write(_("Processing time (s): "), tm.time() - ini)
         st.session_state["df_orb"] = df_orb
 
     if "df_orb" not in st.session_state:
-        st.info('run compare', icon=cn.INFO)
+        st.info(_('run compare'), icon=cn.INFO)
         page_stop()
 
     st.dataframe(st.session_state.df_orb)    
 
-    st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", index=False)
+    st.session_state.df_orb.to_csv(st.session_state.ss_dir_name + "/"+ _("orbital_elem_compare.csv"), index=False)
 
-    # st.write('Files can be downloaded:')
-    # with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", "rb") as fp:
-    #     btn = st.download_button(
-    #         label="Download",
-    #         data=fp,
-    #         file_name="orbital_elem_compare.csv",
-    #         mime="application/txt"
-    #     )
+    st.write(_('Files can be downloaded:'))
+    with open(st.session_state.ss_dir_name + "/"+ "orbital_elem_compare.csv", "rb") as fp:
+        btn = st.download_button(
+            label="Download",
+            data=fp,
+            file_name="orbital_elem_compare.csv",
+            mime="application/txt"
+        )
 
-    st.markdown("Data visualization:")
+    st.markdown(_("Data visualization:"))
 
     plot_compare(st.session_state.df_orb)
 

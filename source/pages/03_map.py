@@ -34,6 +34,16 @@ import re
 import os.path
 
 
+st.set_page_config(page_title="Result analisis map",
+                    page_icon="🌏", layout="wide", initial_sidebar_state="auto",
+                    menu_items=menu_itens())
+# https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+
+# apenas para tradução
+domain_name = os.path.basename(__file__).split('.')[0]
+_ = gettext_translate(domain_name)
+
+
 cn = ConstantsNamespace()
 
 
@@ -41,18 +51,17 @@ def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
     else:
-        stlocal = st
-    
+        stlocal = st.expander("", expanded=True)
     stlocal.subheader(_("*Pages:*"))
     stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
-    # stlocal.markdown(_("Simplified Page:"))
-    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified Setup - APP Basic Functions"), icon="0️⃣")
     stlocal.markdown(_("Pages with specific settings:"))
-    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
-    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Get Orbital Elements"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit Propagation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map View Page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
+
 
 def page_stop():
     page_links()
@@ -96,26 +105,16 @@ def geodetic_circ(r,center_lat,center_lon, center_h):
 
 
 def main():
-
-    st.set_page_config(
-    page_title="Result analisis",
-    page_icon="🌏", # "🤖",  # "🧊",
-    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items = menu_itens()
-    )
-
     page_links(insidebar=True)
         
-    st.subheader('View of the selected trajectory on the map:')
+    st.subheader(_('View of the selected trajectory on the map:'))
 
     if "ss_dir_name" not in st.session_state:
         st.warning('Run propagation for visualization',   icon=cn.WARNING)
         page_stop() 
 
     if "ss_result_df" not in st.session_state:
-        st.warning('Run propagation for visualization',   icon=cn.WARNING)
+        st.warning(_('Run propagation for visualization'),   icon=cn.WARNING)
         page_stop()
 
 # prints a map of the region with the trajectory
@@ -125,12 +124,12 @@ def main():
         files_m.append(files.split('data-')[-1])
     
     if len(files_m) == 0:
-        st.warning('no file map', icon=cn.WARNING)
+        st.warning(_('no file map'), icon=cn.WARNING)
         page_stop()
 
-    st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
+    st.write(_('Approaching the reference point: '), len(st.session_state.ss_result_df.index))
 
-    choice_file_map = st.selectbox("Select file for map:",files_m, key='choice_file_map') #format_func=format_func_map
+    choice_file_map = st.selectbox(_("Select file for map:"),files_m, key='choice_file_map') #format_func=format_func_map
 
     df_data = pd.read_csv(st.session_state.ss_dir_name + '/csv1Hz/data-' + choice_file_map,
                     #usecols= ['lat', 'lon', 'ELEVATION']
@@ -144,16 +143,7 @@ def main():
     with tab2:        
         st.map(st_data_map(df_data, st.session_state["ss_lc"], dmax))
 
-    # st.write('Streamlit map:') 
-    # st.map(st_data_map(df_data, st.session_state["ss_lc"], dmax))
-
-    # st.write('Folium map:') 
-    # plot_map(df_data, st.session_state["ss_lc"])
-
-    # st.markdown('The map can be seen below')
-    st.markdown('Thanks')
-
-    st.info('To compare the orbital elements trajectories, go to the next page.', icon=cn.INFO)
+    st.info(_('To compare the orbital elements trajectories, go to the next page.'), icon=cn.INFO)
 
     page_links()
 

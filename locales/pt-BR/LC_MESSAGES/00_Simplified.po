@@ -1,0 +1,229 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/pages/00_Simplified.py:184
+msgid "*Configurations for Orbit Propagation:*"
+msgstr "*Configurações para propagação de órbita:*"
+
+#: source/pages/00_Simplified.py:196
+msgid "*Obtain Approximation Data and Calculate Trajectories:*"
+msgstr "*Obtenha dados de aproximação e calcule trajetórias:*"
+
+#: source/pages/00_Simplified.py:173
+msgid "*Obtaining Orbital Elements:*"
+msgstr "*Obtendo Elementos Orbitais:*"
+
+#: source/pages/00_Simplified.py:58
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/pages/00_Simplified.py:211
+msgid ", for the period of "
+msgstr ", para o período de "
+
+#: source/pages/00_Simplified.py:159
+msgid "Altitude (m)"
+msgstr "Altitude (m)"
+
+#: source/pages/00_Simplified.py:96
+msgid "Celestrak error, use Space-Track or load orbital elements manually"
+msgstr "Erro Celestrak, use Space-Track ou carregue elementos orbitais manualmente"
+
+#: source/pages/00_Simplified.py:175
+msgid "Choose the source of orbital elements for propagation"
+msgstr "Escolha a fonte dos elementos orbitais para propagação"
+
+#: source/pages/00_Simplified.py:190
+msgid "Distance to save trajectory (km):"
+msgstr "Distância para salvar a trajetória (km):"
+
+#: source/pages/00_Simplified.py:129
+msgid "End date"
+msgstr "Data final"
+
+#: source/pages/00_Simplified.py:130
+msgid "End time"
+msgstr "Hora de Fim"
+
+#: source/pages/00_Simplified.py:138
+msgid "End time must be greater than start time"
+msgstr "O horário de término deve ser maior que o horário de início"
+
+#: source/pages/00_Simplified.py:155
+msgid "Enter the reference point coordinates:"
+msgstr "Insira as coordenadas do ponto de referência:"
+
+#: source/pages/00_Simplified.py:198
+msgid "Execute Propagation"
+msgstr "Executar Propagação"
+
+#: source/pages/00_Simplified.py:111
+msgid "File error"
+msgstr "Erro de arquivo"
+
+#: source/pages/00_Simplified.py:62
+msgid "Get Orbital Elements"
+msgstr "Obter Elementos Orbitais"
+
+#: source/pages/00_Simplified.py:59
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/pages/00_Simplified.py:157
+msgid "Latitude (degrees)"
+msgstr "Latitude (graus)"
+
+#: source/pages/00_Simplified.py:158
+msgid "Longitude (degrees)"
+msgstr "Longitude (graus)"
+
+#: source/pages/00_Simplified.py:64
+msgid "Map View Page"
+msgstr "Página de visualização do mapa"
+
+#: source/pages/00_Simplified.py:191
+msgid "Maximum number of objects:"
+msgstr "Número máximo de objetos:"
+
+#: source/pages/00_Simplified.py:210
+msgid "Maximum number of objects for propagation: "
+msgstr "Número máximo de objetos para propagação: "
+
+#: source/pages/00_Simplified.py:136
+msgid "Maximum period: "
+msgstr "Período máximo: "
+
+#: source/pages/00_Simplified.py:189
+msgid "Maximum trajectory distance (km):"
+msgstr "Distância máxima da trajetória (km):"
+
+#: source/pages/00_Simplified.py:93
+msgid "No orbital elements for this object in Celestrak"
+msgstr "Nenhum elemento orbital para este objeto em Celestrak"
+
+#: source/pages/00_Simplified.py:207
+msgid "Number of orbital elements: "
+msgstr "Número de elementos orbitais: "
+
+#: source/pages/00_Simplified.py:65
+msgid "Object Orbital Change/Maneuver"
+msgstr "Mudança/manobra orbital do objeto"
+
+#: source/pages/00_Simplified.py:63
+msgid "Orbit Propagation"
+msgstr "Propagação de Órbita"
+
+#: source/pages/00_Simplified.py:203
+msgid "Orbital elements do not match OMM format"
+msgstr "Os elementos orbitais não correspondem ao formato OMM"
+
+#: source/pages/00_Simplified.py:108
+msgid "Orbital elements uploaded:"
+msgstr "Elementos orbitais carregados:"
+
+#: source/pages/00_Simplified.py:61
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/pages/00_Simplified.py:262
+msgid "Processing time (s): "
+msgstr "Tempo(s) de processamento: "
+
+#: source/pages/00_Simplified.py:222
+msgid "Progress bar:"
+msgstr "Barra de progresso:"
+
+#: source/pages/00_Simplified.py:188
+msgid "Sampling period (s):"
+msgstr "Período(s) de amostragem:"
+
+#: source/pages/00_Simplified.py:82
+msgid "Select the NORAD_CAT_ID of the space object to obtain orbital elements:"
+msgstr "Selecione o NORAD_CAT_ID do objeto espacial para obter elementos orbitais:"
+
+#: source/pages/00_Simplified.py:269
+msgid "Select the approach time to view the trajectory:"
+msgstr "Selecione o tempo de aproximação para visualizar a trajetória:"
+
+#: source/pages/00_Simplified.py:66
+msgid "Sensor-Specific Trajectory Selection"
+msgstr "Seleção de trajetória específica do sensor"
+
+#: source/pages/00_Simplified.py:147
+msgid "Set with my current location by clicking on the icon below (low precision), alternatively you can get the coordinates of the location on Google Earth or Google Maps:"
+msgstr "Defina minha localização atual clicando no ícone abaixo (baixa precisão). Alternativamente, você pode obter as coordenadas da localização no Google Earth ou Google Maps:"
+
+#: source/pages/00_Simplified.py:171
+msgid "Simplified Configuration for Orbit Propagation and Approximation Trajectory Calculation to the Reference Point (Sensor):"
+msgstr "Configuração simplificada para cálculo de propagação de órbita e trajetória de aproximação ao ponto de referência (sensor):"
+
+#: source/pages/00_Simplified.py:60
+msgid "Simplified Setup - APP Basic Functions"
+msgstr "Configuração simplificada - Funções básicas do APP"
+
+#: source/pages/00_Simplified.py:176
+msgid "Source of orbital elements:"
+msgstr "Fonte dos elementos orbitais:"
+
+#: source/pages/00_Simplified.py:124
+msgid "Start date"
+msgstr "Data de início"
+
+#: source/pages/00_Simplified.py:125
+msgid "Start time"
+msgstr "Hora de início"
+
+#: source/pages/00_Simplified.py:122
+msgid "Start time for proximity search - UTC 00:"
+msgstr "Hora de início da pesquisa de proximidade - UTC 00:"
+
+#: source/pages/00_Simplified.py:266
+msgid "Summary of calculated trajectories:"
+msgstr "Resumo das trajetórias calculadas:"
+
+#: source/pages/00_Simplified.py:273
+msgid "The button to download the tables appears when you hover over the upper right corner of the tables"
+msgstr "O botão para baixar as tabelas aparece quando você passa o mouse sobre o canto superior direito das tabelas"
+
+#: source/pages/00_Simplified.py:259
+msgid "The space object does not approach the specified location within this time period"
+msgstr "O objeto espacial não se aproxima do local especificado dentro deste período de tempo"
+
+#: source/pages/00_Simplified.py:265
+msgid "Trajectories successfully calculated: "
+msgstr "Trajetórias calculadas com sucesso: "
+
+#: source/pages/00_Simplified.py:245
+msgid "Upload a file containing only orbital elements in OMM format"
+msgstr "Carregue um arquivo contendo apenas elementos orbitais no formato OMM"
+
+#: source/pages/00_Simplified.py:104
+msgid "Upload orbital elements: OMM csv format"
+msgstr "Carregar elementos orbitais: formato OMM csv"
+
+#: source/pages/00_Simplified.py:114
+msgid "Upload the file"
+msgstr "Carregar o arquivo"
+
+#: source/pages/00_Simplified.py:200
+msgid "Upload the orbital elements"
+msgstr "Carregar os elementos orbitais"
+
+#: source/pages/00_Simplified.py:274
+msgid "Visualization on the map:"
+msgstr "Visualização no mapa:"
+
+#: source/pages/00_Simplified.py:136 source/pages/00_Simplified.py:211
+msgid " days"
+msgstr "dias"
+
+#: source/pages/00_Simplified.py:269
+msgid "help"
+msgstr "Ajuda"

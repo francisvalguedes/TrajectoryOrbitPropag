@@ -1,0 +1,253 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/pages/01_orbital_elements.py:75
+msgid "*Orbital elements:*"
+msgstr "*Elementos orbitais:*"
+
+#: source/pages/01_orbital_elements.py:53
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/pages/01_orbital_elements.py:169
+msgid "App's list +200 LEO NORAD_CAT_ID"
+msgstr "Lista de aplicativos +200 LEO NORAD_CAT_ID"
+
+#: source/pages/01_orbital_elements.py:182
+msgid "App's selection +700 LEO, Large, PERIAPSIS < 500, NORAD_CAT_ID"
+msgstr "Seleção de aplicativos +700 LEO, Grande, PERIAPSIS &lt; 500, NORAD_CAT_ID"
+
+#: source/pages/01_orbital_elements.py:76
+msgid "Celestrack: Gets an orbital element in OMM .csv format, from the NORAD_CAT_ID informedSpace-Track: Gets several orbital elements .csv format, automatically from Space-Track(requires registration) Orbital elements file: Load elements file manually in OMM .csvformat (.csv or .json)."
+msgstr "Celestrack: Obtém um elemento orbital no formato OMM .csv, a partir do NORAD_CAT_ID informadoSpace-Track: Obtém vários elementos orbitais no formato .csv, automaticamente do Space-Track (requer registro) Arquivo de elementos orbitais: Carrega o arquivo de elementos manualmente no formato OMM .csv (.csv ou .json)."
+
+#: source/pages/01_orbital_elements.py:104
+msgid "Celestrak error, use Space-Track or load orbital elements manually"
+msgstr "Erro Celestrak, use Space-Track ou carregue elementos orbitais manualmente"
+
+#: source/pages/01_orbital_elements.py:147
+msgid "Choice of orbital elements dataset:"
+msgstr "Escolha do conjunto de dados de elementos orbitais:"
+
+#: source/pages/01_orbital_elements.py:119
+msgid "Do not use the same Space-Track API password in other online services, the APPstill requires an information security analysis. Use at your own risk."
+msgstr "Não use a mesma senha da API Space-Track em outros serviços online, o APP ainda requer uma análise de segurança da informação. Use por sua conta e risco."
+
+#: source/pages/01_orbital_elements.py:282
+msgid "Download Orbital Element Files:"
+msgstr "Baixar arquivos de elementos orbitais:"
+
+#: source/pages/01_orbital_elements.py:160
+msgid "End must be after start date"
+msgstr "O fim deve ser após a data de início"
+
+#: source/pages/01_orbital_elements.py:158
+msgid "Epoch end (now+1day)"
+msgstr "Fim da época (agora + 1 dia)"
+
+#: source/pages/01_orbital_elements.py:163
+msgid "Epoch interval must be less than 10 days"
+msgstr "O intervalo de época deve ser inferior a 10 dias"
+
+#: source/pages/01_orbital_elements.py:157
+msgid "Epoch start"
+msgstr "Início da época"
+
+#: source/pages/01_orbital_elements.py:132
+msgid "Error when logging Space-Track"
+msgstr "Erro ao registrar o Space-Track"
+
+#: source/pages/01_orbital_elements.py:191
+#: source/pages/01_orbital_elements.py:221
+msgid "File details:"
+msgstr "Detalhes do arquivo:"
+
+#: source/pages/01_orbital_elements.py:291
+msgid "For trajectory generation go to the next page"
+msgstr "Para geração de trajetória vá para a próxima página"
+
+#: source/pages/01_orbital_elements.py:57
+#: source/pages/01_orbital_elements.py:166
+msgid "Get Orbital Elements"
+msgstr "Obter Elementos Orbitais"
+
+#: source/pages/01_orbital_elements.py:90
+msgid "Get orbital element"
+msgstr "Obter elemento orbital"
+
+#: source/pages/01_orbital_elements.py:235
+msgid "Get satellite orbital elements: Celestrack - individually, or Space-track - allows multiple."
+msgstr "Obtenha elementos orbitais de satélite: Celestrack - individualmente, ou Space-track - permite múltiplos."
+
+#: source/pages/01_orbital_elements.py:234
+msgid "Get the orbital elements of the satellite"
+msgstr "Obtenha os elementos orbitais do satélite"
+
+#: source/pages/01_orbital_elements.py:54
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/pages/01_orbital_elements.py:272
+msgid "Load orbital elements"
+msgstr "Carregar elementos orbitais"
+
+#: source/pages/01_orbital_elements.py:252
+msgid "Logged into spacetrack"
+msgstr "Conectado ao spacetrack"
+
+#: source/pages/01_orbital_elements.py:59
+msgid "Map View Page"
+msgstr "Página de visualização do mapa"
+
+#: source/pages/01_orbital_elements.py:189
+msgid "NORAD_CAT_ID file loaded:"
+msgstr "Arquivo NORAD_CAT_ID carregado:"
+
+#: source/pages/01_orbital_elements.py:210
+msgid "NORAD_CAT_ID file not loaded"
+msgstr "Arquivo NORAD_CAT_ID não carregado"
+
+#: source/pages/01_orbital_elements.py:171
+#: source/pages/01_orbital_elements.py:197
+msgid "NORAD_CAT_ID file uploaded for update:"
+msgstr "Arquivo NORAD_CAT_ID carregado para atualização:"
+
+#: source/pages/01_orbital_elements.py:98
+msgid "No orbital elements for this object in Celestrac"
+msgstr "Nenhum elemento orbital para este objeto em Celestrac"
+
+#: source/pages/01_orbital_elements.py:60
+msgid "Object Orbital Change/Maneuver"
+msgstr "Mudança/manobra orbital do objeto"
+
+#: source/pages/01_orbital_elements.py:58
+msgid "Orbit Propagation"
+msgstr "Propagação de Órbita"
+
+#: source/pages/01_orbital_elements.py:178
+#: source/pages/01_orbital_elements.py:205
+msgid "Orbital elements epoch "
+msgstr "Época dos elementos orbitais "
+
+#: source/pages/01_orbital_elements.py:274
+msgid "Orbital elements loaded"
+msgstr "Elementos orbitais carregados"
+
+#: source/pages/01_orbital_elements.py:224
+msgid "Orbital elements manually updated:"
+msgstr "Elementos orbitais atualizados manualmente:"
+
+#: source/pages/01_orbital_elements.py:266
+msgid "Orbital elements not found on Space-Track (in the epoch range): "
+msgstr "Elementos orbitais não encontrados no Space-Track (na faixa de épocas): "
+
+#: source/pages/01_orbital_elements.py:109
+msgid "Orbital elements obtained from Celestrak:"
+msgstr "Elementos orbitais obtidos de Celestrak:"
+
+#: source/pages/01_orbital_elements.py:264
+msgid "Orbital elements requested from Space-Track: "
+msgstr "Elementos orbitais solicitados ao Space-Track: "
+
+#: source/pages/01_orbital_elements.py:56
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/pages/01_orbital_elements.py:150
+msgid "Personalized NORAD_CAT_ID file"
+msgstr "Arquivo NORAD_CAT_ID personalizado"
+
+#: source/pages/01_orbital_elements.py:153
+msgid "Select the epoch range (less than 10 days)"
+msgstr "Selecione o intervalo de época (menos de 10 dias)"
+
+#: source/pages/01_orbital_elements.py:61
+msgid "Sensor-Specific Trajectory Selection"
+msgstr "Seleção de trajetória específica do sensor"
+
+#: source/pages/01_orbital_elements.py:55
+msgid "Simplified Setup - APP Basic Functions"
+msgstr "Configuração simplificada - Funções básicas do APP"
+
+#: source/pages/01_orbital_elements.py:83
+msgid "Source of orbital elements:"
+msgstr "Fonte dos elementos orbitais:"
+
+#: source/pages/01_orbital_elements.py:122
+msgid "Space-Track password:"
+msgstr "Senha do Space-Track:"
+
+#: source/pages/01_orbital_elements.py:130
+msgid "Space-track logged"
+msgstr "Trajeto espacial registrado"
+
+#: source/pages/01_orbital_elements.py:124
+msgid "Submit"
+msgstr "Enviar"
+
+#: source/pages/01_orbital_elements.py:151
+msgid "Text file with .csv extension with a column with the header \"NORAD_CAT_ID\" and lines NORAD_CAT_ID numbers"
+msgstr "Arquivo de texto com extensão .csv com uma coluna com o cabeçalho &quot;NORAD_CAT_ID&quot; e linhas NORAD_CAT_ID números"
+
+#: source/pages/01_orbital_elements.py:86
+msgid "Unique NORAD_CAT_ID"
+msgstr "NORAD_CAT_ID exclusivo"
+
+#: source/pages/01_orbital_elements.py:219
+msgid "Upload orbital elements"
+msgstr "Carregar elementos orbitais"
+
+#: source/pages/01_orbital_elements.py:218
+msgid "Upload orbital elements Json/csv"
+msgstr "Carregar elementos orbitais Json/csv"
+
+#: source/pages/01_orbital_elements.py:152
+msgid "Upload personalized NORAD_CAT_ID list file:"
+msgstr "Carregar arquivo de lista NORAD_CAT_ID personalizado:"
+
+#: source/pages/01_orbital_elements.py:121
+msgid "User name Space-Track:"
+msgstr "Nome de usuário Space-Track:"
+
+#: source/pages/01_orbital_elements.py:140
+msgid ":Selection of 700+ objects by Space-TrackAPI mean_motion>11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = >now-1, orderby= EPOCH desc) \n"
+msgstr ":Selectionde mais de 700 objetos por Space-TrackAPI mean_motion&gt;11.25, decay_date = null-val, rcs_size = Large, periapsis<500, epoch = > agora-1, orderby= EPOCH desc) \n"
+
+#: source/pages/01_orbital_elements.py:142
+msgid ": Upload any .csv file that contains a NORAD_CAT_ID column with up to 650 desired objects "
+msgstr ": Carregue qualquer arquivo .csv que contenha uma coluna NORAD_CAT_ID com até 650 objetos desejados "
+
+#: source/pages/01_orbital_elements.py:139
+msgid ": local list of 200+ selected LEO objects most with RCSvalue \n"
+msgstr ": lista local de mais de 200 objetos LEO selecionados, a maioria com RCSvalue \n"
+
+#: source/pages/01_orbital_elements.py:268
+msgid "decayed object: "
+msgstr "objeto deteriorado: "
+
+#: source/pages/01_orbital_elements.py:195
+msgid "load csv file with a column named NORAD_CAT_ID"
+msgstr "carregar arquivo csv com uma coluna chamada NORAD_CAT_ID"
+
+#: source/pages/01_orbital_elements.py:215
+msgid "log in to Space-Track to continue"
+msgstr "faça login no Space-Track para continuar"
+
+#: source/pages/01_orbital_elements.py:135
+msgid "logged"
+msgstr "REGISTRADO"
+
+#: source/pages/01_orbital_elements.py:207
+msgid "max norad_cat_id = "
+msgstr "máx. norad_cat_id = "
+
+#: source/pages/01_orbital_elements.py:136
+msgid "unlogged"
+msgstr "não logado"

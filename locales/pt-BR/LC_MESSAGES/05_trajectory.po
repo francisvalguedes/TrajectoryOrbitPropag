@@ -1,0 +1,317 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/pages/05_trajectory.py:273
+msgid "*Data analysis: RCS_MIN and table coloring:*"
+msgstr "*Análise de dados: RCS_MIN e coloração de tabelas:*"
+
+#: source/pages/05_trajectory.py:57
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/pages/05_trajectory.py:377
+msgid "*Specific ENU Trajectories:*"
+msgstr "*Trajetórias ENU específicas:*"
+
+#: source/pages/05_trajectory.py:228
+msgid "Add new radar sensor"
+msgstr "Adicionar novo sensor de radar"
+
+#: source/pages/05_trajectory.py:381
+msgid "Calculate trajectories"
+msgstr "Calcular trajetórias"
+
+#: source/pages/05_trajectory.py:380
+msgid "Calculate trajectories of selected objects:"
+msgstr "Calcular trajetórias de objetos selecionados:"
+
+#: source/pages/05_trajectory.py:440
+msgid "Choose by:"
+msgstr "Escolha por:"
+
+#: source/pages/05_trajectory.py:321
+msgid "Clear All"
+msgstr "Limpar tudo"
+
+#: source/pages/05_trajectory.py:448
+msgid "Column selection by config file upload:"
+msgstr "Seleção de coluna por upload de arquivo de configuração:"
+
+#: source/pages/05_trajectory.py:427
+msgid "Data summary format and column selection:"
+msgstr "Formato de resumo de dados e seleção de colunas:"
+
+#: source/pages/05_trajectory.py:481
+msgid "Download"
+msgstr "FAÇA O DOWNLOAD"
+
+#: source/pages/05_trajectory.py:368
+msgid "Download .csv"
+msgstr "Baixar .csv"
+
+#: source/pages/05_trajectory.py:420
+msgid "Download .trn files"
+msgstr "Baixar arquivos .trn"
+
+#: source/pages/05_trajectory.py:354
+msgid "Download .xlsx"
+msgstr "Baixar .xlsx"
+
+#: source/pages/05_trajectory.py:365
+msgid "Download csv File:"
+msgstr "Baixar arquivo csv:"
+
+#: source/pages/05_trajectory.py:351
+msgid "Download highlight File:"
+msgstr "Baixar arquivo de destaque:"
+
+#: source/pages/05_trajectory.py:478
+msgid "Download selected File:"
+msgstr "Baixar arquivo selecionado:"
+
+#: source/pages/05_trajectory.py:416
+msgid "Download trajectory files *.trn - from H0, in the ENU:"
+msgstr "Baixe os arquivos de trajetória *.trn - de H0, no ENU:"
+
+#: source/pages/05_trajectory.py:459
+msgid "Error: dataframe does not have column:"
+msgstr "Erro: o dataframe não tem coluna:"
+
+#: source/pages/05_trajectory.py:450
+msgid "File details:"
+msgstr "Detalhes do arquivo:"
+
+#: source/pages/05_trajectory.py:218
+msgid "Generate Sensor-Specific Trajectories"
+msgstr "Gerar trajetórias específicas do sensor"
+
+#: source/pages/05_trajectory.py:61
+msgid "Get Orbital Elements"
+msgstr "Obter Elementos Orbitais"
+
+#: source/pages/05_trajectory.py:318
+msgid "Green: high chance of tracking, Blue: undefined, Yellow: sensitivity limit and Red: low chance of tracking."
+msgstr "Verde: alta chance de rastreamento, Azul: indefinido, Amarelo: limite de sensibilidade e Vermelho: baixa chance de rastreamento."
+
+#: source/pages/05_trajectory.py:58
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/pages/05_trajectory.py:255
+msgid "Location already exists"
+msgstr "A localização já existe"
+
+#: source/pages/05_trajectory.py:439
+msgid "Manual selection of desired columns:"
+msgstr "Seleção manual das colunas desejadas:"
+
+#: source/pages/05_trajectory.py:63
+msgid "Map View Page"
+msgstr "Página de visualização do mapa"
+
+#: source/pages/05_trajectory.py:384
+msgid "Maximum number of objects to propagate: "
+msgstr "Número máximo de objetos a propagar: "
+
+#: source/pages/05_trajectory.py:64
+msgid "Object Orbital Change/Maneuver"
+msgstr "Mudança/manobra orbital do objeto"
+
+#: source/pages/05_trajectory.py:316
+msgid "Object Selection:"
+msgstr "Seleção de Objetos:"
+
+#: source/pages/05_trajectory.py:62
+msgid "Orbit Propagation"
+msgstr "Propagação de Órbita"
+
+#: source/pages/05_trajectory.py:304
+msgid "Orbit propagation data loaded"
+msgstr "Dados de propagação de órbita carregados"
+
+#: source/pages/05_trajectory.py:314
+msgid "Orbit propagation data reloaded"
+msgstr "Dados de propagação de órbita recarregados"
+
+#: source/pages/05_trajectory.py:60
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/pages/05_trajectory.py:408
+msgid "Processing time (s): "
+msgstr "Tempo(s) de processamento: "
+
+#: source/pages/05_trajectory.py:394
+msgid "Progress bar:"
+msgstr "Barra de progresso:"
+
+#: source/pages/05_trajectory.py:271
+msgid "Propagation result, approaching the reference point: "
+msgstr "Resultado da propagação, aproximando-se do ponto de referência: "
+
+#: source/pages/05_trajectory.py:229
+msgid "Radar Name"
+msgstr "Nome do radar"
+
+#: source/pages/05_trajectory.py:236
+msgid "Radar frequency (MHz)"
+msgstr "Frequência do radar (MHz)"
+
+#: source/pages/05_trajectory.py:231
+msgid "Radar power (db)"
+msgstr "Potência do radar (db)"
+
+#: source/pages/05_trajectory.py:233
+msgid "Radar receive gain (db)"
+msgstr "Ganho de recepção do radar (db)"
+
+#: source/pages/05_trajectory.py:235
+msgid "Radar receive loss (db)"
+msgstr "Perda de recepção de radar (db)"
+
+#: source/pages/05_trajectory.py:237
+msgid "Radar receiver sensitivity (db)"
+msgstr "Sensibilidade do receptor de radar (db)"
+
+#: source/pages/05_trajectory.py:257
+msgid "Radar sensor settings:"
+msgstr "Configurações do sensor de radar:"
+
+#: source/pages/05_trajectory.py:379
+msgid "Radar sensor settings - sample time: "
+msgstr "Configurações do sensor de radar - tempo de amostragem: "
+
+#: source/pages/05_trajectory.py:238
+msgid "Radar signal noise ratio (db)"
+msgstr "Relação de ruído do sinal de radar (db)"
+
+#: source/pages/05_trajectory.py:232
+msgid "Radar transmit gain (db)"
+msgstr "Ganho de transmissão do radar (db)"
+
+#: source/pages/05_trajectory.py:234
+msgid "Radar transmit loss (db)"
+msgstr "Perda de transmissão do radar (db)"
+
+#: source/pages/05_trajectory.py:243
+msgid "Record new radar sensor"
+msgstr "Grave novo sensor de radar"
+
+#: source/pages/05_trajectory.py:251
+msgid "Recorded location"
+msgstr "Localização gravada"
+
+#: source/pages/05_trajectory.py:312
+msgid "Reload data and Calc RCS_MIN"
+msgstr "Recarregar dados e calcular RCS_MIN"
+
+#: source/pages/05_trajectory.py:311
+msgid "Reload propagation results and calculate RCS_MIN with sidebar selected radar settings:"
+msgstr "Recarregue os resultados de propagação e calcule RCS_MIN com as configurações de radar selecionadas na barra lateral:"
+
+#: source/pages/05_trajectory.py:265
+msgid "Run propagation for trajectory generation"
+msgstr "Executar propagação para geração de trajetória"
+
+#: source/pages/05_trajectory.py:307
+msgid "Run propagation in orbit propagation page"
+msgstr "Executar propagação na página de propagação de órbita"
+
+#: source/pages/05_trajectory.py:239
+msgid "Sample time (s)"
+msgstr "Tempo de amostragem (s)"
+
+#: source/pages/05_trajectory.py:474
+msgid "Save Selection"
+msgstr "Salvar seleção"
+
+#: source/pages/05_trajectory.py:473
+msgid "Save dataframe with selected columns and rows:"
+msgstr "Salvar dataframe com colunas e linhas selecionadas:"
+
+#: source/pages/05_trajectory.py:340
+msgid "Save selection"
+msgstr "Salvar seleção"
+
+#: source/pages/05_trajectory.py:323
+msgid "Select All"
+msgstr "Selecionar tudo"
+
+#: source/pages/05_trajectory.py:387
+msgid "Select objects to propagate"
+msgstr "Selecione objetos para propagar"
+
+#: source/pages/05_trajectory.py:227
+msgid "Select radar sensor configuration or record another above"
+msgstr "Selecione a configuração do sensor de radar ou grave outra acima"
+
+#: source/pages/05_trajectory.py:319
+msgid "Select the trajectories:"
+msgstr "Selecione as trajetórias:"
+
+#: source/pages/05_trajectory.py:332
+msgid "Select trajectories"
+msgstr "Selecionar trajetórias"
+
+#: source/pages/05_trajectory.py:269
+msgid "Selected Sensor location - propagation page: "
+msgstr "Localização do sensor selecionado - página de propagação: "
+
+#: source/pages/05_trajectory.py:465
+msgid "Selected columns and rows from the data summary:"
+msgstr "Colunas e linhas selecionadas do resumo de dados:"
+
+#: source/pages/05_trajectory.py:310
+msgid "Selected radar setting: "
+msgstr "Configuração de radar selecionada: "
+
+#: source/pages/05_trajectory.py:65
+msgid "Sensor-Specific Trajectory Selection"
+msgstr "Seleção de trajetória específica do sensor"
+
+#: source/pages/05_trajectory.py:59
+msgid "Simplified Setup - APP Basic Functions"
+msgstr "Configuração simplificada - Funções básicas do APP"
+
+#: source/pages/05_trajectory.py:220
+msgid "This page generates sensor specific trajectories and estimates the possibility of tracking space objects by C-band trajectory radar, it uses the radar range equation and RCS (radar cross section) of the space objects."
+msgstr "Esta página gera trajetórias específicas do sensor e estima a possibilidade de rastrear objetos espaciais pelo radar de trajetória de banda C. Ela usa a equação de alcance do radar e RCS (seção transversal do radar) dos objetos espaciais."
+
+#: source/pages/05_trajectory.py:410
+msgid "Trajectories calculated successfully"
+msgstr "Trajetórias calculadas com sucesso"
+
+#: source/pages/05_trajectory.py:253
+msgid "Write a name without special characters"
+msgstr "Escreva um nome sem caracteres especiais"
+
+#: source/pages/05_trajectory.py:360
+msgid "_traj_summary.csv"
+msgstr "_traj_summary.csv"
+
+#: source/pages/05_trajectory.py:345
+msgid "_traj_summary.xlsx"
+msgstr "_traj_summary.xlsx"
+
+#: source/pages/05_trajectory.py:440 source/pages/05_trajectory.py:442
+msgid "exclusion"
+msgstr "Exclusão"
+
+#: source/pages/05_trajectory.py:440
+msgid "inclusion"
+msgstr "inclusão"
+
+#: source/pages/05_trajectory.py:229
+msgid "my radar"
+msgstr "meu radar"
+
+#: source/pages/05_trajectory.py:422
+msgid "trn_"
+msgstr "trn_"

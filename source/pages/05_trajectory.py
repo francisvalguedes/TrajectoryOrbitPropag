@@ -33,8 +33,16 @@ import glob
 import pymap3d as pm
 import re
 
-# from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode, ColumnsAutoSizeMode
-# from st_aggrid.grid_options_builder import GridOptionsBuilder
+
+# https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+st.set_page_config(page_title="Orbit propagation for Tracking",
+                    page_icon="🌏", layout="wide", initial_sidebar_state="auto",
+                    menu_items=menu_itens())
+
+
+# apenas para tradução
+domain_name = os.path.basename(__file__).split('.')[0]
+_ = gettext_translate(domain_name)
 
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
@@ -45,29 +53,22 @@ def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
     else:
-        stlocal = st
-    
+        stlocal = st.expander("", expanded=True)
     stlocal.subheader(_("*Pages:*"))
     stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
-    # stlocal.markdown(_("Simplified Page:"))
-    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified Setup - APP Basic Functions"), icon="0️⃣")
     stlocal.markdown(_("Pages with specific settings:"))
-    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
-    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Get Orbital Elements"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit Propagation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map View Page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
+
 
 def page_stop():
     page_links()
     st.stop()
 
-def menu_itens():
-    menu_items={
-        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
-        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
-    }
-    return menu_items
 
 @st.cache_data
 def df_atrib(df):
@@ -194,15 +195,6 @@ def main():
     """main function that provides the simplified interface for configuration,
          visualization and data download. """  
 
-    st.set_page_config(
-    page_title="Orbit propagation for Tracking",
-    page_icon="🌏", # "🤖",  # "🧊",
-    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items = menu_itens()
-    )
-
     page_links(insidebar=True)
 
 
@@ -223,66 +215,62 @@ def main():
     if "radar_df" not in st.session_state:
         st.session_state["radar_df"] = pd.read_csv('data/confRadar.csv')
 
-    st.subheader('Generate Sensor-Specific Trajectories')
+    st.subheader(_('Generate Sensor-Specific Trajectories'))
 
-    st.markdown('This page generates sensor specific trajectories and estimates\
-                 the possibility of tracking space objects by C-band trajectory\
-                 radar, it uses the radar range equation and RCS (radar cross\
-                 section) of the space objects.')
+    st.markdown(_('This page generates sensor specific trajectories and estimates '
+                'the possibility of tracking space objects by C-band trajectory '
+                'radar, it uses the radar range equation and RCS (radar cross '
+                'section) of the space objects.'))
 
-    
     # **********************************************************
     # Select radar sensor or record another radar sensor
-    help=('Select radar sensor configuration or record another above') 
-    sensor_exp = st.sidebar.expander("Add new radar sensor", expanded=False)
-    sensor_name = sensor_exp.text_input('Radar Name',"my radar")
+    help_text = _('Select radar sensor configuration or record another above')
+    sensor_exp = st.sidebar.expander(_('Add new radar sensor'), expanded=False)
+    sensor_name = sensor_exp.text_input(_('Radar Name'), _('my radar'))
 
-    pt = sensor_exp.number_input('radar power (db)',0.0, 100.0, 60.0, format="%.1f")    
-    gt = sensor_exp.number_input('radar transmit gain (db)',0.0, 100.0, 42.0, format="%.1f")
-    gr = sensor_exp.number_input('radar receive gain (db)',0.0, 100.0, 42.0, format="%.1f")
-    lt = sensor_exp.number_input('radar transmit loss (db)',0.0, 50.0, 1.5, format="%.1f")
-    lr = sensor_exp.number_input('radar receive loss (db)',0.0, 50.0, 1.5, format="%.1f")
-    fhz = sensor_exp.number_input('radar frequence (MHz)',500.0,10000.0, 5400.0, format="%.1f")
-    sr = sensor_exp.number_input('radar receiver sensitivity (db)',-300.0,-1.0, -142.0, format="%.1f")
-    snr = sensor_exp.number_input('radar signal noise ratio (db)',0.0,20.0, 0.0, format="%.1f")
-    sample_time = sensor_exp.number_input('sample time (s)',0.01,1.0, 0.01, format="%.2f")
+    pt = sensor_exp.number_input(_('Radar power (db)'), 0.0, 100.0, 60.0, format='%.1f')    
+    gt = sensor_exp.number_input(_('Radar transmit gain (db)'), 0.0, 100.0, 42.0, format='%.1f')
+    gr = sensor_exp.number_input(_('Radar receive gain (db)'), 0.0, 100.0, 42.0, format='%.1f')
+    lt = sensor_exp.number_input(_('Radar transmit loss (db)'), 0.0, 50.0, 1.5, format='%.1f')
+    lr = sensor_exp.number_input(_('Radar receive loss (db)'), 0.0, 50.0, 1.5, format='%.1f')
+    fhz = sensor_exp.number_input(_('Radar frequency (MHz)'), 500.0, 10000.0, 5400.0, format='%.1f')
+    sr = sensor_exp.number_input(_('Radar receiver sensitivity (db)'), -300.0, -1.0, -142.0, format='%.1f')
+    snr = sensor_exp.number_input(_('Radar signal noise ratio (db)'), 0.0, 20.0, 0.0, format='%.1f')
+    sample_time = sensor_exp.number_input(_('Sample time (s)'), 0.01, 1.0, 0.01, format='%.2f')
 
     radar_df = st.session_state.radar_df
 
-    if sensor_exp.button("Record new radar sensor"):
+    if sensor_exp.button(_('Record new radar sensor')):
         sensor_add = {'name': [sensor_name], 'pt': [pt], 'gt': [gt], 'gr': [gr], 'lt': [lt],
-                       'lr': [lr], 'fhz': [fhz], 'sr': [sr], 'snr': [snr], 'spt': [sample_time] }
+                    'lr': [lr], 'fhz': [fhz], 'sr': [sr], 'snr': [snr], 'spt': [sample_time]}
         if sensor_name not in radar_df['name'].to_list():
-            if (sensor_add['name'][0]) and (bool(re.match('^[A-Za-z0-9_-]*$',sensor_add['name'][0]))==True):
+            if (sensor_add['name'][0]) and (bool(re.match('^[A-Za-z0-9_-]*$', sensor_add['name'][0]))):
                 radar_df = pd.concat([radar_df, pd.DataFrame(sensor_add)], axis=0)
                 radar_df.to_csv('data/confRadar.csv', index=False)
-                st.session_state["radar_df"]=radar_df
-                sensor_exp.write('Recorded location')
+                st.session_state["radar_df"] = radar_df
+                sensor_exp.write(_('Recorded location'))
             else:
-                sensor_exp.write('write a name without special characters')
+                sensor_exp.write(_('Write a name without special characters'))
         else:
-            sensor_exp.write('location already exists')
-    
-    st.sidebar.selectbox("Radar sensor settings:",radar_df['name'], key="choice_lc", help=help)
+            sensor_exp.write(_('Location already exists'))
+
+    st.sidebar.selectbox(_('Radar sensor settings:'), radar_df['name'], key='choice_lc', help=help_text)
     for sel in radar_df['name']:
-        if sel==st.session_state["choice_lc"]:
+        if sel == st.session_state['choice_lc']:
             radar_sel = radar_df.loc[radar_df['name'] == sel].to_dict('records')[0]
-            st.session_state["ss_radar_sel"] = radar_sel
+            st.session_state['ss_radar_sel'] = radar_sel
 
     # **********************************************************
-    
-    if "traj_flag" not in st.session_state:
-        st.info('Run propagation for trajectory generation',   icon=cn.INFO)
-        page_stop()      
+    if 'traj_flag' not in st.session_state:
+        st.info(_('Run propagation for trajectory generation'), icon=cn.INFO)
+        page_stop()
         
-    lc = st.session_state["ss_lc"]
-    st.info('Selected Sensor location - propagation page: '+ lc['name'], icon=cn.INFO)
-               
-    st.write('Propagation result, approaching the reference point: ', len(st.session_state.ss_result_df.index))
+    lc = st.session_state['ss_lc']
+    st.info(_('Selected Sensor location - propagation page: ') + lc['name'], icon=cn.INFO)
+                
+    st.write(_('Propagation result, approaching the reference point: '), len(st.session_state.ss_result_df.index))
 
-
-    st.subheader('*Data analysis: RCS_MIN and table coloring:*') 
-
+    st.subheader(_('*Data analysis: RCS_MIN and table coloring:*'))
 
     result_df_ch = st.session_state.ss_result_df.copy(deep=True)
 
@@ -310,176 +298,157 @@ def main():
     df_col = result_df_ch.columns.tolist()
     df_col.remove(CHEC_COL_NAME)
 
-    # st.session_state.ss_df_ed = df_atrib(result_df_ch)
     if st.session_state.traj_flag:
         st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
         st.session_state.traj_flag = False
-        st.success('Orbit propagation data loaded', icon=cn.SUCCESS)
+        st.success(_('Orbit propagation data loaded'), icon=cn.SUCCESS)
 
     if 'ss_df_ed' not in st.session_state:
-        st.info('Rum propagation im orbit propagation page', icon= cn.INFO)
-        page_stop()  
+        st.info(_('Run propagation in orbit propagation page'), icon= cn.INFO)
+        page_stop()
 
-    st.info('Selected radar setting: ' + radar_sel['name'], icon=cn.INFO)
-    st.write('Reload propagation results and calculate RCS_MIN with sidebar selected radar settings:')
-    if st.button('Reload data and Calc RCS_MIN',key='bt_RCS_MIN'):
+    st.info(_('Selected radar setting: ') + radar_sel['name'], icon=cn.INFO)
+    st.write(_('Reload propagation results and calculate RCS_MIN with sidebar selected radar settings:'))
+    if st.button(_('Reload data and Calc RCS_MIN'), key='bt_RCS_MIN'):
         st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
-        st.success('Orbit propagation data reloaded', icon=cn.SUCCESS)
+        st.success(_('Orbit propagation data reloaded'), icon=cn.SUCCESS)
 
-    st.subheader('*Object Selection:*')
+    st.subheader(_('Object Selection:'))
 
-    st.write('Green: high chance of tracking, Blue: undefined, Yellow:\
-              sensitivity limit and Red: low chance of tracking.')
-
-    st.write('Select the trajetories:')
+    st.write(_('Green: high chance of tracking, Blue: undefined, Yellow: sensitivity limit and Red: low chance of tracking.'))
+    st.write(_('Select the trajectories:'))
     col1s, col2s, col3s, col4s, col5s = st.columns(5)
-    if col2s.button('Clear All',key='bt_clear'):
+    if col2s.button(_('Clear All'), key='bt_clear'):
         st.session_state.ss_df_ed.data[CHEC_COL_NAME] = False
-    if col3s.button('Select All',key='bt_select'):
+    if col3s.button(_('Select All'), key='bt_select'):
         st.session_state.ss_df_ed.data[CHEC_COL_NAME] = True
 
-    # ************************************************************
     # Select Line st.data_editor
-    # ************************************************************
-    # st.write('All objects')
     selected_row = st.data_editor(
-                    st.session_state.ss_df_ed,
-                    column_config={
-                        CHEC_COL_NAME: st.column_config.CheckboxColumn(
-                            CHEC_COL_NAME,
-                            help="Select trajetories",
-                            disabled=False, 
-                            #default=False,
-                        )
-                        },
-                    disabled= df_col,
-                    hide_index=False,
-                    )   
-     
+        st.session_state.ss_df_ed,
+        column_config={
+            CHEC_COL_NAME: st.column_config.CheckboxColumn(
+                CHEC_COL_NAME,
+                help=_('Select trajectories'),
+                disabled=False,
+            )
+        },
+        disabled=df_col,
+        hide_index=False,
+    )
 
-    if col1s.button('Save selection',key='bt_save'):
+    if col1s.button(_('Save selection'), key='bt_save'):
         st.session_state.ss_df_ed = selected_row.style.apply(highlight_rows, axis=1)
 
-
-    # ************************************************************
+    # Data Export Section
     col1d, col2d = st.columns(2)
-    FILE_NAME_XLSX = st.session_state["ss_lc"]['name']+"_traj_summary.xlsx"
-  
-    with pd.ExcelWriter(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX) as writer:
+    FILE_NAME_XLSX = st.session_state["ss_lc"]['name'] + _("_traj_summary.xlsx")
+
+    with pd.ExcelWriter(st.session_state.ss_dir_name + "/" + FILE_NAME_XLSX) as writer:
         st.session_state.ss_df_ed.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
 
-    if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX):
-        col1d.write('Download highlight File:')
-        with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_XLSX, "rb") as fp:
+    if os.path.isfile(st.session_state.ss_dir_name + "/" + FILE_NAME_XLSX):
+        col1d.write(_('Download highlight File:'))
+        with open(st.session_state.ss_dir_name + "/" + FILE_NAME_XLSX, "rb") as fp:
             btn = col1d.download_button(
-                label="Download .xlsx",
+                label=_('Download .xlsx'),
                 data=fp,
                 file_name=FILE_NAME_XLSX,
                 mime="application/txt"
             )
 
-    # ************************************************************
+    FILE_NAME_CSV = st.session_state["ss_lc"]['name'] + _("_traj_summary.csv")
 
-    FILE_NAME_CSV = st.session_state["ss_lc"]['name']+"_traj_summary.csv"
-  
-    st.session_state.ss_df_ed.data.to_csv(st.session_state.ss_dir_name + "/"+ FILE_NAME_CSV, index=False)
+    st.session_state.ss_df_ed.data.to_csv(st.session_state.ss_dir_name + "/" + FILE_NAME_CSV, index=False)
 
-    if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_CSV):
-        col2d.write('Download csv File:')
-        with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_CSV, "rb") as fp:
+    if os.path.isfile(st.session_state.ss_dir_name + "/" + FILE_NAME_CSV):
+        col2d.write(_('Download csv File:'))
+        with open(st.session_state.ss_dir_name + "/" + FILE_NAME_CSV, "rb") as fp:
             btn = col2d.download_button(
-                label="Download .csv",
+                label=_('Download .csv'),
                 data=fp,
                 file_name=FILE_NAME_CSV,
                 mime="application/txt"
             )
 
+    selected_row = selected_row[selected_row[CHEC_COL_NAME]]
+    selected_row = selected_row.loc[:, selected_row.columns != CHEC_COL_NAME]
+
+    st.subheader(_('*Specific ENU Trajectories:*'))
     # ************************************************************
-    
-    # st.dataframe(st.session_state.ss_df_ed)
+    st.info(_('Radar sensor settings - sample time: ') + str(st.session_state.ss_radar_sel['spt']) + 's', icon=cn.INFO)
+    st.write(_('Calculate trajectories of selected objects:'))
+    if st.button(_('Calculate trajectories')):
 
-    # st.write('Selected objects')
-
-    selected_row=selected_row[selected_row[CHEC_COL_NAME]]
-    selected_row=selected_row.loc[:,selected_row.columns!= CHEC_COL_NAME]
-
-    st.subheader('*Specific ENU Trajectories:*')
-    # ************************************************************
-    st.info('Radarar sensor settings - sample time: ' + str(st.session_state.ss_radar_sel['spt']) + 's', icon=cn.INFO)
-    st.write('Calculate trajectories of selected objects:')
-    if st.button('Calculate trajectories'): 
-
-        if len(selected_row.index)>MAX_NUM_OBJ:
-            st.info('Maximum number of objects to propagate: ' + str(MAX_NUM_OBJ) ,icon=cn.INFO)
+        if len(selected_row.index) > MAX_NUM_OBJ:
+            st.info(_('Maximum number of objects to propagate: ') + str(MAX_NUM_OBJ), icon=cn.INFO)
             page_stop()
-        elif len(selected_row.index)==0:
-            st.info('Select objects to propagate' ,icon=cn.INFO)
+        elif len(selected_row.index) == 0:
+            st.info(_('Select objects to propagate'), icon=cn.INFO)
             page_stop()
 
-        dellfiles(st.session_state.ss_dir_name +"/trn100Hz/*.trn")
+        dellfiles(st.session_state.ss_dir_name + "/trn100Hz/*.trn")
 
-        ini = tm.time()    
+        ini = tm.time()
 
-        st.write('Progress bar:')
+        st.write(_('Progress bar:'))
         my_bar = st.progress(0)
 
         orbital_elem = selected_row.to_dict('records')
-        sample_time = st.session_state.ss_radar_sel['spt'] #  0.01
+        sample_time = st.session_state.ss_radar_sel['spt']  #  0.01
 
-        # automatico:                          
+        # automatico:
         for index in range(len(orbital_elem)):
             propag = PropagInit(orbital_elem[index], lc, sample_time)
-            pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT']/sample_time) )
-            save_trajectories(pos,st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
-            my_bar.progress((index+1)/len(orbital_elem))
-            
-        fim = tm.time()
-        st.write("Processing time (s): ", fim - ini)
+            pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT'] / sample_time))
+            save_trajectories(pos, st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
+            my_bar.progress((index + 1) / len(orbital_elem))
 
-        st.success('Trajectories calculated successfully', icon=cn.SUCCESS)
-        
+        fim = tm.time()
+        st.write(_('Processing time (s): '), fim - ini)
+
+        st.success(_('Trajectories calculated successfully'), icon=cn.SUCCESS)
+
     dir_name = st.session_state.ss_dir_name + '/trn100Hz'
-    if os.path.exists(dir_name): 
-        txt_files = glob.glob(dir_name + os.sep +'*.trn')
-        if  len(txt_files)>0:
-            st.write('Download trajetory files *.trn - from H0, in the ENU:')  
+    if os.path.exists(dir_name):
+        txt_files = glob.glob(dir_name + os.sep + '*.trn')
+        if len(txt_files) > 0:
+            st.write(_('Download trajectory files *.trn - from H0, in the ENU:'))
             shutil.make_archive(dir_name, 'zip', dir_name)
             with open(dir_name + ".zip", "rb") as fp:
                 btn = st.download_button(
-                    label="Download .trn files",
+                    label=_('Download .trn files'),
                     data=fp,
-                    file_name="trn_" + str(sample_time) + 's_' + lc['name'] + '_' + st.session_state.date_time +".zip",
+                    file_name=_('trn_') + str(sample_time) + 's_' + lc['name'] + '_' + st.session_state.date_time + ".zip",
                     mime="application/zip"
                 )
 
-    # Format Colunm to print
-    # ************************************************************
-    st.subheader('*Data summary format and column selection:*')
+    # Summary formatting and selection
+    st.subheader(_('Data summary format and column selection:'))
 
-    to_tound = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE','END_RANGE']
-    for col in to_tound:
+    to_round = ['RCS', 'RCS_MIN', 'H0_RANGE', 'MIN_RANGE', 'END_RANGE']
+    for col in to_round:
         if col in selected_row.columns:
-            selected_row = selected_row.round({col:3})
+            selected_row = selected_row.round({col: 3})
+
     jd_time = Time(selected_row['EPOCH'].values.tolist(), format='isot', scale='utc')
     selected_row['EPOCH_D'] = jd_time.strftime('%d-%H:%M:%S')
 
-    # Select Colunm
-    # ************************************************************
+    # Column Selection
     col1s, col2s = st.columns(2)
+    columns = col1s.multiselect(_('Manual selection of desired columns:'), selected_row.columns)
+    filter_choice = col1s.radio(_('Choose by:'), (_("exclusion"), _("inclusion")))
 
-    columns = col1s.multiselect("Manual selection of desired columns:",selected_row.columns)
-    filter = col1s.radio("Choose by:", ("exclusion", "inclusion"))
-
-    if filter == "exclusion":
+    if filter_choice == _('exclusion'):
         columns = [col for col in selected_row.columns if col not in columns]
 
     selected_row_col = selected_row[columns]
-    decimal_col = 'NORAD_CAT_ID'
 
-    mask_file = col2s.file_uploader('Column selection by config file upload:',type=['csv'])
+    decimal_col = 'NORAD_CAT_ID'
+    mask_file = col2s.file_uploader(_('Column selection by config file upload:'), type=['csv'])
     if mask_file is not None:
-        col2s.write("File details:")
-        file_details = {"Filename":mask_file.name,"FileType":mask_file.type,"FileSize":mask_file.size}
+        col2s.write(_('File details:'))
+        file_details = {"Filename": mask_file.name, "FileType": mask_file.type, "FileSize": mask_file.size}
         col2s.write(file_details)
         if mask_file.type == "text/csv":
             mask_df = pd.read_csv(mask_file)
@@ -487,37 +456,34 @@ def main():
             col_mask_list = mask_df.columns.tolist()
             for col in col_mask_list:
                 if col not in selected_row.columns:
-                    st.error('Error: dataframe does not have column:' + col, icon=cn.ERROR )
+                    st.error(_('Error: dataframe does not have column:') + col, icon=cn.ERROR)
                     page_stop()
-
-            mask_dic = mask_df.to_dict('records')
-            mask_dic = mask_dic[0]
-            df_sel1 = selected_row[col_mask_list]            
+            mask_dic = mask_df.to_dict('records')[0]
+            df_sel1 = selected_row[col_mask_list]
             selected_row_col = df_sel1.rename(columns=mask_dic, inplace=False)
 
-    st.write('Selected columns and rows from the data summary:')
-    # selected_row_col.loc[:, "NORAD_CAT_ID"] = selected_row_col["NORAD_CAT_ID"].map('{:d}'.format)
+    st.write(_('Selected columns and rows from the data summary:'))
     st.dataframe(selected_row_col, column_config={
-                    decimal_col:st.column_config.NumberColumn(
-                                    decimal_col,
-                                    format='%d',
-                                    ) } )
+        decimal_col: st.column_config.NumberColumn(
+            decimal_col,
+            format='%d',
+        )
+    })
 
-    st.write('Save dataframe with selected columns and rows:')
-
-    if st.button('Save Selection'):
+    st.write(_('Save dataframe with selected columns and rows:'))
+    if st.button(_('Save Selection')):
         save_selected_data(selected_row_col)
 
-
-    if os.path.isfile(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV):
-        st.write('Download selected File:')
-        with open(st.session_state.ss_dir_name + "/"+ FILE_NAME_SEL_CSV, "rb") as fp:
+    if os.path.isfile(st.session_state.ss_dir_name + "/" + FILE_NAME_SEL_CSV):
+        st.write(_('Download selected File:'))
+        with open(st.session_state.ss_dir_name + "/" + FILE_NAME_SEL_CSV, "rb") as fp:
             btn = st.download_button(
-                label="Download",
+                label=_('Download'),
                 data=fp,
                 file_name=FILE_NAME_SEL_CSV,
                 mime="application/txt"
             )
+
     
     page_links()
 

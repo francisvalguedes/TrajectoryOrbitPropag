@@ -1,0 +1,307 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/pages/02_orbit_propagation.py:297
+msgid "*Calculate trajectories:*"
+msgstr "*Calcular trajetórias:*"
+
+#: source/pages/02_orbit_propagation.py:390
+msgid "*Files:*"
+msgstr "*Arquivos:*"
+
+#: source/pages/02_orbit_propagation.py:226
+msgid "*Orbital elements:*"
+msgstr "*Elementos orbitais:*"
+
+#: source/pages/02_orbit_propagation.py:383
+msgid "*Outputs:*"
+msgstr "*Saídas:*"
+
+#: source/pages/02_orbit_propagation.py:55
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/pages/02_orbit_propagation.py:236
+msgid "*Settings:*"
+msgstr "*Configurações:*"
+
+#: source/pages/02_orbit_propagation.py:420
+msgid "*.trj files - Trajectory from H0, in the ENU reference system 1Hz"
+msgstr "*.trj arquivos - Trajetória de H0, no sistema de referência ENU 1Hz"
+
+#: source/pages/02_orbit_propagation.py:419
+msgid "*.trn files - Trajectory from H0, in the ENU reference system 1Hz"
+msgstr "*.trn arquivos - Trajetória de H0, no sistema de referência ENU 1Hz"
+
+#: source/pages/02_orbit_propagation.py:315
+msgid ", for time delta "
+msgstr ", para delta de tempo "
+
+#: source/pages/02_orbit_propagation.py:72
+msgid "Add new reference point in WGS84"
+msgstr "Adicionar novo ponto de referência no WGS84"
+
+#: source/pages/02_orbit_propagation.py:387
+msgid "Approaching the reference point: "
+msgstr "Aproximando-se do ponto de referência: "
+
+#: source/pages/02_orbit_propagation.py:77
+msgid "Color"
+msgstr "Cor"
+
+#: source/pages/02_orbit_propagation.py:363
+msgid "Column naming conflict: load file with only orbital elements"
+msgstr "Conflito de nomenclatura de coluna: carregar arquivo apenas com elementos orbitais"
+
+#: source/pages/02_orbit_propagation.py:398
+#: source/pages/02_orbit_propagation.py:408
+msgid "Download"
+msgstr "FAÇA O DOWNLOAD"
+
+#: source/pages/02_orbit_propagation.py:404
+msgid "Download All Files:"
+msgstr "Baixar todos os arquivos:"
+
+#: source/pages/02_orbit_propagation.py:395
+msgid "Download Summary File:"
+msgstr "Baixar arquivo de resumo:"
+
+#: source/pages/02_orbit_propagation.py:277
+msgid "End date"
+msgstr "Data final"
+
+#: source/pages/02_orbit_propagation.py:290
+msgid "End date must be after start date"
+msgstr "A data de término deve ser posterior à data de início"
+
+#: source/pages/02_orbit_propagation.py:278
+msgid "End time"
+msgstr "Hora de Fim"
+
+#: source/pages/02_orbit_propagation.py:88
+msgid "Enter a name without special characters"
+msgstr "Insira um nome sem caracteres especiais"
+
+#: source/pages/02_orbit_propagation.py:414
+msgid "Files can be downloaded on the right side"
+msgstr "Os arquivos podem ser baixados no lado direito"
+
+#: source/pages/02_orbit_propagation.py:59
+msgid "Get Orbital Elements"
+msgstr "Obter Elementos Orbitais"
+
+#: source/pages/02_orbit_propagation.py:76
+msgid "Height (m)"
+msgstr "Altura (m)"
+
+#: source/pages/02_orbit_propagation.py:56
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/pages/02_orbit_propagation.py:74
+msgid "Latitude"
+msgstr "Latitude"
+
+#: source/pages/02_orbit_propagation.py:90
+msgid "Location already exists"
+msgstr "A localização já existe"
+
+#: source/pages/02_orbit_propagation.py:86
+msgid "Location registered"
+msgstr "Localização registrada"
+
+#: source/pages/02_orbit_propagation.py:75
+msgid "Longitude"
+msgstr "Longitude"
+
+#: source/pages/02_orbit_propagation.py:61
+msgid "Map View Page"
+msgstr "Página de visualização do mapa"
+
+#: source/pages/02_orbit_propagation.py:253
+msgid "Maximum distance to trajectory limits (Km)"
+msgstr "Distância máxima até os limites da trajetória (Km)"
+
+#: source/pages/02_orbit_propagation.py:314
+msgid "Maximum number of objects to propagate: "
+msgstr "Número máximo de objetos a propagar: "
+
+#: source/pages/02_orbit_propagation.py:295
+msgid "Maximum number of objects to propagate: {}, for time delta {:.2f} days"
+msgstr "Número máximo de objetos a propagar:{}, for time delta {:.2f} dias"
+
+#: source/pages/02_orbit_propagation.py:288
+msgid "Maximum time delta: "
+msgstr "Delta de tempo máximo: "
+
+#: source/pages/02_orbit_propagation.py:73
+msgid "Name"
+msgstr "Nome"
+
+#: source/pages/02_orbit_propagation.py:251
+msgid "Name: "
+msgstr "Nome:"
+
+#: source/pages/02_orbit_propagation.py:353
+msgid "Number of calculated trajectories: "
+msgstr "Número de trajetórias calculadas: "
+
+#: source/pages/02_orbit_propagation.py:311
+msgid "Number of objects: "
+msgstr "Número de objetos: "
+
+#: source/pages/02_orbit_propagation.py:62
+msgid "Object Orbital Change/Maneuver"
+msgstr "Mudança/manobra orbital do objeto"
+
+#: source/pages/02_orbit_propagation.py:60
+msgid "Orbit Propagation"
+msgstr "Propagação de Órbita"
+
+#: source/pages/02_orbit_propagation.py:224
+msgid "Orbit propagation and search for approach trajectory to the sensor:"
+msgstr "Propagação da órbita e busca da trajetória de aproximação ao sensor:"
+
+#: source/pages/02_orbit_propagation.py:231
+msgid "Orbital Elements loaded!"
+msgstr "Elementos orbitais carregados!"
+
+#: source/pages/02_orbit_propagation.py:308
+msgid "Orbital elements do not match OMM format"
+msgstr "Os elementos orbitais não correspondem ao formato OMM"
+
+#: source/pages/02_orbit_propagation.py:58
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/pages/02_orbit_propagation.py:381
+msgid "Processing time (s): "
+msgstr "Tempo(s) de processamento: "
+
+#: source/pages/02_orbit_propagation.py:340
+msgid "Progress bar:"
+msgstr "Barra de progresso:"
+
+#: source/pages/02_orbit_propagation.py:79
+msgid "Register new location"
+msgstr "Registrar nova localização"
+
+#: source/pages/02_orbit_propagation.py:304
+msgid "Run propagation"
+msgstr "Executar propagação"
+
+#: source/pages/02_orbit_propagation.py:392
+msgid "Run propagation to get files"
+msgstr "Execute a propagação para obter arquivos"
+
+#: source/pages/02_orbit_propagation.py:239
+msgid "Sampling rate (s): "
+msgstr "Taxa de amostragem (s): "
+
+#: source/pages/02_orbit_propagation.py:281
+msgid "Search end time: "
+msgstr "Hora de término da pesquisa: "
+
+#: source/pages/02_orbit_propagation.py:275
+msgid "Search start time: "
+msgstr "Hora de início da pesquisa: "
+
+#: source/pages/02_orbit_propagation.py:241
+msgid "Select sensor location or record another location in the sidebar"
+msgstr "Selecione a localização do sensor ou registre outra localização na barra lateral"
+
+#: source/pages/02_orbit_propagation.py:63
+msgid "Sensor-Specific Trajectory Selection"
+msgstr "Seleção de trajetória específica do sensor"
+
+#: source/pages/02_orbit_propagation.py:250
+msgid "Sensor location in the WGS84 Geodetic "
+msgstr "Localização do sensor no WGS84 Geodetic "
+
+#: source/pages/02_orbit_propagation.py:244
+msgid "Sensor location in the WGS84 (a new one can be registered in the sidebar) :"
+msgstr "Localização do sensor no WGS84 (um novo pode ser registrado na barra lateral):"
+
+#: source/pages/02_orbit_propagation.py:57
+msgid "Simplified Setup - APP Basic Functions"
+msgstr "Configuração simplificada - Funções básicas do APP"
+
+#: source/pages/02_orbit_propagation.py:269
+msgid "Start and end time for H0 search TU:"
+msgstr "Hora de início e término da busca H0 TU:"
+
+#: source/pages/02_orbit_propagation.py:271
+msgid "Start date"
+msgstr "Data de início"
+
+#: source/pages/02_orbit_propagation.py:272
+msgid "Start time"
+msgstr "Hora de início"
+
+#: source/pages/02_orbit_propagation.py:384
+msgid "The data summary:"
+msgstr "Resumo dos dados:"
+
+#: source/pages/02_orbit_propagation.py:267
+msgid "The maximum distance must be greater than the minimum distance in 1.05x"
+msgstr "A distância máxima deve ser maior que a distância mínima em 1,05x"
+
+#: source/pages/02_orbit_propagation.py:260
+msgid "The minimum distance that the trajectory must reach in order to be accepted (Km)"
+msgstr "Distância mínima que a trajetória deve percorrer para ser aceita (Km)"
+
+#: source/pages/02_orbit_propagation.py:415
+msgid "The resulting files contain:"
+msgstr "Os arquivos resultantes contêm:"
+
+#: source/pages/02_orbit_propagation.py:378
+msgid "There are no sensor approach points for this configuration"
+msgstr "Não há pontos de aproximação do sensor para esta configuração"
+
+#: source/pages/02_orbit_propagation.py:422
+msgid "To analyze the results, go to the next page."
+msgstr "Para analisar os resultados, vá para a próxima página."
+
+#: source/pages/02_orbit_propagation.py:386
+msgid "Trajectories calculated successfully"
+msgstr "Trajetórias calculadas com sucesso"
+
+#: source/pages/02_orbit_propagation.py:306
+msgid "Upload the orbital elements"
+msgstr "Carregar os elementos orbitais"
+
+#: source/pages/02_orbit_propagation.py:229
+msgid "Upload the orbital elements in previous page"
+msgstr "Carregue os elementos orbitais na página anterior"
+
+#: source/pages/02_orbit_propagation.py:288
+#: source/pages/02_orbit_propagation.py:315
+msgid " days"
+msgstr "dias"
+
+#: source/pages/02_orbit_propagation.py:323
+msgid " objects excluded because they have periapsis greater than dmax: "
+msgstr " objetos excluídos porque têm periapsis maior que dmax: "
+
+#: source/pages/02_orbit_propagation.py:421
+msgid "data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times 1Hz"
+msgstr "arquivos de dados *.csv - Trajetória de H0, em referência de plano local (ENU), AltAzRange, ITRS e Geodésico, incluindo tempos de 1Hz"
+
+#: source/pages/02_orbit_propagation.py:416
+msgid "orbital_elem.csv - Orbital elements of selected objects"
+msgstr "orbital_elem.csv - Elementos orbitais de objetos selecionados"
+
+#: source/pages/02_orbit_propagation.py:417
+msgid "orbital_elem_all.csv - All loaded orbital elements"
+msgstr "orbital_elem_all.csv - Todos os elementos orbitais carregados"
+
+#: source/pages/02_orbit_propagation.py:418
+msgid "traj_summary.csv - Relevant trajectory and object data"
+msgstr "traj_summary.csv - Trajetória relevante e dados do objeto"

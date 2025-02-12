@@ -33,6 +33,17 @@ import glob
 import pymap3d as pm
 import re
 
+
+st.set_page_config(page_title="Orbit propagation",
+                    page_icon="🌏", layout="wide", initial_sidebar_state="auto",
+                    menu_items=menu_itens())
+# https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
+
+# apenas para tradução
+domain_name = os.path.basename(__file__).split('.')[0]
+_ = gettext_translate(domain_name)
+
+
 cn = ConstantsNamespace()
 
 
@@ -40,30 +51,21 @@ def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
     else:
-        stlocal = st
-    
+        stlocal = st.expander("", expanded=True)
     stlocal.subheader(_("*Pages:*"))
     stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
-    # stlocal.markdown(_("Simplified Page:"))
-    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified Setup - APP Basic Functions"), icon="0️⃣")
     stlocal.markdown(_("Pages with specific settings:"))
-    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
-    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Get Orbital Elements"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit Propagation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map View Page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
+
 
 def page_stop():
     page_links()
     st.stop()
-
-def menu_itens():
-    menu_items={
-        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
-        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
-    }
-    return menu_items
-
 
 def sensor_registration():
     # Add new reference point (sensor)
@@ -191,15 +193,6 @@ def main():
     """main function that provides the simplified interface for configuration,
          visualization and data download. """  
 
-    st.set_page_config(
-    page_title="Orbit propagation for Tracking",
-    page_icon="🌏", # "🤖",  # "🧊",
-    # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items = menu_itens()
-    )
-
     page_links(insidebar=True)
 
     if "stc_loged" not in st.session_state:
@@ -208,9 +201,9 @@ def main():
     if "d_max" not in st.session_state:
         st.session_state.d_max = 1100
 
-    path_files = tempfile.gettempdir() + '/top_tmp*'
-    txt_files = glob.glob(path_files)
-    files_count = len(txt_files)
+    # path_files = tempfile.gettempdir() + '/top_tmp*'
+    # txt_files = glob.glob(path_files)
+    # files_count = len(txt_files)
 
     if "date_time" not in st.session_state:
         date_time = datetime.now(timezone.utc).strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
@@ -228,107 +221,107 @@ def main():
         os.mkdir(st.session_state.ss_dir_name +"/trj1Hz")
         os.mkdir(st.session_state.ss_dir_name +"/csv1Hz")         
 
-    st.subheader('Orbit propagation and search for approach trajectory to the sensor:')
+    st.subheader(_('Orbit propagation and search for approach trajectory to the sensor:'))
 
-    st.subheader("*Orbital elements:*")
+    st.subheader(_("*Orbital elements:*"))
 
     if "ss_elem_df" not in st.session_state:
-        st.warning('Upload the orbital elements in previos page', icon=cn.WARNING)        
+        st.warning(_('Upload the orbital elements in previous page'), icon=cn.WARNING)        
     else:
-        st.success('Orbital Elements loaded!', icon=cn.SUCCESS )
+        st.success(_('Orbital Elements loaded!'), icon=cn.SUCCESS )
 
     if "lc_df" not in st.session_state:
         st.session_state["lc_df"] = pd.read_csv('data/confLocalWGS84.csv')
 
-    st.subheader("*Settings:*")
+    st.subheader(_("*Settings:*"))
 
-    # Select sample time
-    sample_time = 1.0 #st.number_input('Sampling rate (s):', 0.1, 10.0, 1.0, step = 0.1)
-    st.write('Sampling rate (s): ', sample_time)
+    sample_time = 1.0 
+    st.write(_('Sampling rate (s): '), sample_time)
 
-    # Select sensor location or record another location
-    help=('Select sensor location or record another location in the sidebar') 
+    help=_('Select sensor location or record another location in the sidebar') 
     sensor_registration()
     
-    st.selectbox("Sensor location in the WGS84 (a new one can be registered in the sidebar) :",st.session_state.lc_df['name'], key="choice_lc", help=help)
+    st.selectbox(_('Sensor location in the WGS84 (a new one can be registered in the sidebar) :'), st.session_state.lc_df['name'], key="choice_lc", help=help)
     for sel in st.session_state.lc_df['name']:
         if sel==st.session_state["choice_lc"]:
             lc = st.session_state.lc_df.loc[st.session_state.lc_df['name'] == sel].to_dict('records')[0]
             st.session_state["ss_lc"] = lc
 
-    st.write('Sensor location in the WGS84 Geodetic ')
-    st.write('Name: ', lc['name'])
+    st.write(_('Sensor location in the WGS84 Geodetic '))
+    st.write(_('Name: '), lc['name'])
 
-    dmax = st.number_input('Maximum distance to trajectory limits (Km)',
+    dmax = st.number_input(_('Maximum distance to trajectory limits (Km)'),
         min_value = 400,
         max_value = 10000,
         value = 1100,
         step = 50)
     st.session_state.d_max = dmax
 
-    dmin = st.number_input('The minimum distance that the trajectory must reach in order to be accepted (Km)',
+    dmin = st.number_input(_('The minimum distance that the trajectory must reach in order to be accepted (Km)'),
         min_value = 200,
         max_value = 5000,
         value = 1000,
         step = 50)
 
     if not dmax>1.05*dmin:
-        st.error('The maximum distance must be greater than the minimum distance in 1.05x', icon=cn.ERROR)
+        st.error(_('The maximum distance must be greater than the minimum distance in 1.05x'), icon=cn.ERROR)
 
-    st.write('Start and end time for H0 search TU:')
+    st.write(_('Start and end time for H0 search TU:'))
     col1, col2 = st.columns(2)
-    initial_date = col1.date_input("Start date")
-    initial_time = col2.time_input("Start time", time(10, 0))
+    initial_date = col1.date_input(_("Start date"))
+    initial_time = col2.time_input(_("Start time"), time(10, 0))
     initial_datetime=Time(datetime.combine(initial_date, initial_time))
     initial_datetime.format = 'isot'
-    st.write('Search start time: ', initial_datetime)
+    st.write(_('Search start time: '), initial_datetime)
 
-    final_date = col1.date_input("End date")
-    final_time = col2.time_input("End time", time(20, 0))
+    final_date = col1.date_input(_("End date"))
+    final_time = col2.time_input(_("End time"), time(20, 0))
     final_datetime=Time(datetime.combine(final_date, final_time))
     final_datetime.format = 'isot'
-    st.write('Search end time: ', final_datetime)   
+    st.write(_('Search end time: '), final_datetime)   
 
     max_time = TimeDelta(10*u.d)
-    max_num_obj = 5000 
-    
+    max_num_obj = 5000
+    max_process_time = 60*2 # 2 min    
     if  (final_datetime - initial_datetime)> max_time:      
         final_datetime = initial_datetime + max_time 
-        st.warning('Maximum time delta: ' + str(max_time) + ' days', icon=cn.WARNING)
+        st.warning(_('Maximum time delta: ') + str(max_time) + _(' days'), icon=cn.WARNING)
     elif  (final_datetime - initial_datetime) < TimeDelta(0.0001*u.d):
-        st.error('End date must be after start date', icon=cn.ERROR)
+        st.error(_('End date must be after start date'), icon=cn.ERROR)
         st.stop()
         
     time_norm = (max_time - (final_datetime - initial_datetime))/max_time
     max_num_obj = np.round(1 + max_num_obj*time_norm)
-    st.info('Maximum number of objects to propagate: {}, for time delta {:.2f} days'.format(max_num_obj, (final_datetime - initial_datetime).to_value('jd', 'decimal')),icon=cn.INFO)
+    st.info(_('Maximum number of objects to propagate: {}, for time delta {:.2f} days').format(max_num_obj, (final_datetime - initial_datetime).to_value('jd', 'decimal')),icon=cn.INFO)
 
-    st.subheader("*Calculate trajectories:*")
+    st.subheader(_("*Calculate trajectories:*"))
 
     summary_fn = lc['name']+ '_' + st.session_state.date_time[0:19] +"_traj_summary.csv"
     summary_path = st.session_state.ss_dir_name + "/"+ summary_fn
-    
-    if st.button("Run propagation"):
-        if "ss_elem_df" not in st.session_state:
-            st.info('Upload the orbital elements', icon=cn.INFO)
-        elif 'MEAN_MOTION' not in st.session_state["ss_elem_df"].columns.to_list():
-            st.error('Orbital elements do not match OMM format', icon=cn.ERROR)
-        else:         
-            elem_df = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
-            st.write('Number of objects: ', len(elem_df.index))
 
-            if len(elem_df.index)>max_num_obj:
-                st.warning('Maximum number of objects to propagate: ' + str(max_num_obj) +
-                        ', for time delta '+ str(final_datetime - initial_datetime) + ' days',
-                         icon=cn.WARNING)
+# ##################
+
+    if st.button(_("Run propagation")):
+        if "ss_elem_df" not in st.session_state:
+            st.info(_("Upload the orbital elements"), icon=cn.INFO)
+        elif 'MEAN_MOTION' not in st.session_state["ss_elem_df"].columns.to_list():
+            st.error(_("Orbital elements do not match OMM format"), icon=cn.ERROR)
+        else:
+            elem_df = st.session_state["ss_elem_df"].drop_duplicates(subset=['NORAD_CAT_ID'], keep='first')
+            st.write(_("Number of objects: "), len(elem_df.index))
+
+            if len(elem_df.index) > max_num_obj:
+                st.warning(_("Maximum number of objects to propagate: ") + str(max_num_obj) +
+                        _(", for time delta ") + str(final_datetime - initial_datetime) + _(" days"),
+                        icon=cn.WARNING)
                 st.stop()
 
             if 'PERIAPSIS' in elem_df.columns.tolist():
-                orbital_elem = elem_df[ elem_df['PERIAPSIS']<dmax]
+                orbital_elem = elem_df[elem_df['PERIAPSIS'] < dmax]
                 orbital_elem_dell = elem_df[~elem_df['NORAD_CAT_ID'].isin(orbital_elem['NORAD_CAT_ID'].tolist())]
-                if orbital_elem_dell.shape[0]>0:
-                    st.warning(str(orbital_elem_dell.shape[0]) + ' objects excluded because they have periapsis greater than dmax: ' +
-                                str(dmax) + 'Km', icon=cn.WARNING )
+                if orbital_elem_dell.shape[0] > 0:
+                    st.warning(str(orbital_elem_dell.shape[0]) + _(" objects excluded because they have periapsis greater than dmax: ") +
+                            str(dmax) + "Km", icon=cn.WARNING)
             else:
                 orbital_elem = elem_df
 
@@ -336,111 +329,103 @@ def main():
 
             orbital_elem = orbital_elem.to_dict('records')
 
-            rcs = pd.read_csv('data/RCS.csv').to_dict('list')        
+            rcs = pd.read_csv('data/RCS.csv').to_dict('list')
 
-            dellfiles(st.session_state.ss_dir_name +"/trn1Hz/*.trn")
-            dellfiles(st.session_state.ss_dir_name +"/trj1Hz/*.trj")
-            dellfiles(st.session_state.ss_dir_name +"/csv1Hz/*.csv")  
- 
-            ini = tm.time()    
+            dellfiles(st.session_state.ss_dir_name + "/trn1Hz/*.trn")
+            dellfiles(st.session_state.ss_dir_name + "/trj1Hz/*.trj")
+            dellfiles(st.session_state.ss_dir_name + "/csv1Hz/*.csv")
 
-            st.write('Progress bar:')
+            ini = tm.time()
+
+            st.write(_("Progress bar:"))
             my_bar = st.progress(0)
 
             sdf = SummarizeDataFiles()
 
-            # automatico:                          
             for index in range(len(orbital_elem)):
-                propag = PropagInit(orbital_elem[index], lc, sample_time) 
-                pos = propag.search2h0(initial_datetime, final_datetime, dmax*1000, dmin*1000)
-                sdf.save_trajectories(pos,orbital_elem[index],st.session_state.ss_dir_name,rcs)
-                my_bar.progress((index+1)/len(orbital_elem))
+                propag = PropagInit(orbital_elem[index], lc, sample_time)
+                pos = propag.search2h0(initial_datetime, final_datetime, dmax * 1000, dmin * 1000)
+                sdf.save_trajectories(pos, orbital_elem[index], st.session_state.ss_dir_name, rcs)
+                my_bar.progress((index + 1) / len(orbital_elem))
+                if (tm.time() - ini) > max_process_time:
+                    st.warning("Exceeded maximum processing time, limit the number of orbital elements", cn.WARNING)
+                    break
 
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             obj_aprox = len(df_orb.index)
-            st.write('Number of calculated trajectories: ', obj_aprox)
+            st.write(_("Number of calculated trajectories: "), obj_aprox)
 
             if obj_aprox > 0:
-                df_orb.to_csv(st.session_state.ss_dir_name + "/"+ st.session_state.date_time[0:19] +"_orbital_elem.csv", index=False)
-
+                df_orb.to_csv(st.session_state.ss_dir_name + "/" + st.session_state.date_time[0:19] + "_orbital_elem.csv", index=False)
                 col_first = ['EPOCH', 'CREATION_DATE', 'DECAY_DATE']
-                df_orb = columns_first(df_orb, col_first )
+                df_orb = columns_first(df_orb, col_first)
 
                 df_traj = pd.DataFrame(sdf.sel_resume)
-
                 common = set(df_traj.columns.tolist()).intersection(df_orb.columns.tolist())
                 if len(common) > 0:
-                    st.error('Column naming conflict: load file with only orbital elements', icon=cn.ERROR)
+                    st.error(_("Column naming conflict: load file with only orbital elements"), icon=cn.ERROR)
                     st.stop()
 
                 df_traj = df_traj.join(df_orb)
-
-                col_first = ['NORAD_CAT_ID','OBJECT_NAME', 'RCS_SIZE']
-                df_traj = columns_first(df_traj, col_first )
-
+                col_first = ['NORAD_CAT_ID', 'OBJECT_NAME', 'RCS_SIZE']
+                df_traj = columns_first(df_traj, col_first)
                 df_traj = df_traj.sort_values(by=['H0'], ascending=True)
                 df_traj = df_traj.reset_index(drop=True)
 
                 st.session_state.ss_result_df = df_traj
-
                 st.session_state.traj_flag = True
-
-                df_traj.to_csv(summary_path, index=False)                                  
+                df_traj.to_csv(summary_path, index=False)
             else:
                 if "ss_result_df" in st.session_state:
                     del st.session_state.ss_result_df
-                st.warning('there are no sensor approach points for this configuration', icon=cn.WARNING)
+                st.warning(_("There are no sensor approach points for this configuration"), icon=cn.WARNING)
 
-            
             fim = tm.time()
-            st.write("Processing time (s): ", fim - ini)
+            st.write(_("Processing time (s): "), fim - ini)
 
-    st.subheader('*Outputs:*')
-    st.write('The data summary:')  
-    if "ss_result_df" in st.session_state: 
-        st.success('trajectories calculated successfully', icon=cn.SUCCESS)                      
-        st.write('Approaching the reference point: ', len(st.session_state.ss_result_df.index))
+    st.subheader(_('*Outputs:*'))
+    st.write(_("The data summary:"))
+    if "ss_result_df" in st.session_state:
+        st.success(_("Trajectories calculated successfully"), icon=cn.SUCCESS)
+        st.write(_("Approaching the reference point: "), len(st.session_state.ss_result_df.index))
         st.dataframe(st.session_state.ss_result_df.style.format(thousands=""))
-        
-    st.subheader('*Files:*')     
+
+    st.subheader(_("*Files:*"))
     if "ss_result_df" not in st.session_state:
-        st.info('Run propagation for get files', icon=cn.INFO)
+        st.info(_("Run propagation to get files"), icon=cn.INFO)
     else:
         if os.path.isfile(summary_path):
-            st.write('Download Summary File:')
+            st.write(_("Download Summary File:"))
             with open(summary_path, "rb") as fp:
                 btn = st.download_button(
-                    label="Download",
+                    label=_("Download"),
                     data=fp,
                     file_name=summary_fn,
                     mime="application/txt"
                 )
 
-        st.write('Download All Files:')
+        st.write(_("Download All Files:"))
         shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
         with open(st.session_state.ss_dir_name + ".zip", "rb") as fp:
             btn = st.download_button(
-                label="Download",
+                label=_("Download"),
                 data=fp,
-                file_name="results_"+ lc['name'] + '_' + st.session_state.date_time +".zip",
+                file_name="results_" + lc['name'] + '_' + st.session_state.date_time + ".zip",
                 mime="application/zip"
             )
 
-    st.write('Files can be downloaded on the right side')
-
-    st.write('The resulting files contain:')
-    st.write('orbital_elem.csv - Orbital elements of selected objects')
-    st.write('orbital_elem_all.csv - All loaded orbital elements')
-    st.write('traj_summary.csv - Relevant trajectory and object data')
-    st.write('*.trn files - Trajectory from H0, in the ENU reference system 1Hz')
-    st.write('*.trj files - Trajectory from H0, in the ENU reference system 1Hz')
-
-    st.write('data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times 1Hz')
-
-    st.info('To analyze the results, go to the next page.', icon=cn.INFO)
+    st.write(_("Files can be downloaded on the right side"))
+    st.write(_("The resulting files contain:"))
+    st.write(_("orbital_elem.csv - Orbital elements of selected objects"))
+    st.write(_("orbital_elem_all.csv - All loaded orbital elements"))
+    st.write(_("traj_summary.csv - Relevant trajectory and object data"))
+    st.write(_("*.trn files - Trajectory from H0, in the ENU reference system 1Hz"))
+    st.write(_("*.trj files - Trajectory from H0, in the ENU reference system 1Hz"))
+    st.write(_("data *.csv files - Trajectory from H0, in local plane reference (ENU), AltAzRange, ITRS and Geodetic, including times 1Hz"))
+    st.info(_("To analyze the results, go to the next page."), icon=cn.INFO)
 
     page_links()
-    
+   
 
 if __name__== '__main__':
     main()

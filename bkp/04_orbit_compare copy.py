@@ -50,14 +50,6 @@ def page_stop():
     page_links()
     st.stop()
 
-def menu_itens():
-    menu_items={
-        'Get Help': 'https://github.com/francisvalguedes/TrajectoryOrbitPropag',
-        'About': "A cool app for orbit propagation and trajectory generation, report a bug: francisvalg@gmail.com"
-    }
-    return menu_items
-
-
 def main():
     st.set_page_config(
     page_title="Compare orbital elements trajectories",

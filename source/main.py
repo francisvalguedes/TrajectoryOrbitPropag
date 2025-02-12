@@ -32,18 +32,17 @@ def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
     else:
-        stlocal = st
-    
+        stlocal = st.expander("", expanded=True)
     stlocal.subheader(_("*Pages:*"))
     stlocal.page_link("main.py", label=_("Home page"), icon="🏠")
-    # stlocal.markdown(_("Simplified Page:"))
-    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified setup with some of the APP functions"), icon="0️⃣")
+    stlocal.page_link("pages/00_Simplified.py", label=_("Simplified Setup - APP Basic Functions"), icon="0️⃣")
     stlocal.markdown(_("Pages with specific settings:"))
-    stlocal.page_link("pages/01_orbital_elements.py", label=_("Obtaining orbital elements of the space object"), icon="1️⃣")
-    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit propagation and trajectory generation"), icon="2️⃣")
-    stlocal.page_link("pages/03_map.py", label=_("Map view page"), icon="3️⃣")
-    stlocal.page_link("pages/04_orbit_compare.py", label=_("Analysis of object orbital change/maneuver"), icon="4️⃣")
-    stlocal.page_link("pages/05_trajectory.py", label=_("Generation of specific trajectories"), icon="5️⃣")
+    stlocal.page_link("pages/01_orbital_elements.py", label=_("Get Orbital Elements"), icon="1️⃣")
+    stlocal.page_link("pages/02_orbit_propagation.py", label=_("Orbit Propagation"), icon="2️⃣")
+    stlocal.page_link("pages/03_map.py", label=_("Map View Page"), icon="3️⃣")
+    stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
+    stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
+
 
 def page_stop():
     page_links()
@@ -83,7 +82,8 @@ def main():
     st.markdown(_('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system'))
     st.markdown(_('This APP use Orbit Mean-Elements Message (OMM) format, it contain orbital elements for satellites in a standard format. OMM files are part of the Orbit Data Messages (ODM) Recommended Standard'))
 
-    st.image("figures/orbit_propagator.svg",
+    stex1 = st.expander("", expanded=True)
+    stex1.image("figures/orbit_propagator.svg",
              caption=_("block diagram of Orbit Propagation"),
              )
     

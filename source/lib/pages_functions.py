@@ -30,22 +30,13 @@ from lib.constants import  ConstantsNamespace
 cn = ConstantsNamespace()
 
 
-# _ = gettext.gettext
-# filename = os.path.basename(__file__)
-# try:
-#     localizator = gettext.translation(filename.split('.')[0], localedir='locales', languages=[st.session_state.language])
-#     localizator.install()
-#     _ = localizator.gettext 
-# except:        
-#     pass
-
-
 # https://iconscout.com/icons/satellite
 icon_sat_tj = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite.svg"
 # https://iconduck.com/icons/271693/satellite#
 icon_sat_end = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite_duck.svg"
 #https://iconduck.com/icons/9737/satellite-radar#
 icon_sensor = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite-radar.svg"
+
 
 # functions
 class Icons:
@@ -365,13 +356,27 @@ def menu_itens():
 
 def gettext_translate(domain_name):   
     languages = {"English": "en", "Português-BR": "pt-BR"}
+
+
+    if 'selected_language_index' in st.session_state:
+        rd_index = st.session_state.selected_language_index
+    else:
+        rd_index = 0
+
     language = st.radio("Language",
                         options=languages,
                         horizontal=True,
-                        label_visibility='hidden',# 'collapsed',
+                        label_visibility='hidden',# 'collapsed', hidden
                         #on_change=set_language,
                         key="selected_language",
+                        index=rd_index
                         )
+    
+    st.session_state.selected_language_index = list(languages.keys()).index(language)
+
+
+    st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)    
+
     language = languages[language]
 
     st.session_state.language = language

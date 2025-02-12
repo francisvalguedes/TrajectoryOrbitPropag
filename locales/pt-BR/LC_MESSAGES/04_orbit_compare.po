@@ -1,0 +1,121 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Localazy (https://localazy.com)\n"
+"Project-Id-Version: trajpropag\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
+
+#: source/pages/04_orbit_compare.py:49
+msgid "*Pages:*"
+msgstr "*Páginas:*"
+
+#: source/pages/04_orbit_compare.py:226
+msgid "Data visualization:"
+msgstr "Visualização de dados:"
+
+#: source/pages/04_orbit_compare.py:143
+msgid "Enough orbital elements to perform comparison already loaded"
+msgstr "Elementos orbitais suficientes para realizar a comparação já carregados"
+
+#: source/pages/04_orbit_compare.py:117 source/pages/04_orbit_compare.py:140
+msgid "Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)"
+msgstr "Exemplo de um link para acesso direto à API do Space-Track (é necessário registro e login): [link](%s )"
+
+#: source/pages/04_orbit_compare.py:217
+msgid "Files can be downloaded:"
+msgstr "Os arquivos podem ser baixados:"
+
+#: source/pages/04_orbit_compare.py:53
+msgid "Get Orbital Elements"
+msgstr "Obter Elementos Orbitais"
+
+#: source/pages/04_orbit_compare.py:50
+msgid "Home page"
+msgstr "Página inicial"
+
+#: source/pages/04_orbit_compare.py:138
+msgid "Insufficient orbital elements, obtain from the Space-Track website or API more than two sets of orbitalelements per object and upload to page 01 - Orbital Elements, which also has a tool for accessing the API."
+msgstr "Elementos orbitais insuficientes, obtenha no site Space-Track ou na API mais de dois conjuntos de elementos orbitais por objeto e carregue na página 01 - Elementos orbitais, que também possui uma ferramenta para acessar a API."
+
+#: source/pages/04_orbit_compare.py:55
+msgid "Map View Page"
+msgstr "Página de visualização do mapa"
+
+#: source/pages/04_orbit_compare.py:121
+msgid "Norads loaded from last orbital propagation results"
+msgstr "Norads carregados a partir dos últimos resultados de propagação orbital"
+
+#: source/pages/04_orbit_compare.py:56
+msgid "Object Orbital Change/Maneuver"
+msgstr "Mudança/manobra orbital do objeto"
+
+#: source/pages/04_orbit_compare.py:113
+msgid "Obtain the orbital elements from the Space-Track website or API more than two sets oforbital elements per object and upload to page 01 - Orbital Elements, which also hasa tool for accessing the API."
+msgstr "Obtenha os elementos orbitais do site Space-Track ou da API mais de dois conjuntos de elementos orbitais por objeto e carregue na página 01 - Elementos Orbitais, que também possui uma ferramenta para acessar a API."
+
+#: source/pages/04_orbit_compare.py:54
+msgid "Orbit Propagation"
+msgstr "Propagação de Órbita"
+
+#: source/pages/04_orbit_compare.py:108
+msgid "Orbit Trajectory Compare"
+msgstr "Comparação de trajetória de órbita"
+
+#: source/pages/04_orbit_compare.py:52
+msgid "Pages with specific settings:"
+msgstr "Páginas com configurações específicas:"
+
+#: source/pages/04_orbit_compare.py:149
+msgid "Perform propagation calculations and trajectory comparison:"
+msgstr "Realizar cálculos de propagação e comparação de trajetórias:"
+
+#: source/pages/04_orbit_compare.py:155
+msgid "Progress bar:"
+msgstr "Barra de progresso:"
+
+#: source/pages/04_orbit_compare.py:123
+msgid "Run Orbit propagation"
+msgstr "Executar propagação de órbita"
+
+#: source/pages/04_orbit_compare.py:150
+msgid "Run trajectory comparison"
+msgstr "Comparação de trajetória de execução"
+
+#: source/pages/04_orbit_compare.py:57
+msgid "Sensor-Specific Trajectory Selection"
+msgstr "Seleção de trajetória específica do sensor"
+
+#: source/pages/04_orbit_compare.py:51
+msgid "Simplified Setup - APP Basic Functions"
+msgstr "Configuração simplificada - Funções básicas do APP"
+
+#: source/pages/04_orbit_compare.py:124
+msgid "That is it"
+msgstr "É isso aí"
+
+#: source/pages/04_orbit_compare.py:147
+msgid "There are no orbital elements for comparison"
+msgstr "Não há elementos orbitais para comparação"
+
+#: source/pages/04_orbit_compare.py:145
+msgid "There are objects with less than two sets of orbital elements, it will not be possible to compare them"
+msgstr "Existem objetos com menos de dois conjuntos de elementos orbitais, não será possível compará-los"
+
+#: source/pages/04_orbit_compare.py:130
+msgid "Upload the orbital elements with two or more sets of orbital elements on the specific page"
+msgstr "Carregue os elementos orbitais com dois ou mais conjuntos de elementos orbitais na página específica"
+
+#: source/pages/04_orbit_compare.py:109
+msgid "Use the orbital elements loaded on page 01 - Orbital Elements"
+msgstr "Utilize os elementos orbitais carregados na página 01 - Elementos orbitais"
+
+#: source/pages/04_orbit_compare.py:215
+msgid "orbital_elem_compare.csv"
+msgstr "orbital_elem_compare.csv"
+
+#: source/pages/04_orbit_compare.py:210
+msgid "run compare"
+msgstr "executar comparar"
