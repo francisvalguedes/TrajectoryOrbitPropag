@@ -13,6 +13,7 @@ import datetime as dt
 
 import os
 import tempfile
+import json
 
 from spacetrack import SpaceTrackClient
 import spacetrack.operators as op
@@ -123,7 +124,9 @@ def get_orbital_element():
         fcol1, fcol2 = form.columns(2)
         submitted = fcol1.form_submit_button(_("Submit"))
         if submitted:
-            stc = SpaceTrackClientInit(stc_log, stc_ss)
+            with open("conf.json", "r") as file:
+                config = json.load(file)
+            stc = SpaceTrackClientInit(stc_log, stc_ss, config)
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
             if st.session_state.stc_loged:          

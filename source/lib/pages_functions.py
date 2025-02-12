@@ -23,6 +23,8 @@ import folium
 from folium import plugins
 
 import gettext
+import httpx
+from urllib.parse import quote
 
 from lib.constants import  ConstantsNamespace
 
@@ -53,7 +55,7 @@ class Icons:
 
 
 class SpaceTrackClientInit(SpaceTrackClient):
-    def __init__(self,identity,password):
+    def __init__(self,identity,password, config):
         """initialize the class.
 
         Args:
@@ -64,7 +66,24 @@ class SpaceTrackClientInit(SpaceTrackClient):
         Returns:
 
         """
-        super().__init__(identity, password)
+        # Check if proxy is enabled
+        if config["proxy"].get("enabled", True):
+            print(config)
+            proxy_server = config["proxy"]["server"]
+            proxy_port = config["proxy"]["port"]
+            username = config["proxy"]["username"]
+            password = config["proxy"]["password"]
+
+            proxy_url = f"http://{quote(username)}:{quote(password)}@{quote(proxy_server)}:{quote(proxy_port)}"
+            
+            proxies = {
+                "http://": proxy_url,
+                "https://": proxy_url
+            }
+            client = httpx.Client(proxies=proxies)
+            super().__init__(identity, password, httpx_client = client)
+        else:
+            super().__init__(identity, password)
 
     def ss(self):
         """authenticate.
