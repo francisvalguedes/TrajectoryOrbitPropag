@@ -63,8 +63,9 @@ def page_stop():
 
 def plot_compare(df):
     # Seleção de NORAD_CAT_ID
-    col1, col2 = st.columns(2)
-    selected_norad = col1.selectbox("Select the NORAD_CAT_ID", df["NORAD_CAT_ID"].unique())
+    exp_visu = st.expander(_("Select the object"), expanded=True)
+    col1, col2 = exp_visu.columns(2)
+    selected_norad = col1.selectbox("NORAD_CAT_ID", df["NORAD_CAT_ID"].unique())
     # Filtrando os dados
     filtered_df = df[df["NORAD_CAT_ID"] == selected_norad]
 
@@ -196,12 +197,12 @@ def main():
                     sel_resume["PERIAPSIS"].append( orbital_elem_row['PERIAPSIS'])
                     sel_resume["ECCENTRICITY"].append( orbital_elem_row['ECCENTRICITY'])
                     sel_resume["MEAN_MOTION"].append( orbital_elem_row['MEAN_MOTION'])
-                    sel_resume["DECAY_DATE"].append( orbital_elem_row['DECAY_DATE'])
-                    if (tm.time() - ini) > max_process_time:
-                        st.warning("Exceeded maximum processing time, limit the number of orbital elements", cn.WARNING)
-                        break
+                    sel_resume["DECAY_DATE"].append( orbital_elem_row['DECAY_DATE'])            
                 orbital_elem_row = prev_orbital_elem_row
             my_bar.progress((idxi+1)/len(norad_comp_list))
+            if (tm.time() - ini) > max_process_time:
+                st.warning(_("Exceeded maximum processing time, limit the number of orbital elements"), icon=cn.WARNING)
+                break
         df_orb = pd.DataFrame(sel_resume)
         df_orb= df_orb[df_orb['D_ERR_MEAN'] != 0]
         st.write(_("Processing time (s): "), tm.time() - ini)
