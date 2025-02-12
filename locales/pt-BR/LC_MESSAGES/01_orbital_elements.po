@@ -37,8 +37,8 @@ msgid "Choice of orbital elements dataset:"
 msgstr "Escolha do conjunto de dados de elementos orbitais:"
 
 #: source/pages/01_orbital_elements.py:119
-msgid "Do not use the same Space-Track API password in other online services, the APPstill requires an information security analysis. Use at your own risk."
-msgstr "Não use a mesma senha da API Space-Track em outros serviços online, o APP ainda requer uma análise de segurança da informação. Use por sua conta e risco."
+msgid "This App does not record user passwords, but we cannot guarantee the confidentiality of the password. DO NOT use the password of other online services in the Space-Track API, use at your own risk."
+msgstr "Este App não grava senha do usuário, mas não podemos garantir a confidencialidade da senha, NÃO utilize a senha de outros serviços online na API Space-Track, use por sua conta e risco"
 
 #: source/pages/01_orbital_elements.py:282
 msgid "Download Orbital Element Files:"

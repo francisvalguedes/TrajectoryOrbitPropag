@@ -88,6 +88,26 @@ msgstr "Erro: o dataframe não tem coluna:"
 msgid "File details:"
 msgstr "Detalhes do arquivo:"
 
+#: source/pages/05_trajectory.py:317
+msgid "Data filter by H0"
+msgstr "Filtro de dados por H0"
+
+#: source/pages/05_trajectory.py:318
+msgid "Start time"
+msgstr "Hora de início"
+
+#: source/pages/05_trajectory.py:319
+msgid "End time"
+msgstr "Hora de fim"
+
+#: source/pages/05_trajectory.py:320
+msgid "Reload and filter data"
+msgstr "Recarregar e filtrar dados"
+
+#: source/pages/05_trajectory.py:324
+msgid "Orbit propagation data reloaded and filter"
+msgstr "Dados de propagação orbital recarregados e filtrados"
+
 #: source/pages/05_trajectory.py:218
 msgid "Generate Sensor-Specific Trajectories"
 msgstr "Gerar trajetórias específicas do sensor"
