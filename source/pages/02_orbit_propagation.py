@@ -43,9 +43,10 @@ st.set_page_config(page_title="Orbit propagation",
 domain_name = os.path.basename(__file__).split('.')[0]
 _ = gettext_translate(domain_name)
 
-
+# constantes
 cn = ConstantsNamespace()
-
+max_time = TimeDelta(10*u.d)
+max_process_time = 60*2 # 2 min 
 
 def page_links(insidebar=False):
     if insidebar:
@@ -279,10 +280,9 @@ def main():
     final_datetime=Time(datetime.combine(final_date, final_time))
     final_datetime.format = 'isot'
     st.write(_('Search end time: '), final_datetime)   
-
-    max_time = TimeDelta(10*u.d)
+    
     max_num_obj = 5000
-    max_process_time = 60*2 # 2 min    
+
     if  (final_datetime - initial_datetime)> max_time:      
         final_datetime = initial_datetime + max_time 
         st.warning(_('Maximum time delta: ') + str(max_time) + _(' days'), icon=cn.WARNING)
@@ -348,9 +348,9 @@ def main():
                 sdf.save_trajectories(pos, orbital_elem[index], st.session_state.ss_dir_name, rcs)
                 my_bar.progress((index + 1) / len(orbital_elem))
                 if (tm.time() - ini) > max_process_time:
-                    st.warning("Exceeded maximum processing time, limit the number of orbital elements", cn.WARNING)
+                    st.warning(_("Exceeded maximum processing time, limit the number of orbital elements"),icon= cn.WARNING)
                     break
-
+                
             df_orb = pd.DataFrame(sdf.sel_orbital_elem)
             obj_aprox = len(df_orb.index)
             st.write(_("Number of calculated trajectories: "), obj_aprox)
