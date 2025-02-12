@@ -1,0 +1,11 @@
+{
+    "proxy": {
+      "enabled": false,
+      "server": "proxy.exemplo.com",
+      "port": 8080,
+      "username": "meu_usuario",
+      "password": "minha_senha",
+      "no_proxy": ["localhost", "exemplo.com"]
+    }
+  }
+  
