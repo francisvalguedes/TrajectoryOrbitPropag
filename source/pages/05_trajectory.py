@@ -47,6 +47,7 @@ _ = gettext_translate(domain_name)
 cn = ConstantsNamespace()
 MAX_NUM_OBJ = 30
 FILE_NAME_SEL_CSV = 'selected.csv'
+max_process_time = 2*60 # 2min
 
 
 def page_links(insidebar=False):
@@ -396,13 +397,16 @@ def main():
 
         orbital_elem = selected_row.to_dict('records')
         sample_time = st.session_state.ss_radar_sel['spt']  #  0.01
-
+        ini = tm.time()
         # automatico:
         for index in range(len(orbital_elem)):
             propag = PropagInit(orbital_elem[index], lc, sample_time)
             pos = propag.traj_calc(Time(orbital_elem[index]['H0']), round(orbital_elem[index]['END_PT'] / sample_time))
             save_trajectories(pos, st.session_state.ss_dir_name, orbital_elem[index]['END_PT'])
             my_bar.progress((index + 1) / len(orbital_elem))
+            if (tm.time() - ini) > max_process_time:
+                st.warning(_("Exceeded maximum processing time, limit the number of orbital elements"), icon=cn.WARNING)
+                break
 
         fim = tm.time()
         st.write(_('Processing time (s): '), fim - ini)
