@@ -41,14 +41,3 @@ if seq == 2: # localazy upload
 if seq == 3: # localazy download
     system(f'cd {path.dirname(path.realpath(__file__))} & localazy download')
     print('download completo')
-
-
-
-# ["locales/${lang}/LC_MESSAGES/main.po",
-#                "locales/${lang}/LC_MESSAGES/00_Simplified.po",
-#                "locales/${lang}/LC_MESSAGES/01_orbital_elements.po",
-#                "locales/${lang}/LC_MESSAGES/02_orbit_propagation.po",
-#                "locales/${lang}/LC_MESSAGES/03_map.po",
-#                "locales/${lang}/LC_MESSAGES/04_orbit_compare.po",
-#                "locales/${lang}/LC_MESSAGES/05_trajectory.po"
-#               ]
