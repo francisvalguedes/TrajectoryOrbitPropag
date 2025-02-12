@@ -314,6 +314,15 @@ def main():
         st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
         st.success(_('Orbit propagation data reloaded'), icon=cn.SUCCESS)
 
+    ex_filt_data = st.expander(_("Data filter by H0"))
+    hora_inicio = ex_filt_data.time_input(_("Start time"), value=time(11, 0))  # Padrão 11:00
+    hora_fim = ex_filt_data.time_input(_("End time"), value=time(20, 0))  # Padrão 20:00
+    if ex_filt_data.button(_('Reload and filter data'), key='bt_reload_filter'):
+        result_df_ch["H0_dttime"] = pd.to_datetime(result_df_ch["H0_H"], format="%H:%M:%S.%f").dt.time
+        result_df_ch = result_df_ch[(result_df_ch["H0_dttime"] >= hora_inicio) & (result_df_ch["H0_dttime"] <= hora_fim)]
+        st.session_state.ss_df_ed = result_df_ch.style.apply(highlight_rows, axis=1)
+        st.success(_('Orbit propagation data reloaded and filter'), icon=cn.SUCCESS)
+
     st.subheader(_('Object Selection:'))
 
     st.write(_('Green: high chance of tracking, Blue: undefined, Yellow: sensitivity limit and Red: low chance of tracking.'))
