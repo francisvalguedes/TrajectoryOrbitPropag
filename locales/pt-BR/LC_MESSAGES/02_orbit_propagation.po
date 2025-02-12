@@ -60,11 +60,6 @@ msgstr "Cor"
 msgid "Column naming conflict: load file with only orbital elements"
 msgstr "Conflito de nomenclatura de coluna: carregar arquivo apenas com elementos orbitais"
 
-#: source/pages/02_orbit_propagation.py:398
-#: source/pages/02_orbit_propagation.py:408
-msgid "Download"
-msgstr "FAÇA O DOWNLOAD"
-
 #: source/pages/02_orbit_propagation.py:404
 msgid "Download All Files:"
 msgstr "Baixar todos os arquivos:"

@@ -1,4 +1,2 @@
-name,lat,lon,height
-***REMOVED***
-***REMOVED***
-***REMOVED***
+name,lat,lon,height,color
+BR-R1,-5.92459,-35.2657,102.5,blue

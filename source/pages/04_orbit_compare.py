@@ -110,9 +110,9 @@ def main():
 
     url = 'https://www.space-track.org/basicspacedata/query/class/gp_history/NORAD_CAT_ID/25544,53323/EPOCH/2024-07-02--2024-07-09/orderby/NORAD_CAT_ID%20desc/format/csv'
 
-    st.write(_('Obtain the orbital elements from the Space-Track website or API more than two sets of'
-               'orbital elements per object and upload to page 01 - Orbital Elements, which also has'
-               'a tool for accessing the API.'))
+    st.write(_('Obtain the orbital elements from the Space-Track website or API. Upload More than two sets of'
+               ' orbital elements per object to page 01 - Orbital Elements, the Page also has'
+               ' a tool for accessing the API.'))
 
     st.write(_('Example of a link for direct access to the Space-Track API (registration and login required): [link](%s)') % url)
 

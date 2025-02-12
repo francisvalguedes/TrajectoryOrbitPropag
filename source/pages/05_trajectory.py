@@ -232,12 +232,12 @@ def main():
     pt = sensor_exp.number_input(_('Radar power (db)'), 0.0, 100.0, 60.0, format='%.1f')    
     gt = sensor_exp.number_input(_('Radar transmit gain (db)'), 0.0, 100.0, 42.0, format='%.1f')
     gr = sensor_exp.number_input(_('Radar receive gain (db)'), 0.0, 100.0, 42.0, format='%.1f')
-    lt = sensor_exp.number_input(_('Radar transmit loss (db)'), 0.0, 50.0, 1.5, format='%.1f')
-    lr = sensor_exp.number_input(_('Radar receive loss (db)'), 0.0, 50.0, 1.5, format='%.1f')
+    lt = sensor_exp.number_input(_('Radar transmit loss (db)'), 0.0, 50.0, 1.4, format='%.1f')
+    lr = sensor_exp.number_input(_('Radar receive loss (db)'), 0.0, 50.0, 1.6, format='%.1f')
     fhz = sensor_exp.number_input(_('Radar frequency (MHz)'), 500.0, 10000.0, 5400.0, format='%.1f')
-    sr = sensor_exp.number_input(_('Radar receiver sensitivity (db)'), -300.0, -1.0, -142.0, format='%.1f')
+    sr = sensor_exp.number_input(_('Radar receiver sensitivity (db)'), -300.0, -1.0, -140.0, format='%.1f')
     snr = sensor_exp.number_input(_('Radar signal noise ratio (db)'), 0.0, 20.0, 0.0, format='%.1f')
-    sample_time = sensor_exp.number_input(_('Sample time (s)'), 0.01, 1.0, 0.01, format='%.2f')
+    sample_time = sensor_exp.number_input(_('Sample time (s)'), 0.01, 10.0, 0.01, format='%.2f')
 
     radar_df = st.session_state.radar_df
 
@@ -352,7 +352,7 @@ def main():
 
     # Data Export Section
     col1d, col2d = st.columns(2)
-    FILE_NAME_XLSX = st.session_state["ss_lc"]['name'] + _("_traj_summary.xlsx")
+    FILE_NAME_XLSX = st.session_state["ss_lc"]['name'] + "_traj_summary.xlsx"
 
     with pd.ExcelWriter(st.session_state.ss_dir_name + "/" + FILE_NAME_XLSX) as writer:
         st.session_state.ss_df_ed.to_excel(writer, sheet_name='Sheet 1', engine='openpyxl')
@@ -361,13 +361,13 @@ def main():
         col1d.write(_('Download highlight File:'))
         with open(st.session_state.ss_dir_name + "/" + FILE_NAME_XLSX, "rb") as fp:
             btn = col1d.download_button(
-                label=_('Download .xlsx'),
+                label='Download .xlsx',
                 data=fp,
                 file_name=FILE_NAME_XLSX,
                 mime="application/txt"
             )
 
-    FILE_NAME_CSV = st.session_state["ss_lc"]['name'] + _("_traj_summary.csv")
+    FILE_NAME_CSV = st.session_state["ss_lc"]['name'] + "_traj_summary.csv"
 
     st.session_state.ss_df_ed.data.to_csv(st.session_state.ss_dir_name + "/" + FILE_NAME_CSV, index=False)
 
@@ -375,7 +375,7 @@ def main():
         col2d.write(_('Download csv File:'))
         with open(st.session_state.ss_dir_name + "/" + FILE_NAME_CSV, "rb") as fp:
             btn = col2d.download_button(
-                label=_('Download .csv'),
+                label='Download .csv',
                 data=fp,
                 file_name=FILE_NAME_CSV,
                 mime="application/txt"
@@ -430,9 +430,9 @@ def main():
             shutil.make_archive(dir_name, 'zip', dir_name)
             with open(dir_name + ".zip", "rb") as fp:
                 btn = st.download_button(
-                    label=_('Download .trn files'),
+                    label='Download .trn files',
                     data=fp,
-                    file_name=_('trn_') + str(sample_time) + 's_' + lc['name'] + '_' + st.session_state.date_time + ".zip",
+                    file_name='trn_' + str(sample_time) + 's_' + lc['name'] + '_' + st.session_state.date_time + ".zip",
                     mime="application/zip"
                 )
 

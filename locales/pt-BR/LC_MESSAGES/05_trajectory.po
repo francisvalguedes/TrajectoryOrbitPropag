@@ -48,22 +48,6 @@ msgstr "Seleção de coluna por upload de arquivo de configuração:"
 msgid "Data summary format and column selection:"
 msgstr "Formato de resumo de dados e seleção de colunas:"
 
-#: source/pages/05_trajectory.py:481
-msgid "Download"
-msgstr "FAÇA O DOWNLOAD"
-
-#: source/pages/05_trajectory.py:368
-msgid "Download .csv"
-msgstr "Baixar .csv"
-
-#: source/pages/05_trajectory.py:420
-msgid "Download .trn files"
-msgstr "Baixar arquivos .trn"
-
-#: source/pages/05_trajectory.py:354
-msgid "Download .xlsx"
-msgstr "Baixar .xlsx"
-
 #: source/pages/05_trajectory.py:365
 msgid "Download csv File:"
 msgstr "Baixar arquivo csv:"
@@ -312,14 +296,6 @@ msgstr "Trajetórias calculadas com sucesso"
 msgid "Write a name without special characters"
 msgstr "Escreva um nome sem caracteres especiais"
 
-#: source/pages/05_trajectory.py:360
-msgid "_traj_summary.csv"
-msgstr "_traj_summary.csv"
-
-#: source/pages/05_trajectory.py:345
-msgid "_traj_summary.xlsx"
-msgstr "_traj_summary.xlsx"
-
 #: source/pages/05_trajectory.py:440 source/pages/05_trajectory.py:442
 msgid "exclusion"
 msgstr "Exclusão"
@@ -331,7 +307,3 @@ msgstr "inclusão"
 #: source/pages/05_trajectory.py:229
 msgid "my radar"
 msgstr "meu radar"
-
-#: source/pages/05_trajectory.py:422
-msgid "trn_"
-msgstr "trn_"

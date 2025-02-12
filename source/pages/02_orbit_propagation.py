@@ -398,7 +398,7 @@ def main():
             st.write(_("Download Summary File:"))
             with open(summary_path, "rb") as fp:
                 btn = st.download_button(
-                    label=_("Download"),
+                    label="Download",
                     data=fp,
                     file_name=summary_fn,
                     mime="application/txt"
@@ -408,7 +408,7 @@ def main():
         shutil.make_archive(st.session_state.ss_dir_name, 'zip', st.session_state.ss_dir_name)
         with open(st.session_state.ss_dir_name + ".zip", "rb") as fp:
             btn = st.download_button(
-                label=_("Download"),
+                label="Download",
                 data=fp,
                 file_name="results_" + lc['name'] + '_' + st.session_state.date_time + ".zip",
                 mime="application/zip"

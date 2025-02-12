@@ -53,8 +53,8 @@ msgid "Object Orbital Change/Maneuver"
 msgstr "Mudança/manobra orbital do objeto"
 
 #: source/pages/04_orbit_compare.py:113
-msgid "Obtain the orbital elements from the Space-Track website or API more than two sets oforbital elements per object and upload to page 01 - Orbital Elements, which also hasa tool for accessing the API."
-msgstr "Obtenha os elementos orbitais do site Space-Track ou da API mais de dois conjuntos de elementos orbitais por objeto e carregue na página 01 - Elementos Orbitais, que também possui uma ferramenta para acessar a API."
+msgid "Obtain the orbital elements from the Space-Track website or API. Upload More than two sets of orbital elements per object to page 01 - Orbital Elements, the Page also has a tool for accessing the API."
+msgstr "Obtenha os elementos orbitais do site Space-Track ou API. Carregue Mais de dois conjuntos de elementos orbitais por objeto na página 01 - Elementos orbitais, A página também tem uma ferramenta para acessar a API."
 
 #: source/pages/04_orbit_compare.py:54
 msgid "Orbit Propagation"
