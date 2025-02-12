@@ -117,8 +117,9 @@ def get_orbital_element():
         st.markdown(link, unsafe_allow_html=True)
         # Form to Space-Track loguin 
         form = st.form("my_form")
-        form.write(_("Do not use the same Space-Track API password in other online services, the APP"
-                     "still requires an information security analysis. Use at your own risk."))
+        form.write(_("This App does not record user passwords, but we cannot guarantee the"
+                     " confidentiality of the password. DO NOT use the password of other online"
+                     " services in the Space-Track API, use at your own risk."))
         stc_log = form.text_input(_('User name Space-Track:') )  
         stc_ss = form.text_input(_('Space-Track password:'),type="password") 
         fcol1, fcol2 = form.columns(2)
@@ -261,7 +262,7 @@ def main():
         if ("ss_elem_df" in st.session_state and st.session_state["choiceUpdate"] == space_track):
             df_norad_ids = st.session_state.df_norad_ids
             not_foud = df_norad_ids[~df_norad_ids['NORAD_CAT_ID'].isin(st.session_state.ss_elem_df['NORAD_CAT_ID'].tolist())]
-            elem_decay =  st.session_state.ss_elem_df[~st.session_state.ss_elem_df['DECAY_DATE'].isna()][['NORAD_CAT_ID']]
+            elem_decay = st.session_state.ss_elem_df[~st.session_state.ss_elem_df.get("DECAY_DATE", pd.NA).isna()][["NORAD_CAT_ID"]]
 
             col1, col2, col3 = st.columns(3)
             col1.info(_('Orbital elements requested from Space-Track: ')+ str(df_norad_ids.shape[0]), icon=cn.INFO)
