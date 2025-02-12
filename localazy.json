@@ -1,0 +1,22 @@
+{
+
+    "writeKey": "xxxxx",
+    "readKey": "xxxxx",
+    
+    "upload": {  
+      "type": "pot",
+      "files": ["locales/main.pot",
+                "locales/00_Simplified.pot",
+                "locales/01_orbital_elements.pot",
+                "locales/02_orbit_propagation.pot",
+                "locales/03_map.pot",
+                "locales/04_orbit_compare.pot",
+                "locales/05_trajectory.pot"
+              ]         
+    },
+    
+    "download": {
+      "files":"locales/${lang}/LC_MESSAGES/${file}"
+    }
+
+  }

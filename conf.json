@@ -1,0 +1,11 @@
+{
+    "proxy": {
+      "enabled": false,
+      "server": "proxy.site",
+      "port": "3325",
+      "username": "user_name",
+      "password": "password",
+      "no_proxy": ["not_yet_used","localhost", "exemplo.com"]
+    }
+  }
+  
