@@ -1,6 +1,7 @@
 {
     "proxy": {
       "enabled": false,
+      "auto": true,
       "server": "proxy.site",
       "port": "3325",
       "username": "user_name",
