@@ -1,8 +1,8 @@
-# Relatório Técnico sobre o Desenvolvimento de Aplicativo para Geração de Trajetórias Espaciais
+# Desenvolvimento de Aplicativo Web para Propagação de Orbita e Geração de Trajetórias de Objetos Espaciais
 
 ## 1. Introdução
 
-Este relatório apresenta o desenvolvimento de um aplicativo para geração de trajetórias de rastreamento de objetos espaciais. O aplicativo foi desenvolvido utilizando Python e Streamlit, incorporando bibliotecas como Pandas, Folium, NumPy, SGP4, Astropy e Pymap3d. Seu objetivo é calcular trajetórias que possibilitem o apontamento de sensores de rastreamento, como radares de trajetografia, sensores ópticos e observação a olho nu.
+Este relatório apresenta o desenvolvimento de um aplicativo de Propagação de Órbita de objetos espaciais, como Roquet Body. O aplicativo foi desenvolvido utilizando Python e Streamlit, incorporando bibliotecas como Pandas, Folium, NumPy, SGP4, Astropy e Pymap3d. Seu objetivo é calcular trajetórias que possibilitem o apontamento de sensores de rastreamento, como radares de trajetografia, sensores ópticos e mesmo observação a olho nu.
 
 O software processa elementos orbitais extraídos do Space-Track ou Celestrak e, por meio do modelo SGP4, realiza a propagação da órbita dos objetos espaciais. Além disso, implementa conversões de coordenadas para calcular aproximações ao ponto de referência e gerar trajetórias com instante inicial (H0) para rastreamento.
 
