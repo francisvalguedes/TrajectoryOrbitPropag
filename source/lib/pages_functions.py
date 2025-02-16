@@ -33,11 +33,11 @@ cn = ConstantsNamespace()
 
 
 # https://iconscout.com/icons/satellite
-icon_sat_tj = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite.svg"
+icon_sat_tj = "https://raw.githubusercontent.com/francisvalguedes/norad_rcs/refs/heads/master/figures/satellite.svg"
 # https://iconduck.com/icons/271693/satellite#
-icon_sat_end = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite_duck.svg"
+icon_sat_end = "https://raw.githubusercontent.com/francisvalguedes/norad_rcs/refs/heads/master/figures/satellite_duck.svg"
 #https://iconduck.com/icons/9737/satellite-radar#
-icon_sensor = "https://raw.githubusercontent.com/francisvalguedes/radarbands/refs/heads/master/figures/satellite-radar.svg"
+icon_sensor = "https://raw.githubusercontent.com/francisvalguedes/norad_rcs/refs/heads/master/figures/satellite-radar.svg"
 
 
 # functions
