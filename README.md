@@ -12,24 +12,94 @@ Francisval Guedes, Email: francisvalg@gmail.com
 
 Using SGP4 this app searches for a period of sensor approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system.
 
-## Installation
+## Pré-requisitos  
+
+### Windows  
+1. Instale o Python (>= 3.8) através do [site oficial do Python](https://www.python.org/).  
+2. Certifique-se de que o **pip** está instalado. Você pode verificar usando:  
+
+```bash  
+   python -m ensurepip  
+   python -m pip install --upgrade pip  
+```  
+
+### Linux (Debian/Ubuntu)  
+1. Atualize os pacotes do sistema e instale o Python caso não tenha instalado:  
+```bash  
+   sudo apt update && sudo apt upgrade -y  
+   sudo apt install python3 python3-pip -y  
+```  
+
+---
+
+## Installation - script
+
+1. Clone this repository:
+```bash  
+git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git
+cd TrajectoryOrbitPropag
+```
 
 For debian/ubuntu: clone repository then without sudo:
 
-~~~ 
+```bash 
 ./install_debian.sh
-~~~
+```
 
 the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
 
-## Run the streamlit application on a server:
+## Installation - manual
+
+1. Clone this repository:
+
+```bash  
+   git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git  
+   cd TrajectoryOrbitPropag 
+``` 
+
+2. Create and activate a virtual environment:
+   
+   - On Windows:
+
+```bash  
+     python -m venv env  
+     env\Scripts\activate
+     pip install --upgrade pip
+```  
+
+   - On Linux:
+
+```bash  
+     pip install virtualenv
+     virtualenv env     
+     source env/bin/activate 
+     pip install --upgrade pip
+```  
+
+3. Install the project dependencies:
+
+```bash  
+   pip install -r requirements.txt  
+```  
+
+## Run the streamlit application:
 
 Activate env and run streamlit app
-~~~ 
-./run.sh
-~~~
 
-### If necessary redirect port 80 to 8080
+```bash  
+cd TrajectoryOrbitPropag
+streamlit run source/main.py  --server.port 8080
+```  
+or
+
+```bash 
+./run.sh
+```
+
+3. Open the link in shel (`http://localhost:8501`).  
+
+
+### In a server: if necessary redirect port 80 to 8080
 
 Test if the web server works on port 8080: my_ip_address:8080
 
@@ -58,3 +128,55 @@ now save iptables permenantley to files:
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 ~~~
+
+## Estrutura do Projeto  
+```
+.
+├── source/  
+│   ├── main.py  
+│   ├── pages/  
+|   |   └── 00_Simplified.py 
+|   |   └── 01_orbital_elements.py 
+|   |   └── 02_orbit_propagation.py 
+|   |   └── 03_map.py 
+|   |   └── 04_orbit_compare.py 
+│   │   └── 05_trajectory.py  
+├── lib/  
+│   ├── constants.py  
+│   └── orbit_functions.py 
+│   └── pages_functions.py 
+├── data/  
+│   └── confLocalWGS84.csv 
+│   └── ...celestrak.csv 
+├── locales/  
+│   └── map_tilelayer.json 
+├── requirements.txt  
+├── LICENSE
+├── install_debian.sh
+├── run.sh 
+└── README.md 
+```  
+
+## Libraries Used
+
+- SGP4 - MIT License
+- Astropy - BSD-3-Clause
+- pandas - BSD-3-Clause
+- numpy - BSD-3-Clause
+- streamlit - Apache 2.0
+- pymap3d - BSD-2-Clause
+- Geopandas - BSD 3-Clause License
+- Folium - MIT License
+  
+## Contribution
+
+- Contributions are welcome! Feel free to open issues and pull requests.
+
+## License
+
+- This project is licensed under the MIT License. See the LICENSE file for more details.
+
+## Author
+
+- Autor: Francisval Guedes Soares,- 
+- Contributions/suggestions from: Felipe Longo, Hareton, André Henrique, Marcos Leal, Leilson, Alan Karlo.
