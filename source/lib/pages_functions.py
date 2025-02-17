@@ -53,9 +53,24 @@ class Icons:
         self.info = "ℹ️"
         self.success = "✅"
 
+def client_proxy(config):
+    # Check if proxy is enabled
+    if config["proxy"].get("enabled", True):
+        if config["proxy"].get("auto", True):
+            proxy = os.getenv("https_proxy")  # Proxy HTTPS
+            return httpx.Client(proxy=proxy)
+        else:
+            proxy_server = config["proxy"]["server"]
+            proxy_port = config["proxy"]["port"]
+            username = config["proxy"]["username"]
+            password = config["proxy"]["password"]
+            proxy = f"http://{quote(username)}:{quote(password)}@{quote(proxy_server)}:{quote(proxy_port)}"
+            return httpx.Client(proxy=proxy)
+    else:
+        return httpx.Client()
 
 class SpaceTrackClientInit(SpaceTrackClient):
-    def __init__(self,identity,password, config):
+    def __init__(self,identity,password, client):
         """initialize the class.
 
         Args:
@@ -66,33 +81,9 @@ class SpaceTrackClientInit(SpaceTrackClient):
         Returns:
 
         """
-        # Check if proxy is enabled
-        if config["proxy"].get("enabled", True):
-            if config["proxy"].get("auto", True):
-                http_proxy = os.getenv("http_proxy")  # Proxy HTTP
-                https_proxy = os.getenv("https_proxy")  # Proxy HTTPS
-                proxies = {
-                    "http://": http_proxy,
-                    "https://": https_proxy
-                }
-                client = httpx.Client(proxies=proxies)
-                super().__init__(identity, password, httpx_client = client)            
-            else:
-                proxy_server = config["proxy"]["server"]
-                proxy_port = config["proxy"]["port"]
-                username = config["proxy"]["username"]
-                password = config["proxy"]["password"]
-
-                proxy_url = f"http://{quote(username)}:{quote(password)}@{quote(proxy_server)}:{quote(proxy_port)}"
-                
-                proxies = {
-                    "http://": proxy_url,
-                    "https://": proxy_url
-                }
-                client = httpx.Client(proxies=proxies)
-                super().__init__(identity, password, httpx_client = client)
-        else:
-            super().__init__(identity, password)
+ 
+        super().__init__(identity, password, httpx_client = client)
+        #super().__init__(identity, password)
 
     def ss(self):
         """authenticate.

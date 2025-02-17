@@ -127,7 +127,8 @@ def get_orbital_element():
         if submitted:
             with open("conf.json", "r") as file:
                 config = json.load(file)
-            stc = SpaceTrackClientInit(stc_log, stc_ss, config)
+            client = client_proxy(config)
+            stc = SpaceTrackClientInit(stc_log, stc_ss, client)
             st.session_state.stc_loged = stc.ss()
             st.session_state.stc = stc
             if st.session_state.stc_loged:          
