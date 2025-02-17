@@ -382,38 +382,41 @@ def menu_itens():
     return menu_items
 
 
-def gettext_translate(domain_name):   
+def gettext_translate(domain_name):
     languages = {"English": "en", "Português-BR": "pt-BR"}
 
+    if "selected_language" not in st.session_state:
+        st.session_state.selected_language = list(languages.keys())[0]  # Define o idioma padrão
 
-    if 'selected_language_index' in st.session_state:
-        rd_index = st.session_state.selected_language_index
-    else:
-        rd_index = 0
+    previous_language = st.session_state.selected_language  # Salva o idioma anterior
 
-    language = st.radio("Language",
-                        options=languages,
-                        horizontal=True,
-                        label_visibility='hidden',# 'collapsed', hidden
-                        #on_change=set_language,
-                        key="selected_language",
-                        index=rd_index
-                        )
-    
-    st.session_state.selected_language_index = list(languages.keys()).index(language)
+    language = st.radio(
+        "Language",
+        options=languages,
+        horizontal=True,
+        label_visibility="hidden",
+        key="selected_language"
+    )
 
+    # Se o idioma mudou, força a recarga da página para aplicar a mudança corretamente
+    if language != previous_language:
+        st.rerun()
 
-    st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)    
+    st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
 
-    language = languages[language]
+    language_code = languages[language]
+    # st.session_state.language = language_code  # Atualiza o estado com o código do idioma
 
-    st.session_state.language = language
     _ = gettext.gettext
 
     try:
-        localizator = gettext.translation(domain_name, localedir='locales', languages=[language])
+        localizator = gettext.translation(domain_name, localedir="locales", languages=[language_code])
         localizator.install()
-        _ = localizator.gettext 
-    except:        
-        pass
+        _ = localizator.gettext
+    except Exception as e:
+        if language_code != "en":
+            print(f"Translate error: {e}")
+        else:
+            pass
+
     return _
