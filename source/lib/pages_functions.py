@@ -382,11 +382,12 @@ def menu_itens():
     return menu_items
 
 
-def gettext_translate(domain_name):
+def gettext2_translate(domain_name):
     languages = {"English": "en", "Português-BR": "pt-BR"}
 
     if "selected_language" not in st.session_state:
         st.session_state.selected_language = list(languages.keys())[0]  # Define o idioma padrão
+        print(st.session_state.selected_language)
 
     previous_language = st.session_state.selected_language  # Salva o idioma anterior
 
@@ -419,4 +420,47 @@ def gettext_translate(domain_name):
         else:
             pass
 
+    return _
+
+def gettext_translate(domain_name):   
+    languages = {"English": "en", "Português-BR": "pt-BR"}
+
+    if 'selected_language_index' in st.session_state:
+        rd_index = st.session_state.selected_language_index
+    else:
+        rd_index = 0
+
+    language = st.radio("Language",
+                        options=languages,
+                        horizontal=True,
+                        label_visibility='hidden',# 'collapsed', hidden
+                        #on_change=set_language,
+                        key="selected_language",
+                        index=rd_index
+                        )
+    
+    st.session_state.selected_language_index = list(languages.keys()).index(language)
+
+    # Se o idioma mudou, força a recarga da página para aplicar a mudança corretamente
+    if rd_index != st.session_state.selected_language_index:
+        st.rerun()
+
+    rd_index = st.session_state.selected_language_index
+
+    st.markdown("""<hr style="height:5px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)    
+
+    language = languages[language]
+
+    st.session_state.language = language
+    _ = gettext.gettext
+
+    try:
+        localizator = gettext.translation(domain_name, localedir='locales', languages=[language])
+        localizator.install()
+        _ = localizator.gettext 
+    except:  
+        if language != "en":
+            print(f"Translate error: {e}")
+        else:
+            pass
     return _
