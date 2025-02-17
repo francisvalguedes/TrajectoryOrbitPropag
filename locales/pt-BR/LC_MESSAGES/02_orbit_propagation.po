@@ -184,9 +184,13 @@ msgstr "Tempo(s) de processamento: "
 msgid "Progress bar:"
 msgstr "Barra de progresso:"
 
-#: source/pages/02_orbit_propagation.py:79
-msgid "Register new location"
-msgstr "Registrar nova localização"
+#: source/pages/02_orbit_propagation.py:80
+msgid "Register new location definitely"
+msgstr "Registrar nova localização definitivamente"
+
+#: source/pages/02_orbit_propagation.py:93
+msgid "Register new location current session"
+msgstr "Registrar nova localização sessão atual"
 
 #: source/pages/02_orbit_propagation.py:304
 msgid "Run propagation"

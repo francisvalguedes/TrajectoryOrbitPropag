@@ -77,7 +77,7 @@ def sensor_registration():
     height = lc_expander.number_input(_('Height (m)'), -1000.0, 2000.0, 0.0, format="%.6f")
     color = lc_expander.text_input(_('Color'), "red")
     
-    if lc_expander.button(_("Register new location")):
+    if lc_expander.button(_("Register new location definitely")):
         lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [height], 'color': [color]}
         
         if lc_name not in st.session_state.lc_df['name'].to_list():
@@ -90,7 +90,17 @@ def sensor_registration():
         else:
             lc_expander.write(_('Location already exists'))
 
-
+    if lc_expander.button(_("Register new location current session")):
+        lc_add = {'name': [lc_name], 'lat': [latitude], 'lon': [longitude], 'height': [height], 'color': [color]}
+        
+        if lc_name not in st.session_state.lc_df['name'].to_list():
+            if re.match('^[A-Za-z0-9_-]*$', lc_add['name'][0]):
+                st.session_state.lc_df = pd.concat([st.session_state.lc_df, pd.DataFrame(lc_add)], axis=0)
+                lc_expander.write(_('Location registered'))
+            else:
+                lc_expander.write(_('Enter a name without special characters'))
+        else:
+            lc_expander.write(_('Location already exists'))
 
 def dellfiles(file):
     py_files = glob.glob(file)
