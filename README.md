@@ -19,7 +19,7 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 2. Certifique-se de que o **pip** está instalado. Você pode verificar usando:  
 
 ```bash  
-   python -m ensurepip  
+   pip --version  
    python -m pip install --upgrade pip  
 ```  
 
@@ -27,7 +27,7 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 1. Atualize os pacotes do sistema e instale o Python caso não tenha instalado:  
 ```bash  
    sudo apt update && sudo apt upgrade -y  
-   sudo apt install python3 python3-pip -y  
+   sudo apt install python3-pip 
 ```  
 
 ---
@@ -53,6 +53,7 @@ the install_debian.sh file will create a python environment in an env folder loc
 1. Clone this repository:
 
 ```bash  
+   sudo apt install git
    git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git  
    cd TrajectoryOrbitPropag 
 ``` 
@@ -70,7 +71,7 @@ the install_debian.sh file will create a python environment in an env folder loc
    - On Linux:
 
 ```bash  
-     pip install virtualenv
+     sudo apt install virtualenv
      virtualenv env     
      source env/bin/activate 
      pip install --upgrade pip
