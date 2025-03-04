@@ -161,7 +161,7 @@ def delete_old_items(max_folders=100):
                 elif os.path.isfile(item):
                     os.remove(item)
     except Exception as e:
-        st.warning(f"Error: {e}", cn.WARNING)
+        st.warning(f"Error: {e}", icon = cn.WARNING)
 
 def data_map_concat(df_p , df_s, df_s1 = pd.DataFrame()):
     if 'name' in df_p.columns: # Forçar a coluna 'name' a ser do tipo string         
