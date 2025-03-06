@@ -1,14 +1,4 @@
-# import streamlit as st
-# import pandas as pd
-# import numpy as np
-
-# import gettext
-# _ = gettext.gettext
-
 from os import system, path
-
-# from zenserp import Client
-
 
 seq = 4
 
