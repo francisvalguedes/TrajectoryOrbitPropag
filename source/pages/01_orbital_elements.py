@@ -7,9 +7,9 @@ import streamlit as st
 import pandas as pd
 
 from datetime import datetime, timezone
-
 import datetime as dt
-
+import requests
+from io import StringIO
 
 import os
 import tempfile
@@ -45,7 +45,14 @@ upload_norad_list = "Personalized list NORAD_CAT_ID"
 MAX_NUM_NORAD = 650
 cn = ConstantsNamespace()
 
-
+def load_original_data(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return pd.read_csv(StringIO(response.text))
+    else:
+        st.error("Failed to load data from Celestrak.")
+        return None
+    
 def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
@@ -92,7 +99,8 @@ def get_orbital_element():
             if not os.path.exists(celet_fil_n):                
                 urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
                 try:
-                    elem_df = pd.read_csv(urlCelestrak) 
+                    elem_df = load_original_data(urlCelestrak)
+                    # elem_df = pd.read_csv(urlCelestrak)
                     if 'MEAN_MOTION' in elem_df.columns.to_list():
                         elem_df.to_csv(celet_fil_n, index=False)                     
                     else:
