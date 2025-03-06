@@ -102,7 +102,8 @@ def get_orbital_element():
                     elem_df = load_original_data(urlCelestrak)
                     # elem_df = pd.read_csv(urlCelestrak)
                     if 'MEAN_MOTION' in elem_df.columns.to_list():
-                        elem_df.to_csv(celet_fil_n, index=False)                     
+                        #elem_df.to_csv(celet_fil_n, index=False) 
+                        st.success("teste")                    
                     else:
                         st.error(_('No orbital elements for this object in Celestrac'), icon= cn.ERROR)
                         st.stop()
