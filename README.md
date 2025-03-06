@@ -97,7 +97,7 @@ or
 ./run.sh
 ```
 
-3. Open the link in shel (`http://localhost:8501`).  
+3. Open the link in shel (`http://localhost:8080`).  
 
 
 ### In a server: if necessary redirect port 80 to 8080
