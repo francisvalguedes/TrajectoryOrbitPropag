@@ -53,6 +53,17 @@ def load_original_data(url):
         st.error("Failed to load data from Celestrak.")
         return None
     
+norad_id = norad_id = st.number_input('Unique NORAD_CAT_ID', 0, 999999,value= 25544, format="%d")
+
+    
+urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR='+ str(norad_id) +'&FORMAT=csv'
+
+
+st.write('spacetrak')
+elem_df = load_original_data(urlCelestrak)
+# elem_df = pd.read_csv(urlCelestrak)
+st.dataframe(elem_df)
+    
 def page_links(insidebar=False):
     if insidebar:
         stlocal = st.sidebar
