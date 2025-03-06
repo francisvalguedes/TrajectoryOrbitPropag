@@ -68,6 +68,17 @@ def page_stop():
     page_links()
     st.stop()
 
+@st.cache_data
+def read_csv_index(file_path):
+    # Lê o CSV sem atribuição de índice e apaga linhas vazias
+    df = pd.read_csv(file_path).dropna(how='all')
+    
+    # Verifica se a primeira coluna não tem nome e é candidata a ser índice
+    if df.columns[0] == 'Unnamed: 0':
+        df.set_index(df.columns[0], inplace=True)
+        df.index.name = None 
+    return df
+
 def sensor_registration():
     # Add new reference point (sensor)
     lc_expander = st.sidebar.expander(_("Add new reference point in WGS84"), expanded=False)
@@ -101,6 +112,30 @@ def sensor_registration():
                 lc_expander.write(_('Enter a name without special characters'))
         else:
             lc_expander.write(_('Location already exists'))
+
+    # Carregar arquivo CSV
+    lc_expander.write(_("Alternatively you can upload a csv file with reference points only for the current session, fields: name, lat, lon height"))
+    uploaded_file = lc_expander.file_uploader(_("Points in a CSV for this session"), type="csv")
+    if uploaded_file is not None:
+        if uploaded_file.type == "text/csv":
+            df = read_csv_index(uploaded_file)
+            # Verifica se as colunas existem
+            required_columns = {'name', 'lat', 'lon', 'height'}
+            if required_columns.issubset(df.columns):
+                # Verifica os tipos de dados das colunas
+                if (df['name'].dtype == 'object' and df['lat'].dtype == 'float64' 
+                    and df['lon'].dtype == 'float64' and df['height'].dtype == 'float64'):
+                    st.session_state.lc_df = df
+                    lc_expander.success(_("loaded successfully"), icon= cn.SUCCESS)
+                else:
+                    lc_expander.error(_("error: wrong data type - expected: name: string, and lat, lon and height: float "), icon= cn.ERROR)
+                    st.stop()
+            else:
+                lc_expander.error(_("error: expected columns are not present (name, lat, lon and height)"), icon= cn.ERROR)
+                st.stop()
+        else:
+            lc_expander.error(_("error: file is not csv"), icon= cn.ERROR)
+            st.stop()
 
 def dellfiles(file):
     py_files = glob.glob(file)
