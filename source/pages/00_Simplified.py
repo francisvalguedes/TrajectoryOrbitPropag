@@ -28,9 +28,9 @@ import gettext
 cn = ConstantsNamespace()
 
 
-st.set_page_config(page_title="Simplified Configuration for Orbit Propagation",
-                    page_icon="🌏", layout="wide", initial_sidebar_state="auto",
-                    menu_items=menu_itens())
+# st.set_page_config(page_title="Simplified Configuration for Orbit Propagation",
+#                     page_icon="🌏", layout="wide", initial_sidebar_state="auto",
+#                     menu_items=menu_itens())
 # https://raw.githubusercontent.com/omnidan/node-emoji/master/lib/emoji.json
 
 # apenas para tradução
@@ -65,10 +65,6 @@ def page_links(insidebar=False):
     stlocal.page_link("pages/04_orbit_compare.py", label=_("Object Orbital Change/Maneuver"), icon="4️⃣")
     stlocal.page_link("pages/05_trajectory.py", label=_("Sensor-Specific Trajectory Selection"), icon="5️⃣")
 
-
-def page_stop():
-    page_links()
-    st.stop()
 
 def menu_itens():
     menu_items={
@@ -173,13 +169,18 @@ def main():
     st.subheader(_("*Obtaining Orbital Elements:*"))
 
     helptxt = _( "Choose the source of orbital elements for propagation")
-    st.selectbox(_("Source of orbital elements:"), menuUpdate, key="oe_source", help=helptxt, on_change=dell_elem_df)  
-    if st.session_state["oe_source"] == Celestrak:
+    oe_source = st.selectbox(_("Source of orbital elements:"), menuUpdate, key="oe_source", help=helptxt, on_change=dell_elem_df)  
+        
+    arquivos = glob.glob('data/celestrak/*.csv') 
+    for arquivo in arquivos:
+        st.write(arquivo)
+
+    if oe_source == Celestrak:
         st.session_state.ss_elem_df = get_celestrack_oe()
-    elif st.session_state["oe_source"] == oe_file:
+    elif oe_source == oe_file:
         st.session_state.ss_elem_df = upload_oe()
 
-    st.dataframe(st.session_state.ss_elem_df)   
+    st.dataframe(st.session_state.ss_elem_df)  
 
     st.subheader(_("*Configurations for Orbit Propagation:*"))
    
