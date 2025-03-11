@@ -24,6 +24,14 @@ from streamlit_geolocation import streamlit_geolocation
 
 import pymap3d as pm
 import gettext
+import requests
+from io import StringIO
+
+# import os
+# import time
+# import requests
+# import pandas as pd
+
 
 cn = ConstantsNamespace()
 
@@ -74,7 +82,7 @@ def menu_itens():
     return menu_items
 
 
-def get_celestrack_oe():
+def get_celestrack_oe2():
     norad_id = st.number_input(_('Select the NORAD_CAT_ID of the space object to obtain orbital elements:'), 0, 999999, value=25544, format="%d")
     current_day = datetime.now(timezone.utc).strftime('%Y_%m_%d_')
     celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
@@ -82,7 +90,14 @@ def get_celestrack_oe():
     if not os.path.exists(celet_fil_n):                
         urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR=' + str(norad_id) + '&FORMAT=csv'
         try:
-            elem_df = pd.read_csv(urlCelestrak) 
+            response = requests.get(urlCelestrak)
+            if response.status_code == 200:
+                elem_df = pd.read_csv(StringIO(response.text))
+            else:
+                st.error("Failed to load data from Celestrak.")
+                elem_df = None
+            #elem_df = load_original_data(urlCelestrak) 
+
             if 'MEAN_MOTION' in elem_df.columns.to_list():
                 elem_df.to_csv(celet_fil_n, index=False)                     
             else:
@@ -95,6 +110,70 @@ def get_celestrack_oe():
         elem_df = pd.read_csv(celet_fil_n)  
     return elem_df
 
+
+def get_celestrack_oe():
+    # Entrada do usuário
+    norad_id = st.number_input(_('Select the NORAD_CAT_ID of the space object to obtain orbital elements:'), 0, 999999, value=25544, format="%d")
+    
+    # Validação do NORAD ID
+    if norad_id < 1 or norad_id > 999999:
+        st.error(_('Invalid NORAD ID. Please enter a value between 1 and 999999.'), icon=cn.ERROR)
+        st.stop()
+
+    # Geração do nome do arquivo
+    current_day = datetime.now(timezone.utc).strftime('%Y_%m_%d_')
+    celet_fil_n = 'data/celestrak/' + current_day + str(norad_id) + '.csv'
+
+    # Verificação da existência do arquivo
+    if not os.path.exists(celet_fil_n):
+        urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR=' + str(norad_id) + '&FORMAT=csv'
+        
+        try:
+            with st.spinner(_('Loading data from Celestrak...')):
+                response = requests.get(urlCelestrak, timeout=10)  # Timeout de 10 segundos
+            
+            if response.status_code == 200:
+                elem_df = pd.read_csv(StringIO(response.text))
+                
+                # Verificação de colunas obrigatórias
+                required_columns = ['MEAN_MOTION', 'INCLINATION', 'RA_OF_ASC_NODE', 'ECCENTRICITY']
+                if all(col in elem_df.columns for col in required_columns):
+                    elem_df.to_csv(celet_fil_n, index=False)
+                    st.success(_('Data loaded successfully!'))
+                else:
+                    st.error(_('Required orbital elements are missing in the data.'), icon=cn.ERROR)
+                    st.stop()
+            else:
+                st.error(_('Failed to load data from Celestrak.'), icon=cn.ERROR)
+                st.stop()
+        
+        except requests.exceptions.Timeout:
+            st.error(_('Request to Celestrak timed out. Please try again later.'), icon=cn.ERROR)
+            st.stop()
+        except requests.exceptions.RequestException as e:
+            st.error(_('An error occurred while connecting to Celestrak: {}').format(e), icon=cn.ERROR)
+            st.stop()
+    else:
+        elem_df = pd.read_csv(celet_fil_n)
+    
+    return elem_df
+
+# Limpeza de arquivos antigos
+def clear_old_files(directory, days=7):
+    current_time = tm.time()
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            file_time = os.path.getmtime(file_path)
+            if (current_time - file_time) > (days * 86400):  # 86400 segundos em um dia
+                os.remove(file_path)
+
+
+# def get_celestrack_oe():
+#     norad_id = st.number_input('Select the NORAD_CAT_ID of the space object to obtain orbital elements:', 0, 999999, value=25544, format="%d")
+#     urlCelestrak = 'https://celestrak.org/NORAD/elements/gp.php?CATNR=' + str(norad_id) + '&FORMAT=csv'
+#     elem_df = pd.read_csv(urlCelestrak)
+#     return elem_df
 
 def upload_oe():
     data_elements = st.file_uploader(_('Upload orbital elements: OMM csv format'), type='csv')
@@ -171,9 +250,11 @@ def main():
     helptxt = _( "Choose the source of orbital elements for propagation")
     oe_source = st.selectbox(_("Source of orbital elements:"), menuUpdate, key="oe_source", help=helptxt, on_change=dell_elem_df)  
         
-    arquivos = glob.glob('data/celestrak/*.csv') 
-    for arquivo in arquivos:
-        st.write(arquivo)
+    # arquivos = glob.glob('data/celestrak/*.csv') 
+    # for arquivo in arquivos:
+    #     st.write(arquivo)
+    # Chamada da função para limpar arquivos antigos
+    clear_old_files('data/celestrak/')
 
     if oe_source == Celestrak:
         st.session_state.ss_elem_df = get_celestrack_oe()
