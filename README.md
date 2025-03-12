@@ -26,7 +26,7 @@ The coordinate systems involved include:
 
 ## Block diagram
 
-<img src="figures/orbit_propagator.pdf" width="600" />
+<img src="figures/bloc.png" width="600" />
 
 ## 2. Application Features
 
