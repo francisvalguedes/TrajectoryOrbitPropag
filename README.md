@@ -1,6 +1,6 @@
 # Orbit Propagator for Tracking Earth's Artificial Satellites in LEO
 
-Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Payload) i.e. artificial satellites, especially for low Earth orbit (LEO) objects.
+Satellite orbit propagation and trajectory generation for optical and radar tracking of space objects—including debris, rocket bodies, and payloads—focusing primarily on artificial satellites in low Earth orbit (LEO).
 
 ### Links and References
 
@@ -51,7 +51,7 @@ The application is organized into different pages, each dedicated to a specific 
 - 2️⃣ **Orbit Propagation**: Orbit propagation.
 - 3️⃣ **Map Visualization**: Display of trajectories on interactive maps.
 - 4️⃣ **Orbital Change/Object Maneuvering**: Orbital modification and object maneuvers.
-- 5️⃣ **Selection of Specific Trajectories for Sensors**: Choice of custom trajectory for specific sensors, including a visual indicator of radar traceability, classified by colors, considering the radar equation, distance, and the object's RCS (Radar Cross Section).
+- 5️⃣ **Selection of Specific Trajectories for Sensors**: Choice of custom trajectory for specific sensors.
 
 ## 4. Technologies Used
 
@@ -60,35 +60,40 @@ The application is organized into different pages, each dedicated to a specific 
 - **Libraries**: Pandas, Folium, NumPy, SGP4, Astropy, Pymap3d
 - **Internationalization**: Gettext
 
-All libraries used are **open-source**, which enables an active development community and constant contributions for improvement. This facilitates code maintenance, developer collaboration, and the use of cutting-edge tools for calculations and visualizations.
-
-
-## Pré-requisitos  
+## 5. Prerequisites  
 
 ### Windows  
-1. Instale o Python (>= 3.8) através do [site oficial do Python](https://www.python.org/).  
-2. Certifique-se de que o **pip** está instalado. Você pode verificar usando:  
+1. Install Python (>= 3.11) from the [official Python website](https://www.python.org/).  
+2. Ensure that **pip** is installed. You can verify this by running:  
 
 ```bash  
-   pip --version  
-   python -m pip install --upgrade pip  
+pip --version  
+python -m pip install --upgrade pip  
 ```  
 
 ### Linux (Debian/Ubuntu)  
-1. Atualize os pacotes do sistema e instale o Python caso não tenha instalado:  
+1. Update system packages and install Python if it is not already installed:  
+
 ```bash  
-   sudo apt update && sudo apt upgrade -y  
-   sudo apt install python3-pip 
+sudo apt update && sudo apt upgrade -y  
+sudo apt install python3-pip  
 ```  
 
----
+---  
 
-## Installation - script
+## 6. Installation - Script  
 
-1. Clone this repository:
+1. Clone this repository:  
+
 ```bash  
-git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git
-cd TrajectoryOrbitPropag
+git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git  
+cd TrajectoryOrbitPropag  
+```  
+
+For Debian/Ubuntu: Clone the repository and run the installation script without sudo:  
+
+```bash  
+./install_debian.sh  
 ```
 
 For debian/ubuntu: clone repository then without sudo:
@@ -99,7 +104,7 @@ For debian/ubuntu: clone repository then without sudo:
 
 the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
 
-## Installation - manual
+### Installation - manual
 
 1. Clone this repository:
 
@@ -134,7 +139,7 @@ the install_debian.sh file will create a python environment in an env folder loc
    pip install -r requirements.txt  
 ```  
 
-## Run the streamlit application:
+## 7. Run the streamlit application:
 
 Activate env and run streamlit app
 
@@ -181,7 +186,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 ~~~
 
-## Estrutura do Projeto  
+## 8. Estrutura do Projeto  
 ```
 .
 ├── source/  
@@ -197,11 +202,18 @@ sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 │   ├── constants.py  
 │   └── orbit_functions.py 
 │   └── pages_functions.py 
+├── .streamlit/  
+│   └── config.toml 
 ├── data/  
+│   └── celestrak/...
 │   └── confLocalWGS84.csv 
-│   └── ...celestrak.csv 
+│   └── norad_id.csv 
+│   └── RCS.csv 
 ├── locales/  
-│   └── map_tilelayer.json 
+│   └── pt-BR/...
+│   └── README.md 
+├── conf.json  
+├── localazy.json 
 ├── requirements.txt  
 ├── LICENSE
 ├── install_debian.sh
@@ -209,7 +221,7 @@ sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 └── README.md 
 ```  
 
-## Libraries Used
+## 9. Libraries Used
 
 - SGP4 - MIT License
 - Astropy - BSD-3-Clause
@@ -220,15 +232,15 @@ sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 - Geopandas - BSD 3-Clause License
 - Folium - MIT License
   
-## Contribution
+## 10. Contribution
 
 - Contributions are welcome! Feel free to open issues and pull requests.
 
-## License
+## 11. License
 
 - This project is licensed under the MIT License. See the LICENSE file for more details.
 
-## Author
+## 12. Author
 
 - Autor: Francisval Guedes Soares,- 
 - Contributions/suggestions from: Felipe Longo, Hareton, André Henrique, Marcos Leal, Leilson, Alan Karlo.
