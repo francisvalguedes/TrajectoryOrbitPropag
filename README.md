@@ -4,7 +4,7 @@ Satellite orbit propagation and trajectory generation, for optical and radar tra
 
 ### Links and References
 
-- **LinkedIn**: [[linkedin](https://www.linkedin.com/posts/francisval-guedes-soares_aplicativo-streamlit-aberto-de-propaga%C3%A7%C3%A3o-activity-7303465969060843522-kGDi?utm_source=share&utm_medium=member_desktop&rcm=ACoAAAYeuakBRoaplIEp7imDKp4TZsYSAvg5cZw)]
+- **LinkedIn**: [[linkedin](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%C3%BAltiplas-p%C3%A1ginas-bil%C3%ADngue-e-guedes-soares-1zi9f)]
 - **Medium**: [[medium](https://medium.com/@francisvalg/aplicativo-streamlit-de-multiplas-multilingual-streamlit-app-for-orbital-propagation-and-space-1b7068fd4914)]
 - **App**: [[trajectoryorbitpropag](https://trajectoryorbitpropag.streamlit.app/)]
   
