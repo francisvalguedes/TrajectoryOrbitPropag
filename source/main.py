@@ -76,8 +76,8 @@ def main():
 
 
     st.title(_("Orbit Propagator for Tracking Earth's Artificial Satellites in LEO"))
-    st.subheader(_('**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**'))
-    st.markdown(_('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system'))
+    st.subheader(_('**Satellite orbit propagation and trajectory generation, for tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**'))
+    st.markdown(_('Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for tracking system'))
     st.markdown(_('This APP use Orbit Mean-Elements Message (OMM) format, it contain orbital elements for satellites in a standard format. OMM files are part of the Orbit Data Messages (ODM) Recommended Standard'))
 
     stex1 = st.expander("", expanded=True)
