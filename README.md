@@ -4,12 +4,31 @@ Satellite orbit propagation and trajectory generation for tracking of space obje
 
 # Table of Contents
 
-- [1. Introduction](#1-introduction)
-- [2. Application Features](#2-Application-Features)
-- [6. Installation](#2-installation)
-- [3. Usage](#3-usage)
-- [4. Configuration](#4-configuration)
-- [5. Conclusion](#5-conclusion)
+- [Orbit Propagator for Tracking Earth's Artificial Satellites in LEO](#orbit-propagator-for-tracking-earths-artificial-satellites-in-leo)
+- [Table of Contents](#table-of-contents)
+    - [Links and References](#links-and-references)
+  - [1. Introduction](#1-introduction)
+    - [Models and Coordinate Systems](#models-and-coordinate-systems)
+    - [Block diagram](#block-diagram)
+  - [2. Application Features](#2-application-features)
+  - [3. Application Structure](#3-application-structure)
+    - [Main Pages:](#main-pages)
+    - [Pages with Specific Settings:](#pages-with-specific-settings)
+  - [4. Technologies Used](#4-technologies-used)
+  - [5. Prerequisites](#5-prerequisites)
+    - [Windows](#windows)
+    - [Linux (Debian/Ubuntu)](#linux-debianubuntu)
+  - [6. Installation](#6-installation)
+    - [Installation Script](#installation-script)
+    - [Installation - manual](#installation---manual)
+  - [7. Usage](#7-usage)
+    - [In a server: if necessary redirect port 80 to 8080](#in-a-server-if-necessary-redirect-port-80-to-8080)
+  - [8. Project Structure](#8-project-structure)
+  - [9. Libraries Used](#9-libraries-used)
+  - [10. Contribution](#10-contribution)
+  - [11. License](#11-license)
+  - [12. Author](#12-author)
+
 
 ### Links and References
 
@@ -90,7 +109,9 @@ sudo apt install python3-pip
 
 ---  
 
-## 6. Installation - Script  
+## 6. Installation
+
+### Installation Script
 
 1. Clone this repository:  
 
@@ -148,7 +169,7 @@ the install_debian.sh file will create a python environment in an env folder loc
    pip install -r requirements.txt  
 ```  
 
-## 7. Run the streamlit application:
+## 7. Usage
 
 Activate env and run streamlit app
 
@@ -162,7 +183,7 @@ or
 ./run.sh
 ```
 
-3. Open the link in shel (`http://localhost:8080`).  
+Open the link in shel (`http://localhost:8080`).  
 
 
 ### In a server: if necessary redirect port 80 to 8080
@@ -195,7 +216,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 ~~~
 
-## 8. Estrutura do Projeto  
+## 8. Project Structure
 ```
 .
 ├── source/  
