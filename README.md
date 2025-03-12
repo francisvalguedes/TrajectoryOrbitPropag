@@ -126,12 +126,6 @@ For Debian/Ubuntu: Clone the repository and run the installation script without 
 ./install_debian.sh  
 ```
 
-For debian/ubuntu: clone repository then without sudo:
-
-```bash 
-./install_debian.sh
-```
-
 the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
 
 ### Installation - manual
