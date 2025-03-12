@@ -2,6 +2,16 @@
 
 Satellite orbit propagation and trajectory generation for tracking of space objects—including debris, rocket bodies, and payloads—focusing primarily on artificial satellites in low Earth orbit (LEO).
 
+# Table of Contents
+
+- [1. Introduction](#1-introduction)
+- [2. Installation](#2-installation)
+  - [2.1 Windows](#21-windows)
+  - [2.2 Linux (Debian/Ubuntu)](#22-linux-debianubuntu)
+- [3. Usage](#3-usage)
+- [4. Configuration](#4-configuration)
+- [5. Conclusion](#5-conclusion)
+
 ### Links and References
 
 - **LinkedIn**: [[linkedin](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%C3%BAltiplas-p%C3%A1ginas-bil%C3%ADngue-e-guedes-soares-1zi9f)]
