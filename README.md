@@ -2,13 +2,66 @@
 
 Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Payload) i.e. artificial satellites, especially for low Earth orbit (LEO) objects.
 
+## Links and References
+
+- **LinkedIn**: [[link](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%25C3%25BAltiplas-p%25C3%25A1ginas-bil%25C3%25ADngue-e-guedes-soares-1zi9f)]
+- **Medium**: [[link](https://trajectoryorbitpropag.streamlit.app/)]
+- **App**: [[link](https://trajectoryorbitpropag.streamlit.app/)]
+  
 ## Introduction
 
-Using SGP4 this app searches for a period of sensor approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system.
+The software processes orbital elements extracted from Space-Track or Celestrak and, through the SGP4 model, propagates the orbit of space objects. Additionally, it implements coordinate conversions to calculate approximations to the reference point and generate trajectories with an initial instant (H0) for tracking.
 
-## Diagrama de blocos
+### Models and Coordinate Systems
+
+The SGP4 (Simplified General Perturbations Model 4) is one of the most widely used models for propagating satellite orbital elements. It uses orbital elements in the OMM (Orbit Mean-Elements Message) format to predict a satellite's position at a given time.
+
+The coordinate systems involved include:
+- **TEME (True Equator Mean Equinox)**: Orbital reference system associated with OMM elements.
+- **ITRS (International Terrestrial Reference System)**: Earth-fixed system, serving as the basis for geodetic coordinates.
+- **ECEF (Earth-Centered, Earth-Fixed)**: Earth-centered system fixed relative to its rotation.
+- **ENU (East-North-Up)**: Local coordinate system relative to an observer.
+- **Geodetic Coordinates (Latitude, Longitude, and Altitude)**: System used to represent positions on Earth's surface.
+- **Azimuth, Elevation, and Range**: Sensor pointing representation, with azimuth (horizontal direction), elevation (height above the horizon), and range (target distance).
+
+## Block diagram
 
 <img src="figures/orbit_propagator.pdf" width="600" />
+
+## 2. Application Features
+
+The application has the following main features:
+- **Reading Orbital Elements**: Imports data from Space-Track and Celestrak.
+- **Orbit Propagation**: Uses the SGP4 model to compute the object's orbital trajectory.
+- **Coordinate Conversions**: Implements conversion between TEME, ITRS, ECEF, ENU, and geodetic coordinates.
+- **Trajectory Generation**: Determines approximation points to the observer and defines tracking instants (H0).
+- **Map Visualization**: Uses Folium to display trajectories on interactive maps.
+- **Bilingual Interface**: Supports English and Portuguese using gettext.
+
+## 3. Application Structure
+
+The application is organized into different pages, each dedicated to a specific functionality:
+
+### Main Pages:
+- 🏠 **Home Page**: Welcome page of the application.
+- 0️⃣ **Simplified Configuration - Basic Functions of the APP**: Simplified setup with essential application functions.
+
+### Pages with Specific Settings:
+- 1️⃣ **Obtain Orbital Elements**: Acquisition of orbital elements.
+- 2️⃣ **Orbit Propagation**: Orbit propagation.
+- 3️⃣ **Map Visualization**: Display of trajectories on interactive maps.
+- 4️⃣ **Orbital Change/Object Maneuvering**: Orbital modification and object maneuvers.
+- 5️⃣ **Selection of Specific Trajectories for Sensors**: Choice of custom trajectory for specific sensors, including a visual indicator of radar traceability, classified by colors, considering the radar equation, distance, and the object's RCS (Radar Cross Section).
+
+## 4. Technologies Used
+
+- **Language**: Python
+- **Framework**: Streamlit
+- **Libraries**: Pandas, Folium, NumPy, SGP4, Astropy, Pymap3d
+- **Internationalization**: Gettext
+
+All libraries used are **open-source**, which enables an active development community and constant contributions for improvement. This facilitates code maintenance, developer collaboration, and the use of cutting-edge tools for calculations and visualizations.
+
 
 ## Pré-requisitos  
 
