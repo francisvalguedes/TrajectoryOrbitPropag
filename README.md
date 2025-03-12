@@ -5,9 +5,8 @@ Satellite orbit propagation and trajectory generation for tracking of space obje
 # Table of Contents
 
 - [1. Introduction](#1-introduction)
-- [2. Installation](#2-installation)
-  - [2.1 Windows](#21-windows)
-  - [2.2 Linux (Debian/Ubuntu)](#22-linux-debianubuntu)
+- [2. Application Features](#2-Application-Features)
+- [6. Installation](#2-installation)
 - [3. Usage](#3-usage)
 - [4. Configuration](#4-configuration)
 - [5. Conclusion](#5-conclusion)
