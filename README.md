@@ -217,39 +217,49 @@ sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 ~~~
 
 ## 8. Project Structure
+
 ```
-.
-├── source/  
-│   ├── main.py  
-│   ├── pages/  
-|   |   └── 00_Simplified.py 
-|   |   └── 01_orbital_elements.py 
-|   |   └── 02_orbit_propagation.py 
-|   |   └── 03_map.py 
-|   |   └── 04_orbit_compare.py 
-│   │   └── 05_trajectory.py  
-├── lib/  
-│   ├── constants.py  
-│   └── orbit_functions.py 
-│   └── pages_functions.py 
-├── .streamlit/  
-│   └── config.toml 
-├── data/  
-│   └── celestrak/...
-│   └── confLocalWGS84.csv 
-│   └── norad_id.csv 
-│   └── RCS.csv 
-├── locales/  
-│   └── pt-BR/...
-│   └── README.md 
-├── conf.json  
-├── localazy.json 
-├── requirements.txt  
-├── LICENSE
-├── install_debian.sh
-├── run.sh 
-└── README.md 
+TrajectoryOrbitPropag/
+├─ .streamlit/
+│  └─ config.toml
+├─ data/
+│  ├─ celestrak/
+│  │  └─ teste.md
+│  ├─ confLocalWGS84.csv
+│  ├─ confRadar.csv
+│  ├─ norad_id.csv
+│  └─ RCS.csv
+├─ figures/
+│  └─ ...
+├─ locales/
+│  ├─ pt-BR/
+│  │  └─ LC_MESSAGES/
+│  │     └─ ...
+│  └─ README.md
+├─ source/
+│  ├─ lib/
+│  │  ├─ constants.py
+│  │  ├─ orbit_functions.py
+│  │  └─ pages_functions.py
+│  ├─ pages/
+│  │  ├─ 00_Simplified.py
+│  │  ├─ 01_orbital_elements.py
+│  │  ├─ 02_orbit_propagation.py
+│  │  ├─ 03_map.py
+│  │  ├─ 04_orbit_compare.py
+│  │  └─ 05_trajectory.py
+│  └─ main.py
+├─ .gitignore
+├─ conf.json
+├─ get_translate.py
+├─ install_debian.sh
+├─ LICENSE
+├─ localazy.json
+├─ README.md
+├─ requirements.txt
+└─ run.sh
 ```  
+
 
 ## 9. Libraries Used
 
