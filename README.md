@@ -1,6 +1,6 @@
 # Orbit Propagator for Tracking Earth's Artificial Satellites in LEO
 
-Satellite orbit propagation and trajectory generation for optical and radar tracking of space objects—including debris, rocket bodies, and payloads—focusing primarily on artificial satellites in low Earth orbit (LEO).
+Satellite orbit propagation and trajectory generation for tracking of space objects—including debris, rocket bodies, and payloads—focusing primarily on artificial satellites in low Earth orbit (LEO).
 
 ### Links and References
 
@@ -14,7 +14,7 @@ The software processes orbital elements extracted from Space-Track or Celestrak 
 
 ### Models and Coordinate Systems
 
-The SGP4 (Simplified General Perturbations Model 4) is one of the most widely used models for propagating satellite orbital elements. It uses orbital elements in the OMM (Orbit Mean-Elements Message) format to predict a satellite's position at a given time.
+The python implementation of SGP4 (Simplified General Perturbations Model 4) uses orbital elements in the OMM (Orbit Mean-Elements Message) format to predict the position of a satellite at a given time.
 
 The coordinate systems involved include:
 - **TEME (True Equator Mean Equinox)**: Orbital reference system associated with OMM elements.
