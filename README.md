@@ -2,13 +2,13 @@
 
 Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Payload) i.e. artificial satellites, especially for low Earth orbit (LEO) objects.
 
-## Links and References
+### Links and References
 
 - **LinkedIn**: [[link](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%25C3%25BAltiplas-p%25C3%25A1ginas-bil%25C3%25ADngue-e-guedes-soares-1zi9f)]
 - **Medium**: [[link](https://trajectoryorbitpropag.streamlit.app/)]
 - **App**: [[link](https://trajectoryorbitpropag.streamlit.app/)]
   
-## Introduction
+## 1. Introduction
 
 The software processes orbital elements extracted from Space-Track or Celestrak and, through the SGP4 model, propagates the orbit of space objects. Additionally, it implements coordinate conversions to calculate approximations to the reference point and generate trajectories with an initial instant (H0) for tracking.
 
@@ -24,7 +24,7 @@ The coordinate systems involved include:
 - **Geodetic Coordinates (Latitude, Longitude, and Altitude)**: System used to represent positions on Earth's surface.
 - **Azimuth, Elevation, and Range**: Sensor pointing representation, with azimuth (horizontal direction), elevation (height above the horizon), and range (target distance).
 
-## Block diagram
+### Block diagram
 
 <img src="figures/bloc.png" width="600" />
 
