@@ -8,7 +8,7 @@ Using SGP4 this app searches for a period of sensor approach of a space object i
 
 ## Diagrama de blocos
 
-<img src="figures/orbit_propagator.pdf" width="600" />
+<img src="figures/bloc.png" width="600" />
 
 ## Pré-requisitos  
 
