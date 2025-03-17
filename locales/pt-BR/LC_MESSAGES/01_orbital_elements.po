@@ -186,7 +186,7 @@ msgstr "Senha do Space-Track:"
 
 #: source/pages/01_orbital_elements.py:130
 msgid "Space-track logged"
-msgstr "Trajeto espacial registrado"
+msgstr "login efetuado: Space-track"
 
 #: source/pages/01_orbital_elements.py:124
 msgid "Submit"
