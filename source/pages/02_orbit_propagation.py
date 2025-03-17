@@ -6,7 +6,6 @@ Date: 2021
 import streamlit as st
 import pandas as pd
 
-import datetime as dt
 from datetime import datetime, timezone
 from datetime import time
 import time as tm
@@ -23,10 +22,6 @@ import numpy as np
 from lib.orbit_functions import  PropagInit
 from lib.constants import  ConstantsNamespace
 from lib.pages_functions import *
-
-from spacetrack import SpaceTrackClient
-import spacetrack.operators as op
-from io import StringIO
 
 import glob
 

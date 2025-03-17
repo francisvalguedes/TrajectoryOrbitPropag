@@ -15,8 +15,6 @@ import os
 import tempfile
 import json
 
-from spacetrack import SpaceTrackClient
-import spacetrack.operators as op
 from io import StringIO
 
 from lib.pages_functions import  *

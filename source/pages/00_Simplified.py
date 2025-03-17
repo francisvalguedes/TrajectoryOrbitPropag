@@ -22,8 +22,6 @@ from lib.pages_functions import *
 
 from streamlit_geolocation import streamlit_geolocation
 
-import pymap3d as pm
-import gettext
 import requests
 from io import StringIO
 
