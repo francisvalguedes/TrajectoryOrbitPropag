@@ -9,8 +9,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n>=0 && n<=1) ? 0 : 1;\n"
 
 #: source/main.py:81
-msgid "**Satellite orbit propagation and trajectory generation, for optical and radar tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**"
-msgstr "**Propagação de órbita de satélite e geração de trajetória, para rastreamento óptico e de radar de objetos espaciais (detritos, corpos de foguetes, satélites...), especialmente para objetos em órbita terrestre baixa (LEO).**"
+msgid "**Satellite orbit propagation and trajectory generation for tracking of space objects (Debris, Rocket Body, Satellites...), especially for low Earth orbit (LEO) objects.**"
+msgstr "**Propagação de órbita de satélite e geração de trajetória para rastreamento de objetos espaciais (detritos, corpos de foguetes, satélites...), especialmente para objetos de órbita baixa da Terra (LEO).**"
 
 #: source/main.py:36
 msgid "*Pages:*"
@@ -85,8 +85,8 @@ msgid "This APP use Orbit Mean-Elements Message (OMM) format, it contain orbital
 msgstr "Este APP usa o formato Orbit Mean-Elements Message (OMM), ele contém elementos orbitais para satélites em um formato padrão. Os arquivos OMM são parte do Orbit Data Messages (ODM) Recommended Standard"
 
 #: source/main.py:82
-msgid "Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for optical or radar tracking system"
-msgstr "Usando o SGP4, este aplicativo busca um ponto de aproximação de um objeto espacial na órbita da Terra e traça um intervalo de trajetória em: referência de plano local (ENU), AltAzRange, ITRS e Geodésico, para ser usado como um alvo para sistema de rastreamento óptico ou de radar."
+msgid "Using SGP4 this app searches for a point of approach of a space object in Earth orbit and traces a trajectory interval in: local plane reference (ENU), AltAzRange, ITRS and Geodetic, to be used as a target for tracking system"
+msgstr "Usando o SGP4, este aplicativo busca um ponto de aproximação de um objeto espacial na órbita da Terra e traça um intervalo de trajetória em: referência de plano local (ENU), AltAzRange, ITRS e Geodésico, para ser usado como um alvo para o sistema de rastreamento."
 
 #: source/main.py:87
 msgid "block diagram of Orbit Propagation"
