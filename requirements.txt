@@ -9,3 +9,4 @@ openpyxl
 folium
 streamlit_geolocation
 plotly
+httpx
