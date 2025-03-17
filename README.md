@@ -2,6 +2,13 @@
 
 Satellite orbit propagation and trajectory generation for tracking of space objects—including debris, rocket bodies, and payloads—focusing primarily on artificial satellites in low Earth orbit (LEO).
 
+### Links
+
+- **LinkedIn**: [[linkedin](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%C3%BAltiplas-p%C3%A1ginas-bil%C3%ADngue-e-guedes-soares-1zi9f)]
+- **Medium**: [[medium](https://medium.com/@francisvalg/aplicativo-streamlit-de-multiplas-multilingual-streamlit-app-for-orbital-propagation-and-space-1b7068fd4914)]
+- **App**: [[Link1](http://www.orbittracking.duckdns.org/)]
+- **App**: [[Link2](https://trajectoryorbitpropag.streamlit.app/)]
+
 # Table of Contents
 
 - [Orbit Propagator for Tracking Earth's Artificial Satellites in LEO](#orbit-propagator-for-tracking-earths-artificial-satellites-in-leo)
@@ -28,14 +35,6 @@ Satellite orbit propagation and trajectory generation for tracking of space obje
   - [10. Contribution](#10-contribution)
   - [11. License](#11-license)
   - [12. Author](#12-author)
-
-
-### Links and References
-
-- **LinkedIn**: [[linkedin](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%C3%BAltiplas-p%C3%A1ginas-bil%C3%ADngue-e-guedes-soares-1zi9f)]
-- **Medium**: [[medium](https://medium.com/@francisvalg/aplicativo-streamlit-de-multiplas-multilingual-streamlit-app-for-orbital-propagation-and-space-1b7068fd4914)]
-- **App**: [[Link1](http://www.orbittracking.duckdns.org/)]
-- **App**: [[Link2](https://trajectoryorbitpropag.streamlit.app/)]
   
 ## 1. Introduction
 
