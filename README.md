@@ -34,7 +34,8 @@ Satellite orbit propagation and trajectory generation for tracking of space obje
 
 - **LinkedIn**: [[linkedin](https://www.linkedin.com/pulse/aplicativo-streamlit-de-m%C3%BAltiplas-p%C3%A1ginas-bil%C3%ADngue-e-guedes-soares-1zi9f)]
 - **Medium**: [[medium](https://medium.com/@francisvalg/aplicativo-streamlit-de-multiplas-multilingual-streamlit-app-for-orbital-propagation-and-space-1b7068fd4914)]
-- **App**: [[trajectoryorbitpropag](https://trajectoryorbitpropag.streamlit.app/)]
+- **App**: [[Link1](http://www.orbittracking.duckdns.org/)]
+- **App**: [[Link2](https://trajectoryorbitpropag.streamlit.app/)]
   
 ## 1. Introduction
 
