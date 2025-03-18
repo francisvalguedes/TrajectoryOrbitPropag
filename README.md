@@ -12,8 +12,8 @@ Satellite orbit propagation and trajectory generation for tracking of space obje
 # Table of Contents
 
 - [Orbit Propagator for Tracking Earth's Artificial Satellites in LEO](#orbit-propagator-for-tracking-earths-artificial-satellites-in-leo)
+    - [Links](#links)
 - [Table of Contents](#table-of-contents)
-    - [Links and References](#links-and-references)
   - [1. Introduction](#1-introduction)
     - [Models and Coordinate Systems](#models-and-coordinate-systems)
     - [Block diagram](#block-diagram)
@@ -182,69 +182,37 @@ Open the link in shel (`http://localhost:8080`).
 
 ### In a server: if necessary redirect port 80 to 8080
 
-Test if the web server works on port 8080: my_ip_address:8080
+with the app running
 
-
-
-to redirect the port: 
-~~~
-netstat -i
-~~~
-
-Ative o encaminhamento temporariamente:
+confirm that the server is running on port 8080
 
 ~~~
-sudo sysctl -w net.ipv4.ip_forward=1
-
+curl http://localhost:8080
 ~~~
 
-Edite o arquivo /etc/sysctl.conf e adicione ou descomente a linha: descomentar:
+check active rules in iptables
 
 ~~~
-net.ipv4.ip_forward=1
-~~~
-
-~~~
-sudo sysctl -p
-~~~
-
-Redirect app port 8080 to web server port 80 according to connection name obtained above:
-~~~
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
-sudo iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -A OUTPUT -p tcp --dport 8080 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
-
-sudo iptables -I OUTPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -I OUTPUT -p tcp --dport 8080 -j ACCEPT
-sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
-
 sudo iptables -t nat -L PREROUTING -n -v
 sudo iptables -L OUTPUT -n -v
+~~~
 
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 8080/tcp
-sudo ufw enable
-sudo ufw status verbose
+Redirect app port 8080 to web server port 80:
+
+~~~
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
 ~~~
 
 test if web server works without specifying port, by typing in browser: my_ip_address. If it works then make the redirect permanent:
+
 ~~~
 sudo apt-get install iptables-persistent
 ~~~
 
 if already isntalled then restart it:
+
 ~~~
 sudo dpkg-reconfigure iptables-persistent
-~~~
-
-now save iptables permenantley to files:
-~~~
-sudo iptables-save | sudo tee /etc/iptables/rules.v4
-sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 ~~~
 
 ## 8. Project Structure
