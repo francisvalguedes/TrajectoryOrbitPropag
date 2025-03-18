@@ -228,7 +228,7 @@ sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 8080/tcp
 sudo ufw enable
-sudo ufw status
+sudo ufw status verbose
 ~~~
 
 test if web server works without specifying port, by typing in browser: my_ip_address. If it works then make the redirect permanent:
