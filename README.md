@@ -201,6 +201,7 @@ Redirect app port 8080 to web server port 80:
 
 ~~~
 sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
 ~~~
 
 test if web server works without specifying port, by typing in browser: my_ip_address. If it works then make the redirect permanent:
