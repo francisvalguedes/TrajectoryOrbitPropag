@@ -7,10 +7,11 @@ SCRIPT_PATH="$(realpath "$0")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
 
 cd "$SCRIPT_DIR"
-# Instala o virtualenv, caso não esteja instalado
-pip install virtualenv
+
 # Cria um novo ambiente virtual chamado 'env'
-virtualenv env
+# virtualenv env
+python3 -m venv env 
+
 # Ativa o ambiente virtual
 source env/bin/activate
 # Atualiza o pip para a versão mais recente
