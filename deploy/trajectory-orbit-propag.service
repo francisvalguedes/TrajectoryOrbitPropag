@@ -1,0 +1,16 @@
+# Template: os campos __X__ são preenchidos por ./install.sh --service
+[Unit]
+Description=TrajectoryOrbitPropag Streamlit app
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__APP_DIR__
+ExecStart=__UV__ run --frozen streamlit run source/main.py --server.port 8080 --server.headless true
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

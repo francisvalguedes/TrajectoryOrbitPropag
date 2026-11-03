@@ -52,6 +52,8 @@ docs/_build/
 cache/
 
 env/
+.venv/
+logs/
 secret.txt
 *.csv
 #*.json

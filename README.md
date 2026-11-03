@@ -90,28 +90,26 @@ The application is organized into different pages, each dedicated to a specific 
 
 ## 5. Prerequisites  
 
-### Windows  
-1. Install Python (>= 3.11) from the [official Python website](https://www.python.org/).  
-2. Ensure that **pip** is installed. You can verify this by running:  
+This project uses [uv](https://docs.astral.sh/uv/) to manage Python and dependencies. uv installs the correct Python version automatically (see `.python-version`), so a system Python is not required.
 
-```bash  
-pip --version  
-python -m pip install --upgrade pip  
-```  
+### Windows  
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 
 ### Linux (Debian/Ubuntu)  
-1. Update system packages and install Python if it is not already installed:  
 
-```bash  
-sudo apt update && sudo apt upgrade -y  
-sudo apt install python3-pip  
-```  
+```bash
+sudo apt install curl git
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+(The `install.sh` script installs uv automatically if it is missing.)
 
 ---  
 
 ## 6. Installation
-
-### Installation Script
 
 1. Clone this repository:  
 
@@ -120,61 +118,47 @@ git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git
 cd TrajectoryOrbitPropag  
 ```  
 
-For Debian/Ubuntu: Clone the repository and run the installation script without sudo:  
+2. Install the dependencies (creates a `.venv` folder with the exact versions pinned in `uv.lock`):
 
-```bash  
-./install_debian.sh  
+```bash
+uv sync
 ```
 
-the install_debian.sh file will create a python environment in an env folder located in the repository folder and install the dependencies in the file requirements.txt
-
-### Installation - manual
-
-1. Clone this repository:
+Or, on Linux, run the installation script without sudo:  
 
 ```bash  
-   sudo apt install git
-   git clone https://github.com/francisvalguedes/TrajectoryOrbitPropag.git  
-   cd TrajectoryOrbitPropag 
-``` 
+./install.sh             # install uv (if needed) and the dependencies
+./install.sh --service   # also install and start a systemd service (starts on boot)
+```
 
-2. Create and activate a virtual environment:
-   
-   - On Windows:
+### Managing dependencies
 
-```bash  
-     python -m venv env  
-     env\Scripts\activate
-     pip install --upgrade pip
-```  
+Dependencies are declared in `pyproject.toml` and pinned in `uv.lock` (also used by Streamlit Community Cloud). Commit both files after any change:
 
-   - On Linux:
-
-```bash  
-     sudo apt install virtualenv
-     virtualenv env     
-     source env/bin/activate 
-     pip install --upgrade pip
-```  
-
-3. Install the project dependencies:
-
-```bash  
-   pip install -r requirements.txt  
-```  
+```bash
+uv add <package>        # add a dependency
+uv remove <package>     # remove a dependency
+uv lock --upgrade       # upgrade all pinned versions
+```
 
 ## 7. Usage
 
-Activate env and run streamlit app
-
 ```bash  
 cd TrajectoryOrbitPropag
-streamlit run source/main.py  --server.port 8080
+uv run streamlit run source/main.py --server.port 8080
 ```  
-or
 
-```bash 
-./run.sh
+Stop with `Ctrl+C`. To run it as a background service on a Linux server, see below.
+
+### Run on boot (Linux server)
+
+The recommended way is the systemd service (instead of a crontab `@reboot` entry): it waits for the network, restarts the app if it crashes and keeps logs in the journal.
+
+```bash
+./install.sh --service
+systemctl status trajectory-orbit-propag     # status
+journalctl -u trajectory-orbit-propag -f     # logs
+sudo systemctl restart trajectory-orbit-propag   # restart after updating (git pull && uv sync)
 ```
 
 Open the link in shel (`http://localhost:8080`).  
@@ -252,12 +236,14 @@ TrajectoryOrbitPropag/
 ├─ .gitignore
 ├─ conf.json
 ├─ get_translate.py
-├─ install_debian.sh
+├─ deploy/
+│  └─ trajectory-orbit-propag.service
+├─ install.sh
 ├─ LICENSE
 ├─ localazy.json
 ├─ README.md
-├─ requirements.txt
-└─ run.sh
+├─ pyproject.toml
+└─ uv.lock
 ```  
 
 
