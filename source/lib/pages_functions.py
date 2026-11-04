@@ -280,7 +280,7 @@ def plot_map(df, lc):
 
     df_map  = data_map_concat(df, lcdf )
     mapa = create_map2(df_map)
-    st.components.v1.html(folium.Figure().add_child(mapa).render(), height=600)
+    st.iframe(folium.Figure().add_child(mapa).render(), height=600)
 
 
 def translate_page(page='base'):
