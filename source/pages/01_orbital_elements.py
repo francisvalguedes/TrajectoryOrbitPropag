@@ -284,7 +284,7 @@ def main():
         st.warning(_("Load orbital elements"), icon=cn.WARNING )
     else:
         st.success(_("Orbital elements loaded"), icon=cn.SUCCESS )
-        st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False] ,inplace=True )
+        st.session_state.ss_elem_df = st.session_state.ss_elem_df.sort_values(['NORAD_CAT_ID', 'EPOCH'], ascending=[False, False])
         st.session_state.ss_elem_df = st.session_state.ss_elem_df.reset_index(drop=True)     
         elem_df = st.session_state["ss_elem_df"]
         st.dataframe(elem_df.style.format(thousands=""))

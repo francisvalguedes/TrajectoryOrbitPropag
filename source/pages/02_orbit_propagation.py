@@ -70,7 +70,7 @@ def read_csv_index(file_path):
     
     # Verifica se a primeira coluna não tem nome e é candidata a ser índice
     if df.columns[0] == 'Unnamed: 0':
-        df.set_index(df.columns[0], inplace=True)
+        df = df.set_index(df.columns[0])
         df.index.name = None 
     return df
 

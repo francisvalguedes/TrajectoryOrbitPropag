@@ -464,7 +464,7 @@ def main():
                     page_stop()
             mask_dic = mask_df.to_dict('records')[0]
             df_sel1 = selected_row[col_mask_list]
-            selected_row_col = df_sel1.rename(columns=mask_dic, inplace=False)
+            selected_row_col = df_sel1.rename(columns=mask_dic)
 
     st.write(_('Selected columns and rows from the data summary:'))
     st.dataframe(selected_row_col, column_config={
