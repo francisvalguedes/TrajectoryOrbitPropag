@@ -23,7 +23,7 @@ import folium
 from folium import plugins
 
 import gettext
-import httpx
+import httpx2
 from urllib.parse import quote
 
 from lib.constants import  ConstantsNamespace
@@ -58,16 +58,16 @@ def client_proxy(config):
     if config["proxy"].get("enabled", True):
         if config["proxy"].get("auto", True):
             proxy = os.getenv("https_proxy")  # Proxy HTTPS
-            return httpx.Client(proxy=proxy)
+            return httpx2.Client(proxy=proxy)
         else:
             proxy_server = config["proxy"]["server"]
             proxy_port = config["proxy"]["port"]
             username = config["proxy"]["username"]
             password = config["proxy"]["password"]
             proxy = f"http://{quote(username)}:{quote(password)}@{quote(proxy_server)}:{quote(proxy_port)}"
-            return httpx.Client(proxy=proxy)
+            return httpx2.Client(proxy=proxy)
     else:
-        return httpx.Client()
+        return httpx2.Client()
 
 class SpaceTrackClientInit(SpaceTrackClient):
     def __init__(self,identity,password, client):

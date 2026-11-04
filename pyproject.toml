@@ -8,7 +8,7 @@ requires-python = ">=3.11"
 dependencies = [
     "streamlit",
     "streamlit-aggrid",
-    "spacetrack",
+    "spacetrack>=2.1.0",
     "pandas",
     "astropy",
     "sgp4",
@@ -17,7 +17,9 @@ dependencies = [
     "folium",
     "streamlit-geolocation",
     "plotly",
-    "httpx",
+    "httpx2>=2.9.1",
+    "numpy",
+    "requests",
 ]
 
 [tool.uv]
